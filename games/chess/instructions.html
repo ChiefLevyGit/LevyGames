@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הוראות משחק - ממלכת הקסמים</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♞</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .instructions-card {
+    background: var(--panel);
+    border-radius: var(--radius-lg);
+    padding: 26px 24px;
+    max-width: 620px;
+    width: min(92vw, 620px);
+    box-shadow: 0 10px 0 rgba(0,0,0,0.12), 0 14px 24px rgba(0,0,0,0.18);
+    text-align: right;
+  }
+  .instructions-card h2 { margin-top: 0; text-align: center; }
+  .instructions-card h3 { color: var(--ink); margin-bottom: 4px; }
+  .instructions-card p, .instructions-card li { color: #5b4a75; line-height: 1.6; }
+  .instructions-card section { margin-bottom: 20px; }
+  .legend-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .legend-dot {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(82, 214, 162, 0.85); box-shadow: 0 0 8px rgba(82, 214, 162, 0.8);
+  }
+  .legend-ring {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    border: 4px solid rgba(255, 90, 90, 0.9); box-shadow: 0 0 8px rgba(255, 60, 60, 0.6);
+  }
+  .legend-gold {
+    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+    background: rgba(255, 213, 79, 0.7); box-shadow: inset 0 0 0 2px rgba(255, 193, 7, 0.9);
+  }
+  .back-links { display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+  .back-links a {
+    text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px;
+    background: linear-gradient(180deg, #ff8aa5, var(--accent)); color: #fff;
+    box-shadow: 0 4px 0 #c94b68;
+  }
+  .back-links a.secondary { background: #fff; color: var(--ink); box-shadow: 0 4px 0 #e6d7c3; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sky-bg" aria-hidden="true">
+    <div class="cloud c1"></div>
+    <div class="cloud c2"></div>
+    <div class="cloud c3"></div>
+    <div class="castle-silhouette"></div>
+  </div>
+
+  <a href="../../index.html" class="hub-link" title="לדף המשחקים">🎮 Levy Games</a>
+
+  <main style="display:flex; justify-content:center; width:100%;">
+    <div class="instructions-card">
+      <h2>איך משחקים בממלכת הקסמים? 🏰</h2>
+
+      <section>
+        <h3>שני מצבי משחק</h3>
+        <p><strong>🏰 עם חוקי הקסם:</strong> כל כלי זז בדיוק לפי חוקי השחמט הרגילים - חיילים, פרשים, רצים, צריחים, מלכות ומלכים. הלוח תמיד יראה לך את המהלכים המותרים.</p>
+        <p><strong>✨ משחק חופשי:</strong> בלי שום חוקי תנועה! אפשר להזיז כל כלי לכל משבצת פנויה או לתפוס איתו כל כלי יריב. מנצחת מי שתופסת ראשונה את המלך של היריבה.</p>
+      </section>
+
+      <section>
+        <h3>איך משחקים - שלב אחר שלב</h3>
+        <ol>
+          <li>לוחצים על אחד הכלים שלכן (בתורכן).</li>
+          <li>הלוח מדליק את המשבצות שאפשר לזוז אליהן.</li>
+          <li>לוחצים על המשבצת הרצויה כדי לזוז.</li>
+          <li>עכשיו תור השחקנית השנייה - מעבירים לה את המסך.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h3>מה כל צבע אומר?</h3>
+        <div class="legend-row"><div class="legend-gold"></div><span>המשבצת של הכלי שבחרתן</span></div>
+        <div class="legend-row"><div class="legend-dot"></div><span>אפשר לזוז לכאן (משבצת פנויה)</span></div>
+        <div class="legend-row"><div class="legend-ring"></div><span>אפשר לתפוס כאן כלי של היריבה!</span></div>
+      </section>
+
+      <section>
+        <h3>עוד כמה טיפים</h3>
+        <ul>
+          <li>כשמלך נמצא בשח, המשבצת שלו תהבהב באדום.</li>
+          <li>כשחיילת מגיעה לסוף הלוח, תבחרו למה היא הופכת (מלכה, צריח, רץ או פרש).</li>
+          <li>יש כפתור 🔄 להתחלת משחק חדש וכפתור 🏠 לחזרה לתפריט הבחירה.</li>
+          <li>למשחק יש אפקטי קול - כדאי לשחק עם הקול פתוח 🔊</li>
+        </ul>
+      </section>
+
+      <div class="back-links">
+        <a href="index.html">▶ למשחק</a>
+        <a href="../../index.html" class="secondary">🎮 לדף המשחקים</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
