@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>קלף המשימה - משחק המשימות | Levy Games</title>
+<meta name="description" content="54 משימות מצחיקות לילדות בנות 5-6: אנרגיה, פנטומימה, קואורדינציה וחיפושים. אפשר להגריל משימה במסך, או להשתמש בחפיסת קלפים אמיתית מהבית.">
+<meta name="theme-color" content="#0f5c36">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Levy Games">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="קלף המשימה - משחק המשימות">
+<meta property="og:description" content="54 משימות מצחיקות לילדות. להגריל במסך, או לשלוף קלף מחפיסה אמיתית ולמצוא אותו כאן.">
+<meta property="og:url" content="https://chieflevygit.github.io/LevyGames/games/tasks/">
+<meta property="og:image" content="https://chieflevygit.github.io/LevyGames/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+<div id="liveRegion" class="sr-only" role="status" aria-live="polite"></div>
+
+<a href="../../index.html" class="hub-link" title="לדף המשחקים">🎮 Levy Games</a>
+
+<div class="table-frame">
+  <div class="felt">
+
+    <!-- ---------- בחירת מצב ---------- -->
+    <section id="startScreen" class="screen">
+      <header class="felt-header">
+        <h1 class="title">🃏 משחק המשימות</h1>
+        <p class="subtitle">54 משימות מצחיקות. איך רוצות לשחק היום?</p>
+      </header>
+
+      <button id="resumeCard" class="resume-card hidden" type="button">
+        <span class="resume-icon">⏳</span>
+        <span class="resume-text">
+          <strong>להמשיך מאיפה שהפסקתן</strong>
+          <span class="resume-sub" id="resumeMode"></span>
+        </span>
+      </button>
+
+      <div class="mode-cards">
+        <button class="mode-card mode-draw" data-mode="draw" type="button">
+          <span class="mode-icon">🎲</span>
+          <span class="mode-name">הגרלה</span>
+          <span class="mode-desc">המסך מגריל לכן משימה אחת בכל פעם. לא צריך כלום חוץ מהטלפון - מושלם לרכב או לתור אצל הרופאה.</span>
+        </button>
+        <button class="mode-card mode-deck" data-mode="deck" type="button">
+          <span class="mode-icon">🃏</span>
+          <span class="mode-name">לפי חפיסה</span>
+          <span class="mode-desc">שולפות קלף מחפיסת קלפים אמיתית, מוצאות אותו כאן על השולחן ולוחצות. כל קלף = משימה קבועה.</span>
+        </button>
+      </div>
+
+      <p class="footer-note">
+        <a href="instructions.html" class="text-link">📖 איך משחקים?</a>
+      </p>
+    </section>
+
+    <!-- ---------- מצב הגרלה ---------- -->
+    <section id="drawScreen" class="screen hidden">
+      <div class="screen-top">
+        <button class="icon-btn" data-action="menu" type="button" title="חזרה לבחירת מצב" aria-label="חזרה לבחירת מצב">🏠</button>
+        <span class="counter" id="drawCounter"></span>
+      </div>
+
+      <div class="draw-card">
+        <div id="drawContent">
+          <div class="progress-wrap" role="progressbar" aria-label="התקדמות במשימות" aria-valuemin="0" aria-valuemax="54" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="task-badge" id="taskBadge" aria-hidden="true">1</div>
+
+          <button class="mystery-cover" id="mysteryCover" type="button">
+            <span class="mystery-icon" aria-hidden="true">🎁</span>
+            <span class="mystery-text">לחצו כדי לגלות את המשימה!</span>
+          </button>
+
+          <div class="task-display hidden" id="taskDisplay">
+            <div class="task-icon" id="taskIcon" aria-hidden="true"></div>
+            <h2 class="task-title" id="taskTitle"></h2>
+            <p class="task-text" id="taskText"></p>
+          </div>
+
+          <div class="buttons">
+            <button class="btn btn-reveal" id="revealBtn" type="button">👁️ הצג את המשימה!</button>
+            <button class="btn btn-next" id="nextBtn" type="button">➡️ משימה הבאה</button>
+          </div>
+        </div>
+
+        <div class="finish-screen hidden" id="finishScreen">
+          <div class="finish-emoji" aria-hidden="true">🏆</div>
+          <h2 class="finish-title">כל הכבוד!</h2>
+          <p class="finish-sub">עברתן את כל 54 המשימות. אתן אלופות אמיתיות! 🌟</p>
+          <button class="btn btn-restart" id="restartBtn" type="button">🔄 סבב חדש</button>
+          <button class="btn btn-ghost" data-action="menu" type="button">לבחירת מצב</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- מצב חפיסה ---------- -->
+    <section id="deckScreen" class="screen hidden">
+      <div class="screen-top">
+        <button class="icon-btn" data-action="menu" type="button" title="חזרה לבחירת מצב" aria-label="חזרה לבחירת מצב">🏠</button>
+        <span class="counter" id="deckCounter">0 / 54 קלפים נחשפו</span>
+        <button class="btn-reset" id="deckResetBtn" type="button">🔄 להפוך הכל בחזרה</button>
+      </div>
+      <p class="deck-hint">שלפו קלף מהחפיסה שלכן, מצאו אותו כאן על השולחן ולחצו עליו.</p>
+      <div class="table-grid" id="tableGrid"></div>
+    </section>
+
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle">
+  <div class="overlay-card">
+    <div class="overlay-id" id="ovId"></div>
+    <div class="overlay-icon" id="ovIcon" aria-hidden="true"></div>
+    <div class="overlay-category" id="ovCategory"></div>
+    <h2 class="overlay-title" id="ovTitle"></h2>
+    <p class="overlay-desc" id="ovDesc"></p>
+    <button class="overlay-close" id="overlayClose" type="button">סגירה</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js?v=2"></script>
+</body>
+</html>

@@ -23,14 +23,20 @@ export function createInitialState() {
     board[6][c] = { type: 'p', color: 'w' };
     board[7][c] = { type: back[c], color: 'w' };
   }
-  return {
+  const state = {
     board,
     turn: 'w',
     castling: { w: { k: true, q: true }, b: { k: true, q: true } },
     enPassant: null,
     history: [],
     kings: { w: { r: 7, c: 4 }, b: { r: 0, c: 4 } },
+    // חצי-מהלכים מאז אכילה או תזוזת חייל האחרונה - לחוק 50 המהלכים
+    halfmoveClock: 0,
+    // מונה הופעות לכל תנוחה - לזיהוי חזרה משולשת
+    positions: {},
   };
+  state.positions[positionKey(state)] = 1;
+  return state;
 }
 
 function cloneState(state) {
@@ -41,7 +47,25 @@ function cloneState(state) {
     enPassant: state.enPassant ? { ...state.enPassant } : null,
     history: state.history.slice(),
     kings: { w: { ...state.kings.w }, b: { ...state.kings.b } },
+    halfmoveClock: state.halfmoveClock || 0,
+    positions: { ...(state.positions || {}) },
   };
+}
+
+// מזהה תנוחה: כלים + תור + זכויות הצרחה + יעד אכילת-דרך.
+// שתי תנוחות עם אותו מזהה נחשבות "אותה עמדה" לצורך חזרה משולשת.
+export function positionKey(state) {
+  let s = '';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = state.board[r][c];
+      s += p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : '.';
+    }
+  }
+  const cast = `${state.castling.w.k ? 'K' : ''}${state.castling.w.q ? 'Q' : ''}` +
+    `${state.castling.b.k ? 'k' : ''}${state.castling.b.q ? 'q' : ''}` || '-';
+  const ep = state.enPassant ? `${state.enPassant.r}${state.enPassant.c}` : '-';
+  return `${s}|${state.turn}|${cast}|${ep}`;
 }
 
 function slide(board, r, c, color, dirs) {
@@ -194,6 +218,8 @@ function applyMoveToBoard(state, from, to, move, promotionType) {
   const next = cloneState(state);
   const piece = next.board[from.r][from.c];
   const movingColor = piece.color;
+  const isCapture = !!move.isEnPassant || !!state.board[to.r][to.c];
+  next.halfmoveClock = (piece.type === 'p' || isCapture) ? 0 : next.halfmoveClock + 1;
 
   if (move.isEnPassant) {
     next.board[from.r][to.c] = null; // הפאון שנאכל עומד באותה שורה כמו המקור
@@ -269,6 +295,39 @@ export function isInCheck(state, color) {
   return isSquareAttacked(state.board, kingPos.r, kingPos.c, opponent(color));
 }
 
+// חומר לא מספיק למט: מלך מול מלך, מלך+פרש, מלך+רץ,
+// או רץ מול רץ כששניהם על משבצות באותו צבע.
+export function isInsufficientMaterial(state) {
+  const minors = { w: [], b: [] };
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = state.board[r][c];
+      if (!p || p.type === 'k') continue;
+      // חייל, צריח או מלכה - תמיד אפשר לעשות מט
+      if (p.type === 'p' || p.type === 'r' || p.type === 'q') return false;
+      minors[p.color].push({ type: p.type, squareColor: (r + c) % 2 });
+    }
+  }
+  const w = minors.w;
+  const b = minors.b;
+  if (w.length === 0 && b.length === 0) return true;              // מלך מול מלך
+  if (w.length + b.length === 1) return true;                      // מלך + כלי קל אחד
+  if (w.length === 1 && b.length === 1 &&
+      w[0].type === 'b' && b[0].type === 'b' &&
+      w[0].squareColor === b[0].squareColor) return true;          // רצים על אותו צבע
+  return false;
+}
+
+// חזרה משולשת: אותה תנוחה בדיוק הופיעה שלוש פעמים במהלך המשחק.
+export function isThreefoldRepetition(state) {
+  return Object.values(state.positions || {}).some((n) => n >= 3);
+}
+
+// חוק 50 המהלכים = 100 חצי-מהלכים בלי אכילה ובלי תזוזת חייל.
+export function isFiftyMoveDraw(state) {
+  return (state.halfmoveClock || 0) >= 100;
+}
+
 export function makeMove(state, from, to, promotionType) {
   const legal = getLegalMoves(state, from.r, from.c);
   const move = legal.find((m) => m.r === to.r && m.c === to.c);
@@ -285,11 +344,19 @@ export function makeMove(state, from, to, promotionType) {
     isCastle: move.isCastle || null, isEnPassant: !!move.isEnPassant, isPromotion: !!move.isPromotion,
   }];
 
+  // אכילה או תזוזת חייל מאפסות את היסטוריית התנוחות - אי אפשר לחזור אחורה מהן
+  if (next.halfmoveClock === 0) next.positions = {};
+  const key = positionKey(next);
+  next.positions[key] = (next.positions[key] || 0) + 1;
+
   const opponentColor = next.turn;
   const opponentMoves = getAllLegalMoves(next, opponentColor);
   const inCheck = isInCheck(next, opponentColor);
   let status = 'playing';
   if (opponentMoves.length === 0) status = inCheck ? 'checkmate' : 'stalemate';
+  else if (isInsufficientMaterial(next)) status = 'drawMaterial';
+  else if (isThreefoldRepetition(next)) status = 'drawRepetition';
+  else if (isFiftyMoveDraw(next)) status = 'drawFiftyMove';
   else if (inCheck) status = 'check';
 
   return { state: next, capturedPiece: capturedPiece || null, status, move };

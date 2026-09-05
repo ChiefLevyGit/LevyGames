@@ -1,0 +1,12 @@
+# קבצי עבודה פנימיים - לא עולים לפרודקשן
+Design.info/
+
+# מערכת הפעלה
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# עורכים
+.vscode/
+.idea/
+*.swp

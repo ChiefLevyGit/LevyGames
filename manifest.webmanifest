@@ -1,0 +1,39 @@
+{
+  "name": "Levy Games - דף המשחקים המשפחתי",
+  "short_name": "Levy Games",
+  "description": "אוסף המשחקים של משפחת לוי: שחמט לילדות ומשחק 54 משימות מצחיקות.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05060f",
+  "theme_color": "#05060f",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ממלכת הקסמים - שחמט",
+      "short_name": "שחמט",
+      "url": "./games/chess/index.html"
+    },
+    {
+      "name": "משחק המשימות",
+      "short_name": "משימות",
+      "url": "./games/tasks/index.html"
+    }
+  ]
+}

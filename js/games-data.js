@@ -9,4 +9,12 @@ export const GAMES = [
     playUrl: 'games/chess/index.html',
     instructionsUrl: 'games/chess/instructions.html',
   },
+  {
+    id: 'tasks',
+    emoji: '🃏',
+    name: 'משחק המשימות',
+    description: '54 משימות מצחיקות: להגריל אחת במסך, או לשלוף קלף מחפיסה אמיתית ולמצוא אותו כאן. קפיצות, פנטומימה וחיבוקים.',
+    playUrl: 'games/tasks/index.html',
+    instructionsUrl: 'games/tasks/instructions.html',
+  },
 ];
