@@ -252,6 +252,12 @@ main { width: 100%; display: flex; justify-content: center; }
   border-radius: 8px;
   overflow: hidden;
   box-shadow: inset 0 0 0 4px rgba(255,255,255,0.25);
+  /* Force LTR grid flow: the page is RTL, but the pieces layer above
+     positions pieces with a physical (always-left-to-right) transform.
+     Without this, CSS Grid auto-placement mirrors the squares'
+     left/right order under RTL while the pieces don't mirror,
+     so clicks land on the wrong (horizontally mirrored) square. */
+  direction: ltr;
 }
 
 .square { position: relative; }
