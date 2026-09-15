@@ -1,0 +1,184 @@
+{
+  "_note": "מפתחות = שם קובץ ב-Origin/. שימו לב: card_number הוא המספר המודפס בפועל על הכרטיס, ולא תמיד זהה לשם הקובץ (ראו 5.png ו-6.png).",
+  "1.png": {
+    "card_number": 1,
+    "title": { "en": "The School Locker Mystery", "he": "תעלומת הארונית בבית הספר" },
+    "body": [
+      { "en": "Maya, Leo, Sam, and Emma each have one locker.", "he": "למאיה, ליאו, סאם ואמה יש כל אחד ארונית אחת." },
+      { "en": "Leo's locker is not at either end.", "he": "הארונית של ליאו לא נמצאת באחד הקצוות." },
+      { "en": "Maya's locker is the Yellow one.", "he": "הארונית של מאיה היא הצהובה." },
+      { "en": "Emma's locker is directly next to Maya's locker on the right.", "he": "הארונית של אמה נמצאת ממש ליד הארונית של מאיה, מצד ימין." }
+    ],
+    "question": { "en": "Which color is Emma's locker?", "he": "מה הצבע של הארונית של אמה?" },
+    "answers": [
+      { "en": "A. Blue", "he": "א. כחול" },
+      { "en": "B. Green", "he": "ב. ירוק" },
+      { "en": "C. Yellow", "he": "ג. צהוב" },
+      { "en": "D. Red", "he": "ד. אדום" }
+    ]
+  },
+  "2.png": {
+    "card_number": 2,
+    "title": { "en": "The Ice Cream Mystery", "he": "תעלומת הגלידה" },
+    "body": [
+      { "en": "Four friends ordered: Vanilla, Chocolate, Strawberry, and Mint.", "he": "ארבעה חברים הזמינו: וניל, שוקולד, תות ומנטה." },
+      { "en": "Liam dislikes Chocolate and Mint.", "he": "ליאם לא אוהב שוקולד ומנטה." },
+      { "en": "Zoe ordered Strawberry.", "he": "זואי הזמינה תות." },
+      { "en": "Noah ordered Chocolate.", "he": "נח הזמין שוקולד." }
+    ],
+    "question": { "en": "Which flavour did Liam choose?", "he": "איזה טעם ליאם בחר?" },
+    "answers": [
+      { "en": "A. Vanilla", "he": "א. וניל" },
+      { "en": "B. Chocolate", "he": "ב. שוקולד" },
+      { "en": "C. Strawberry", "he": "ג. תות" },
+      { "en": "D. Mint", "he": "ד. מנטה" }
+    ]
+  },
+  "3.png": {
+    "card_number": 3,
+    "title": { "en": "The Muddy Garden Trail", "he": "שביל הבוץ בגינה" },
+    "body": [
+      { "en": "Someone stepped onto the muddy flower path!", "he": "מישהו דרך על שביל הפרחים הבוצי!" },
+      { "en": "Look at the tread pattern left in the mud.", "he": "הסתכלו על תבנית הסוליה שנשארה בבוץ." }
+    ],
+    "question": { "en": "Whose shoe made the muddy footprints?", "he": "של מי הנעל שהשאירה את עקבות הבוץ?" },
+    "answers": [
+      { "en": "A. Shoe A", "he": "א. נעל A" },
+      { "en": "B. Shoe B", "he": "ב. נעל B" },
+      { "en": "C. Shoe C", "he": "ג. נעל C" },
+      { "en": "D. Shoe D", "he": "ד. נעל D" }
+    ]
+  },
+  "4.png": {
+    "card_number": 4,
+    "title": { "en": "The Round Picnic Table", "he": "שולחן הפיקניק העגול" },
+    "body": [
+      { "en": "Four friends sit around a circular table (North, South, East, West).", "he": "ארבעה חברים יושבים סביב שולחן עגול (צפון, דרום, מזרח, מערב)." },
+      { "en": "Leo sits at North, directly opposite Mia.", "he": "ליאו יושב בצפון, בדיוק מול מיה." },
+      { "en": "Maya sits to Leo's right (West).", "he": "מאיה יושבת מימינו של ליאו (מערב)." }
+    ],
+    "question": { "en": "Who is sitting in the South chair facing Leo?", "he": "מי יושב בכיסא הדרומי, מול ליאו?" },
+    "answers": [
+      { "en": "A. Leo", "he": "א. ליאו" },
+      { "en": "B. Maya", "he": "ב. מאיה" },
+      { "en": "C. Sam", "he": "ג. סאם" },
+      { "en": "D. Mia", "he": "ד. מיה" }
+    ]
+  },
+  "5.png": {
+    "card_number": 9,
+    "title": { "en": "The Height Lineup", "he": "מסדר הגבהים" },
+    "body": [
+      { "en": "Dan is the tallest of all four friends.", "he": "דן הוא הכי גבוה מבין ארבעת החברים." },
+      { "en": "Ben is the shortest.", "he": "בן הוא הכי נמוך." },
+      { "en": "Alex is taller than Ben, but shorter than Clara.", "he": "אלכס גבוה יותר מבן, אבל נמוך יותר מקלרה." }
+    ],
+    "question": { "en": "Who is the SECOND SHORTEST in the group?", "he": "מי השני הכי נמוך בקבוצה?" },
+    "answers": [
+      { "en": "A. Alex", "he": "א. אלכס" },
+      { "en": "B. Ben", "he": "ב. בן" },
+      { "en": "C. Clara", "he": "ג. קלרה" },
+      { "en": "D. Dan", "he": "ד. דן" }
+    ]
+  },
+  "6.png": {
+    "card_number": 5,
+    "title": { "en": "The Secret Agent Disguise", "he": "התחפושת של הסוכן הסודי" },
+    "body": [
+      { "en": "The mystery agent is wearing a Green Hat.", "he": "הסוכן המסתורי חובש כובע ירוק." },
+      { "en": "The mystery agent is wearing Round Glasses.", "he": "הסוכן המסתורי חובש משקפיים עגולים." },
+      { "en": "The mystery agent is wearing a Red Bowtie.", "he": "הסוכן המסתורי עונב עניבת פרפר אדומה." }
+    ],
+    "question": { "en": "Which child is the true Secret Agent?", "he": "מי מהילדים הוא הסוכן הסודי האמיתי?" },
+    "answers": [
+      { "en": "A. Agent A", "he": "א. סוכן A" },
+      { "en": "B. Agent B", "he": "ב. סוכן B" },
+      { "en": "C. Agent C", "he": "ג. סוכן C" },
+      { "en": "D. Agent D", "he": "ד. סוכן D" }
+    ]
+  },
+  "7.png": {
+    "card_number": 6,
+    "title": { "en": "The Pet Adoption Match", "he": "התאמת אימוץ חיות המחמד" },
+    "body": [
+      { "en": "Four children adopted four pets: Puppy, Kitten, Bunny, Parrot.", "he": "ארבעה ילדים אימצו ארבע חיות מחמד: גור כלבים, גורת חתולים, ארנב ותוכי." },
+      { "en": "Lucas adopted a pet with long floppy ears.", "he": "לוקאס אימץ חיה עם אוזניים ארוכות ורפויות." },
+      { "en": "Ella's pet can bark.", "he": "חיית המחמד של אלה יודעת לנבוח." },
+      { "en": "Lily's pet has colorful feathers.", "he": "לחיית המחמד של לילי יש נוצות צבעוניות." }
+    ],
+    "question": { "en": "Which pet did Oliver adopt?", "he": "איזו חיית מחמד אימץ אוליבר?" },
+    "answers": [
+      { "en": "A. Puppy", "he": "א. גור כלבים" },
+      { "en": "B. Kitten", "he": "ב. גורת חתולים" },
+      { "en": "C. Bunny", "he": "ג. ארנב" },
+      { "en": "D. Parrot", "he": "ד. תוכי" }
+    ]
+  },
+  "8.png": {
+    "card_number": 7,
+    "title": { "en": "The Secret Clubhouse Badge", "he": "התג הסודי של מועדון החברים" },
+    "body": [
+      { "en": "The official club badge has all 3 special symbols:", "he": "לתג הרשמי של המועדון יש את כל 3 הסמלים המיוחדים:" },
+      { "en": "1. A Yellow Star", "he": "1. כוכב צהוב" },
+      { "en": "2. A Pink Heart", "he": "2. לב ורוד" },
+      { "en": "3. A Blue Cloud", "he": "3. ענן כחול" }
+    ],
+    "question": { "en": "Which badge is the official Clubhouse Badge?", "he": "איזה תג הוא התג הרשמי של המועדון?" },
+    "answers": [
+      { "en": "A. Badge 1", "he": "א. תג 1" },
+      { "en": "B. Badge 2", "he": "ב. תג 2" },
+      { "en": "C. Badge 3", "he": "ג. תג 3" },
+      { "en": "D. Badge 4", "he": "ד. תג 4" }
+    ]
+  },
+  "9.png": {
+    "card_number": 8,
+    "title": { "en": "The Treehouse Timeline", "he": "ציר הזמן של בית העץ" },
+    "body": [
+      { "en": "Ava was in the treehouse at 1 PM.", "he": "אווה הייתה בבית העץ בשעה 1 אחר הצהריים." },
+      { "en": "Ben visited 2 hours after Ava.", "he": "בן ביקר שעתיים אחרי אווה." },
+      { "en": "Chloe visited 1 hour after Ben.", "he": "כלואי ביקרה שעה אחרי בן." },
+      { "en": "Dan visited between Ava and Ben.", "he": "דן ביקר בין אווה לבן." }
+    ],
+    "question": { "en": "Who was in the treehouse at 3 PM?", "he": "מי היה בבית העץ בשעה 3 אחר הצהריים?" },
+    "answers": [
+      { "en": "A. Ava", "he": "א. אווה" },
+      { "en": "B. Ben", "he": "ב. בן" },
+      { "en": "C. Chloe", "he": "ג. כלואי" },
+      { "en": "D. Dan", "he": "ד. דן" }
+    ]
+  },
+  "10.png": {
+    "card_number": 10,
+    "title": { "en": "The Golden Key", "he": "המפתח הזהוב" },
+    "body": [
+      { "en": "The treasure key is made of Gold.", "he": "מפתח האוצר עשוי זהב." },
+      { "en": "The head of the key is Round.", "he": "ראש המפתח עגול." },
+      { "en": "The key blade has 3 distinct notches.", "he": "ללהב המפתח יש 3 חריצים מובחנים." }
+    ],
+    "question": { "en": "Which key will unlock the treasure chest?", "he": "איזה מפתח יפתח את תיבת האוצר?" },
+    "answers": [
+      { "en": "A. Key A", "he": "א. מפתח A" },
+      { "en": "B. Key B", "he": "ב. מפתח B" },
+      { "en": "C. Key C", "he": "ג. מפתח C" },
+      { "en": "D. Key D", "he": "ד. מפתח D" }
+    ]
+  },
+  "11.png": {
+    "type": "answer_key",
+    "title": { "en": "Answer Key", "he": "מפתח התשובות" },
+    "entries": [
+      { "en": "1. School Lockers → D. Red", "he": "1. ארוניות בית הספר → ד. אדום" },
+      { "en": "2. Ice Cream Mystery → A. Vanilla", "he": "2. תעלומת הגלידה → א. וניל" },
+      { "en": "3. Muddy Garden Trail → B. Shoe B", "he": "3. שביל הבוץ בגינה → ב. נעל B" },
+      { "en": "4. Picnic Table → D. Mia", "he": "4. שולחן הפיקניק → ד. מיה" },
+      { "en": "5. Secret Agent → B. Agent B", "he": "5. הסוכן הסודי → ב. סוכן B" },
+      { "en": "6. Pet Adoption → B. Kitten", "he": "6. אימוץ חיות המחמד → ב. גורת חתולים" },
+      { "en": "7. Clubhouse Badge → A. Badge 1", "he": "7. תג המועדון → א. תג 1" },
+      { "en": "8. Treehouse Timeline → B. Ben", "he": "8. ציר הזמן של בית העץ → ב. בן" },
+      { "en": "9. Height Lineup → A. Alex", "he": "9. מסדר הגבהים → א. אלכס" },
+      { "en": "10. Golden Key → B. Key B", "he": "10. המפתח הזהוב → ב. מפתח B" }
+    ],
+    "footer": { "en": "📌 Save for Later | ❤️ Like & Share | 👪 Tag a Parent", "he": "📌 שמרו להמשך | ❤️ לייקו ושתפו | 👪 תייגו הורה" }
+  }
+}

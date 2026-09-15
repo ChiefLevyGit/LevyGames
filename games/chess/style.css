@@ -11,6 +11,7 @@
   --ink: #3a2b52;
   --accent: #ff6f91;
   --accent-2: #52d6a2;
+  --accent-3: #6fa8ff;
   --radius-lg: 26px;
   --radius-md: 16px;
 }
@@ -201,6 +202,7 @@ main { width: 100%; display: flex; justify-content: center; }
 .mode-card p { margin: 0; font-size: 0.92rem; color: #5b4a75; line-height: 1.4; }
 .mode-rules { border-bottom: 6px solid var(--accent-2); }
 .mode-free { border-bottom: 6px solid var(--accent); }
+.mode-ai { border-bottom: 6px solid var(--accent-3); }
 
 .footer-note { color: #fff; opacity: 0.85; margin-top: 24px; font-size: 0.9rem; }
 

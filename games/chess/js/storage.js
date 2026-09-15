@@ -11,7 +11,7 @@ function looksLikeBoard(board) {
 function isValidSave(data) {
   return !!data
     && data.v === 1
-    && (data.mode === 'rules' || data.mode === 'free')
+    && (data.mode === 'rules' || data.mode === 'free' || data.mode === 'ai')
     && !!data.state
     && looksLikeBoard(data.state.board)
     && (data.state.turn === 'w' || data.state.turn === 'b')

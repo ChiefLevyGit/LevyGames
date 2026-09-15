@@ -3,10 +3,11 @@
 // כשמשנים קובץ JS/CSS - מעלים את המספר בכל המקומות (ראו Design.info/tasks.md).
 import {
   createInitialState, getLegalMoves, makeMove, getFreeMoves, makeFreeMove, isInCheck,
-} from './chessEngine.js?v=2';
-import { pieceSVG, PIECE_NAMES_HE } from './pieceArt.js?v=2';
-import { unlockAudio, playSelect, playMove, playCapture, playIllegal, playCheck, playWin } from './sounds.js?v=2';
-import { saveGame, loadGame, clearGame } from './storage.js?v=2';
+} from './chessEngine.js?v=3';
+import { pieceSVG, PIECE_NAMES_HE } from './pieceArt.js?v=3';
+import { unlockAudio, playSelect, playMove, playCapture, playIllegal, playCheck, playWin } from './sounds.js?v=3';
+import { saveGame, loadGame, clearGame } from './storage.js?v=3';
+import { chooseAIMove } from './chessAI.js?v=3';
 
 const startScreenEl = document.getElementById('startScreen');
 const gameScreenEl = document.getElementById('gameScreen');
@@ -32,6 +33,8 @@ const menuFromEndBtn = document.getElementById('menuFromEndBtn');
 
 const FILES = 'abcdefgh';
 const MAX_UNDO = 50;
+const AI_COLOR = 'b';
+const AI_THINK_MS = 550;
 
 let mode = null;
 let gameState = null;
@@ -237,7 +240,7 @@ function updateCheckHighlight() {
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) squareEls[r][c].classList.remove('in-check');
   }
-  if (mode === 'rules' && !gameOver && isInCheck(gameState, gameState.turn)) {
+  if ((mode === 'rules' || mode === 'ai') && !gameOver && isInCheck(gameState, gameState.turn)) {
     const kp = gameState.kings[gameState.turn];
     squareEls[kp.r][kp.c].classList.add('in-check');
   }
@@ -298,6 +301,15 @@ function undoMove() {
   gameState = snapshot.state;
   capturedByWhite = snapshot.capturedByWhite;
   capturedByBlack = snapshot.capturedByBlack;
+
+  // במצב נגד המחשב מבטלים זוג מהלכים (שלה + תגובת המחשב) כדי לחזור לתור שלה, לא לתור המחשב
+  if (mode === 'ai' && gameState.turn === AI_COLOR && undoStack.length) {
+    const prevSnapshot = undoStack.pop();
+    gameState = prevSnapshot.state;
+    capturedByWhite = prevSnapshot.capturedByWhite;
+    capturedByBlack = prevSnapshot.capturedByBlack;
+  }
+
   gameOver = false;
   selected = null;
   legalTargets = [];
@@ -323,7 +335,8 @@ function refreshResumeCard() {
     resumeCardEl.classList.add('hidden');
     return;
   }
-  resumeModeEl.textContent = saved.mode === 'rules' ? 'עם חוקי הקסם' : 'משחק חופשי';
+  const RESUME_MODE_LABELS = { rules: 'עם חוקי הקסם', ai: 'נגד המחשב', free: 'משחק חופשי' };
+  resumeModeEl.textContent = RESUME_MODE_LABELS[saved.mode] || 'משחק חופשי';
   resumeCardEl.classList.remove('hidden');
 }
 
@@ -357,6 +370,10 @@ function resumeGame() {
   endModalEl.classList.add('hidden');
   unlockAudio();
   announce(`המשחק הקודם נטען. תור ${kingdomNamePlain(gameState.turn)}`);
+
+  if (mode === 'ai' && !gameOver && gameState.turn === AI_COLOR) {
+    triggerAIMove();
+  }
 }
 
 /* ---------- מהלכים ---------- */
@@ -369,7 +386,7 @@ function deselect() {
 
 function selectSquare(r, c) {
   selected = { r, c };
-  legalTargets = mode === 'rules' ? getLegalMoves(gameState, r, c) : getFreeMoves(gameState, r, c);
+  legalTargets = (mode === 'rules' || mode === 'ai') ? getLegalMoves(gameState, r, c) : getFreeMoves(gameState, r, c);
   renderHighlights();
   playSelect();
   const piece = gameState.board[r][c];
@@ -378,6 +395,7 @@ function selectSquare(r, c) {
 
 function onSquareClick(r, c) {
   if (gameOver || !mode) return;
+  if (mode === 'ai' && gameState.turn === AI_COLOR) return; // תור המחשב - אין מגע
   unlockAudio();
   const piece = gameState.board[r][c];
 
@@ -385,11 +403,11 @@ function onSquareClick(r, c) {
     const target = legalTargets.find((m) => m.r === r && m.c === c);
     if (target) {
       const from = selected;
-      if (mode === 'rules' && target.isPromotion) {
+      if ((mode === 'rules' || mode === 'ai') && target.isPromotion) {
         openPromotionModal(gameState.turn, (chosenType) => {
           performRulesMove(from, { r, c }, chosenType);
         });
-      } else if (mode === 'rules') {
+      } else if (mode === 'rules' || mode === 'ai') {
         performRulesMove(from, { r, c }, null);
       } else {
         performFreeMove(from, { r, c });
@@ -477,6 +495,21 @@ function performRulesMove(from, to, promotionType) {
   }
 
   persist();
+
+  const gameContinues = status !== 'checkmate' && !DRAW_REASONS[status];
+  if (mode === 'ai' && gameContinues && gameState.turn === AI_COLOR) {
+    triggerAIMove();
+  }
+}
+
+function triggerAIMove() {
+  turnIndicatorEl.innerHTML = '<span class="turn-dot twilight"></span> המחשב חושב... 🤔';
+  setTimeout(() => {
+    if (mode !== 'ai' || gameOver || gameState.turn !== AI_COLOR) return;
+    const aiMove = chooseAIMove(gameState, AI_COLOR);
+    if (!aiMove) return;
+    performRulesMove(aiMove.from, aiMove.to, aiMove.promotionType);
+  }, AI_THINK_MS);
 }
 
 function performFreeMove(from, to) {

@@ -1,7 +1,7 @@
 {
   "name": "Levy Games - דף המשחקים המשפחתי",
   "short_name": "Levy Games",
-  "description": "אוסף המשחקים של משפחת לוי: שחמט לילדות ומשחק 54 משימות מצחיקות.",
+  "description": "אוסף המשחקים של משפחת לוי: שחמט לילדות, 54 משימות מצחיקות, וקרב חלל קלאסי.",
   "lang": "he",
   "dir": "rtl",
   "start_url": "./index.html",
@@ -34,6 +34,11 @@
       "name": "משחק המשימות",
       "short_name": "משימות",
       "url": "./games/tasks/index.html"
+    },
+    {
+      "name": "פולשי החלל",
+      "short_name": "חלל",
+      "url": "./games/spaceinvaders/index.html"
     }
   ]
 }

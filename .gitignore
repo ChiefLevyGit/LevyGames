@@ -1,6 +1,11 @@
 # קבצי עבודה פנימיים - לא עולים לפרודקשן
 Design.info/
 
+# סודות - לעולם לא ל-git
+.env
+.env.local
+.env.*.local
+
 # מערכת הפעלה
 .DS_Store
 Thumbs.db

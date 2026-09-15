@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הוראות משחק - פולשי החלל | Levy Games</title>
+<meta name="description" content="איך משחקים בפולשי החלל: תזוזה, ירי, מגנים, חיים וניקוד.">
+<meta name="theme-color" content="#000010">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Levy Games">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="הוראות - פולשי החלל">
+<meta property="og:description" content="כל מה שצריך לדעת כדי לשחק בפולשי החלל.">
+<meta property="og:url" content="https://chieflevygit.github.io/LevyGames/games/spaceinvaders/instructions.html">
+<meta property="og:image" content="https://chieflevygit.github.io/LevyGames/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👾</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: radial-gradient(ellipse at top, #0c0c22 0%, #000010 60%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    font-family: 'Rubik', system-ui, sans-serif;
+  }
+  .hub-link {
+    position: fixed;
+    top: 10px;
+    inset-inline-start: 10px;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+  .hub-link:hover { background: rgba(255, 255, 255, 0.32); }
+  .instructions-card {
+    background: rgba(20, 22, 46, 0.9);
+    border: 1px solid rgba(0, 255, 65, 0.25);
+    border-radius: 18px;
+    padding: 26px 24px;
+    max-width: 620px;
+    width: min(92vw, 620px);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.08);
+    color: #e8ffe8;
+  }
+  .instructions-card h2 { margin: 0 0 18px; text-align: center; color: #00ff41; text-shadow: 0 0 12px rgba(0,255,65,0.5); }
+  .instructions-card h3 { color: #7cffb2; margin-bottom: 4px; }
+  .instructions-card p, .instructions-card li { color: #d4e8dc; line-height: 1.6; }
+  .instructions-card section { margin-bottom: 20px; }
+  .key {
+    display: inline-block;
+    background: rgba(0, 255, 65, 0.12);
+    border: 1px solid rgba(0, 255, 65, 0.4);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: monospace;
+    color: #00ff41;
+  }
+  .back-links { display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+  .back-links a {
+    text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px;
+    background: linear-gradient(180deg, #22ee44, #00994a); color: #001a08;
+    box-shadow: 0 4px 0 #005c2a;
+  }
+  .back-links a.secondary { background: rgba(255,255,255,0.08); color: #e8ffe8; box-shadow: 0 4px 0 rgba(0,0,0,0.4); }
+</style>
+</head>
+<body>
+<a href="../../index.html" class="hub-link" title="לדף המשחקים">🎮 Levy Games</a>
+
+<main style="display:flex; justify-content:center; width:100%;">
+  <div class="instructions-card">
+    <h2>👾 איך משחקים בפולשי החלל?</h2>
+
+    <section>
+      <h3>המטרה</h3>
+      <p>גל אחרי גל של חייזרים יורד לעברך. יורים בהם לפני שהם מגיעים לתחתית המסך - אם הם מגיעים, נגמר המשחק.</p>
+    </section>
+
+    <section>
+      <h3>שליטה</h3>
+      <p>תזוזה: <span class="key">←</span> <span class="key">→</span> או <span class="key">A</span> <span class="key">D</span></p>
+      <p>ירייה: <span class="key">רווח</span></p>
+      <p>אותו מקש <span class="key">רווח</span> גם מתחיל משחק חדש מהתפריט, וגם ממשיך אחרי שנגמר משחק.</p>
+    </section>
+
+    <section>
+      <h3>ניקוד</h3>
+      <ul>
+        <li>🦀 השורה התחתונה שווה הכי הרבה - 30 נקודות.</li>
+        <li>🐙 השורה האמצעית שווה 20 נקודות.</li>
+        <li>👽 השורה העליונה שווה הכי פחות - 10 נקודות, אבל היא גם הכי קרובה אליך.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>המגנים הירוקים</h3>
+      <p>ארבעת המגנים למטה סופגים יריות - גם שלך וגם של החייזרים. כל פגיעה שוחקת עוד קצת מהם, אז אפשר להתחבא מאחוריהם אבל לא לנצח.</p>
+    </section>
+
+    <section>
+      <h3>חיים ושיא</h3>
+      <p>מתחילים עם 3 חיים. אחרי פגיעה קמים שוב עם רגע של חסינות (הספינה מהבהבת). השיא האישי נשמר בדפדפן, אז כל פעם אפשר לנסות לשבור אותו.</p>
+    </section>
+
+    <div class="back-links">
+      <a href="index.html">▶ למשחק</a>
+      <a href="../../index.html" class="secondary">🎮 לדף המשחקים</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>
