@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הבלשית הקטנה — איך משחקים?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F5E6C8; --paper: #FBF3DF; --maroon: #8B2635; --maroon-deep: #4A1620;
+  --mustard: #F2C14E; --sage: #7A9B76; --sky: #6FA8C9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: 'Rubik', system-ui, sans-serif; color: var(--maroon-deep);
+  background: var(--cream); min-height: 100vh;
+}
+header {
+  background: var(--maroon); color: var(--paper); padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+header a { color: var(--paper); text-decoration: none; background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.35); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .9rem; }
+header h1 { font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 1.2rem; margin: 0; }
+main { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
+.card {
+  background: var(--paper); border: 3px solid var(--maroon-deep); border-radius: 20px;
+  padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(74,22,32,.14);
+}
+.card h2 { font-family: 'M PLUS Rounded 1c', sans-serif; color: var(--maroon); margin: 0 0 8px; font-size: 1.15rem; }
+.card p, .card li { line-height: 1.65; margin: 6px 0; }
+.card ul { padding-inline-start: 22px; margin: 6px 0; }
+.play-btn {
+  display: inline-block; background: var(--mustard); border: 3px solid var(--maroon-deep);
+  border-radius: 999px; padding: 12px 28px; font-weight: 800; font-size: 1.1rem;
+  color: var(--maroon-deep); text-decoration: none; box-shadow: 0 4px 0 var(--maroon-deep);
+}
+.center { text-align: center; margin-top: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">⬅ למשחקים</a>
+  <h1>🕵️‍♀️ הבלשית הקטנה — איך משחקים?</h1>
+</header>
+<main>
+  <div class="card">
+    <h2>🔍 מה זה המשחק?</h2>
+    <p>את בלשית! בכל תיק מחכה תעלומה: קוראים את <b>המשימה</b>, בודקים את <b>הרמזים</b> בלוח הראיות — ופותרים בעצמך על לוח המשחק. אף אחד לא פותר בשבילך!</p>
+  </div>
+  <div class="card">
+    <h2>🧰 ארבעה כלים בערכת הבלשית</h2>
+    <ul>
+      <li><b>🗺️ מפת הזירה</b> — מעמידים דמויות במקומות (ארוניות, כיסאות). אם שיבוץ מתנגש עם רמז — הלוח דוחה אותו ומסביר למה.</li>
+      <li><b>🧮 רשת ההיגיון</b> — טבלה שמסמנים בה ✗ (בטוח שלא) ו-✓ (בטוח שכן). כל אחד מקבל בדיוק דבר אחד!</li>
+      <li><b>📐 סרגל הסדר</b> — מסדרים דמויות לפי גובה או לפי שעה.</li>
+      <li><b>🔍 זכוכית המגדלת</b> — פוסלים חשודים אחד-אחד לפי הרמזים, עד שנשאר האחד האמיתי.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>💡 טיפים</h2>
+    <ul>
+      <li>טעות זה חלק מהמשחק — הלוח תמיד יגיד לך <b>איזה רמז</b> לא הסתדר.</li>
+      <li>אפשר ללחוץ על 🔊 הקראה כדי לשמוע את המשימה והרמזים בקול.</li>
+      <li>אין שעון עצר ואין נקודות שנעלמות. חוקרים בקצב שלך!</li>
+    </ul>
+  </div>
+  <div class="center">
+    <a class="play-btn" href="index.html">🕵️‍♀️ לחקירה!</a>
+  </div>
+</main>
+</body>
+</html>

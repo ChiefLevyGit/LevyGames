@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הבלשית הקטנה — תיקי היגיון</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== הבלשית הקטנה — עיצוב ===== */
+@font-face {
+  font-family: 'Gveret Levin';
+  src: url('../../assets/fonts/GveretLevinAlefAlefAlef-Regular.woff2') format('woff2'),
+       url('../../assets/fonts/GveretLevinAlefAlefAlef-Regular.woff') format('woff');
+  font-display: swap;
+}
+:root {
+  --cream: #F5E6C8;
+  --paper: #FBF3DF;
+  --maroon: #8B2635;
+  --maroon-deep: #4A1620;
+  --mustard: #F2C14E;
+  --sage: #7A9B76;
+  --sky: #6FA8C9;
+  --ink: #4A1620;
+  --font-head: 'M PLUS Rounded 1c', 'Rubik', sans-serif;
+  --font-body: 'Rubik', system-ui, sans-serif;
+  --font-hand: 'Gveret Levin', 'Rubik', cursive;
+  --radius: 20px;
+  --shadow: 0 8px 24px rgba(74, 22, 32, 0.16);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(242,193,78,.25), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(122,155,118,.2), transparent 45%),
+    var(--cream);
+  min-height: 100vh;
+}
+button { font-family: inherit; cursor: pointer; }
+img { max-width: 100%; }
+
+/* ===== כותרת עליונה ===== */
+header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px;
+  background: var(--maroon);
+  color: var(--paper);
+  box-shadow: var(--shadow);
+  position: sticky; top: 0; z-index: 20;
+}
+header .back {
+  text-decoration: none; color: var(--paper);
+  background: rgba(255,255,255,.14);
+  border: 2px solid rgba(255,255,255,.35);
+  border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .9rem;
+}
+header h1 {
+  font-family: var(--font-head); font-size: 1.25rem; margin: 0; flex: 1;
+  display: flex; align-items: center; gap: 8px;
+}
+header .progress-pill {
+  background: var(--mustard); color: var(--maroon-deep);
+  border-radius: 999px; padding: 5px 12px; font-weight: 800; font-size: .85rem;
+  white-space: nowrap;
+}
+header .icon-btn {
+  background: rgba(255,255,255,.14); color: var(--paper);
+  border: 2px solid rgba(255,255,255,.35);
+  border-radius: 50%; width: 40px; height: 40px; font-size: 1.1rem;
+}
+
+main { max-width: 900px; margin: 0 auto; padding: 16px 14px 60px; }
+
+/* ===== מסך לוח התיקים ===== */
+.hero {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--paper); border: 3px solid var(--maroon-deep);
+  border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.hero img { width: 110px; height: auto; flex-shrink: 0; }
+.hero h2 { font-family: var(--font-head); color: var(--maroon); margin: 0 0 6px; font-size: 1.5rem; }
+.hero p { margin: 0; line-height: 1.5; }
+
+.tools {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.tool {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--paper); border: 2px solid var(--maroon-deep);
+  border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .85rem;
+  box-shadow: 0 3px 0 var(--maroon-deep);
+}
+.tool.locked { opacity: .45; filter: grayscale(1); box-shadow: none; }
+.tools-title { width: 100%; font-family: var(--font-hand); font-size: 1.2rem; color: var(--maroon); margin: 0; }
+
+.case-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px;
+}
+.case-card {
+  position: relative;
+  background: linear-gradient(180deg, #F9EBC8, #F2DCA8);
+  border: 3px solid var(--maroon-deep);
+  border-radius: 14px 14px 16px 16px;
+  padding: 34px 14px 14px;
+  text-align: right;
+  box-shadow: 0 5px 0 var(--maroon-deep);
+  transition: transform .12s ease;
+}
+.case-card::before { /* לשונית תיקייה */
+  content: ''; position: absolute; top: -14px; right: 14px;
+  width: 40%; height: 16px; background: inherit;
+  border: 3px solid var(--maroon-deep); border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+.case-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--maroon-deep); }
+.case-card .case-num {
+  position: absolute; top: 8px; inset-inline-start: 12px;
+  font-family: var(--font-hand); font-size: 1rem; color: var(--maroon);
+}
+.case-card .case-icon { font-size: 2.1rem; display: block; margin-bottom: 6px; }
+.case-card h3 { margin: 0 0 8px; font-size: 1rem; line-height: 1.35; font-family: var(--font-head); color: var(--maroon-deep); }
+.case-card .case-tool { font-size: .78rem; font-weight: 600; color: #6b4a2f; }
+.case-card .stamp {
+  position: absolute; top: 30px; inset-inline-start: 10px;
+  font-family: var(--font-hand); color: var(--sage);
+  border: 3px solid var(--sage); border-radius: 8px; padding: 2px 8px;
+  transform: rotate(-12deg); font-size: .95rem; background: rgba(255,255,255,.75);
+}
+.board-footer { text-align: center; margin-top: 26px; }
+.board-footer button {
+  background: none; border: none; color: #9b7050; text-decoration: underline; font-size: .8rem;
+}
+
+/* ===== מסך תיק ===== */
+.case-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.case-top .to-board {
+  background: var(--paper); border: 2px solid var(--maroon-deep); border-radius: 999px;
+  padding: 7px 14px; font-weight: 600; font-size: .85rem; box-shadow: 0 3px 0 var(--maroon-deep);
+}
+.case-top .case-label { font-family: var(--font-hand); color: var(--maroon); font-size: 1.15rem; }
+.case-top .narrate {
+  margin-inline-start: auto;
+  background: var(--sky); border: 2px solid var(--maroon-deep); border-radius: 999px;
+  padding: 7px 14px; font-weight: 600; font-size: .85rem; color: var(--maroon-deep);
+  box-shadow: 0 3px 0 var(--maroon-deep);
+}
+.case-top .narrate.speaking { background: var(--mustard); animation: pulse 1s infinite; }
+
+.mission {
+  background: var(--maroon); color: var(--paper);
+  border: 3px solid var(--maroon-deep); border-radius: var(--radius);
+  padding: 16px 18px; box-shadow: var(--shadow); margin-bottom: 14px;
+  position: relative;
+}
+.mission .mission-tag {
+  position: absolute; top: -14px; inset-inline-start: 16px;
+  background: var(--mustard); color: var(--maroon-deep);
+  font-weight: 800; font-size: .78rem; border: 2px solid var(--maroon-deep);
+  border-radius: 999px; padding: 3px 12px;
+}
+.mission .story { margin: 4px 0 8px; font-size: .95rem; opacity: .92; line-height: 1.5; }
+.mission .question {
+  font-family: var(--font-head); font-size: 1.35rem; line-height: 1.4; margin: 0;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.mission .question::before { content: '🔍'; }
+
+.evidence {
+  background: var(--paper); border: 3px dashed var(--maroon);
+  border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px;
+}
+.evidence h4 { margin: 0 0 8px; font-family: var(--font-hand); color: var(--maroon); font-size: 1.15rem; }
+.evidence ol { margin: 0; padding-inline-start: 22px; }
+.evidence li { margin: 6px 0; line-height: 1.5; font-size: 1rem; padding: 3px 6px; border-radius: 8px; }
+.evidence li.flash { animation: clueFlash 1.2s ease 2; background: #FBE3A0; }
+.evidence .footprint-wrap { text-align: center; }
+.evidence .footprint-wrap svg { width: 120px; height: auto; }
+
+.board-area {
+  background: var(--paper); border: 3px solid var(--maroon-deep);
+  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.board-area h4 { margin: 0 0 12px; font-family: var(--font-hand); color: var(--maroon); font-size: 1.15rem; }
+
+/* בועת משוב */
+.bubble {
+  min-height: 54px; display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 3px solid var(--maroon-deep); border-radius: 16px;
+  padding: 10px 14px; margin-bottom: 8px; font-size: 1rem; line-height: 1.45;
+  position: relative; opacity: 0; transform: translateY(6px); transition: all .2s ease;
+}
+.bubble.show { opacity: 1; transform: none; }
+.bubble.bad { background: #FADFD7; }
+.bubble.good { background: #DFEBDD; }
+.bubble.info { background: #E3EFF6; }
+.bubble .who { font-size: 1.5rem; }
+
+/* ===== מגש דמויות ולוח שיבוץ ===== */
+.tray { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+.token {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #fff; border: 3px solid var(--maroon-deep); border-radius: 14px;
+  padding: 8px 10px 6px; min-width: 84px;
+  box-shadow: 0 3px 0 var(--maroon-deep); transition: transform .12s ease;
+}
+.token .avatar {
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--cream); border: 2px solid var(--maroon-deep);
+  overflow: hidden; display: flex; align-items: flex-start; justify-content: center;
+}
+.token .avatar img { width: 88%; height: auto; margin-top: 4%; }
+.token .avatar .emoji-face { font-size: 2rem; line-height: 54px; }
+.token .t-name { font-weight: 800; font-size: .9rem; }
+.token.selected { transform: translateY(-5px); border-color: var(--mustard); box-shadow: 0 0 0 4px var(--mustard), 0 5px 0 var(--maroon-deep); }
+.token.used { visibility: hidden; position: absolute; pointer-events: none; }
+
+.socket {
+  width: 74px; height: 74px; border-radius: 50%;
+  border: 3px dashed #b08a5a; background: rgba(255,255,255,.6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #b08a5a; font-weight: 800;
+  transition: border-color .15s ease; padding: 0;
+}
+.socket.filled { border-style: solid; border-color: var(--maroon-deep); background: #fff; overflow: hidden; }
+.socket.filled .avatar { width: 100%; height: 100%; display: flex; align-items: flex-start; justify-content: center; }
+.socket.filled .avatar img { width: 88%; margin-top: 6%; }
+.socket.filled .avatar .emoji-face { font-size: 2.2rem; line-height: 68px; }
+.socket.fixed { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(122,155,118,.4); }
+.socket.answer-glow { animation: glow 0.9s ease 3; }
+.socket-name { font-size: .8rem; font-weight: 800; text-align: center; margin-top: 3px; min-height: 1.1em; }
+
+/* לוח ארוניות — כיוון קבוע LTR כדי ש"ימין" יהיה ימין של המסך */
+.lockers-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; direction: ltr; }
+.locker-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.locker-col img { width: 96px; height: auto; border-radius: 10px; }
+
+/* שולחן פיקניק */
+.picnic-wrap { position: relative; width: 340px; height: 340px; margin: 0 auto; max-width: 100%; }
+.picnic-table {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 150px; height: 150px; border-radius: 50%;
+  background: var(--sage); border: 4px solid var(--maroon-deep);
+  display: flex; align-items: center; justify-content: center; font-size: 2.2rem;
+}
+.seat { position: absolute; display: flex; flex-direction: column; align-items: center; width: 90px; }
+.seat.n { top: 0; left: 50%; transform: translateX(-50%); }
+.seat.s { bottom: 0; left: 50%; transform: translateX(-50%); }
+.seat.e { right: 0; top: 50%; transform: translateY(-50%); }
+.seat.w { left: 0; top: 50%; transform: translateY(-50%); }
+.compass { font-size: .75rem; font-weight: 800; color: var(--maroon); }
+.leo-hint {
+  font-size: .72rem; background: #FBE3A0; border: 2px solid var(--maroon-deep);
+  border-radius: 8px; padding: 2px 6px; margin-top: 2px; white-space: nowrap;
+}
+
+/* פודיום גבהים + ציר זמן */
+.podium-row, .timeline-row { display: flex; gap: 14px; justify-content: center; align-items: flex-end; flex-wrap: wrap; }
+.podium-col, .time-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.podium-step {
+  width: 80px; background: var(--mustard); border: 3px solid var(--maroon-deep);
+  border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; justify-content: center;
+  font-weight: 800; padding-bottom: 4px; color: var(--maroon-deep);
+}
+.step-label { font-size: .74rem; font-weight: 800; text-align: center; color: #6b4a2f; max-width: 84px; }
+.time-col .clock { font-size: 2rem; }
+.time-col .time-label { font-weight: 800; font-size: .85rem; }
+
+/* ===== רשת היגיון ===== */
+.grid-table { border-collapse: collapse; margin: 0 auto; }
+.grid-table th, .grid-table td { border: 2px solid var(--maroon-deep); padding: 6px; text-align: center; }
+.grid-table th { background: #F2DCA8; font-size: .85rem; }
+.grid-table th .col-emoji { display: block; font-size: 1.5rem; }
+.grid-table th.row-head { font-size: .92rem; min-width: 64px; }
+.grid-cell {
+  width: 56px; height: 52px; border: none; background: #fff;
+  font-size: 1.5rem; font-weight: 800; border-radius: 0; display: block; margin: 0 auto;
+  width: 100%; height: 46px;
+}
+.grid-cell.mark-x { color: var(--maroon); }
+.grid-cell.mark-v { color: var(--sage); background: #E7F0E5; }
+.grid-cell.auto-x { color: #c9b08a; background: #FAF4E4; }
+.grid-legend { text-align: center; font-size: .82rem; color: #6b4a2f; margin-top: 10px; line-height: 1.5; }
+
+/* ===== התאמת פרטים ===== */
+.cands { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.cand {
+  position: relative; background: #fff; border: 3px solid var(--maroon-deep);
+  border-radius: 14px; padding: 10px; text-align: center;
+  box-shadow: 0 4px 0 var(--maroon-deep); transition: transform .12s ease;
+}
+.cand:active { transform: translateY(2px); }
+.cand img, .cand svg { width: 100%; max-width: 150px; height: auto; border-radius: 10px; }
+.cand .cand-name { font-weight: 800; margin-top: 6px; }
+.cand .chips { display: none; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 6px; }
+.cand .chips span { background: var(--cream); border: 1.5px solid var(--maroon-deep); border-radius: 999px; padding: 1px 8px; font-size: .72rem; font-weight: 600; }
+.cands.show-chips .cand .chips { display: flex; }
+.cand.eliminated { filter: grayscale(.9); opacity: .55; }
+.cand.eliminated::after {
+  content: '✗'; position: absolute; top: 6px; left: 50%; transform: translateX(-50%) rotate(-14deg);
+  font-size: 4.5rem; color: var(--maroon); font-weight: 800; text-shadow: 0 0 6px #fff;
+}
+.cand .why {
+  display: none; font-size: .74rem; background: #FADFD7; border: 2px solid var(--maroon);
+  border-radius: 8px; padding: 3px 6px; margin-top: 6px; line-height: 1.35;
+}
+.cand.eliminated .why { display: block; }
+.cand.last-glow { animation: glow .9s ease infinite; }
+
+/* תגים (תיק 7) */
+.badge-vis {
+  width: 130px; height: 130px; border-radius: 50%; margin: 0 auto;
+  background: var(--paper); border: 6px solid var(--mustard);
+  outline: 3px solid var(--maroon-deep); position: relative;
+}
+.badge-vis .sym { position: absolute; font-size: 2rem; }
+.badge-vis .sym:nth-child(1) { top: 8px; left: 50%; transform: translateX(-50%); }
+.badge-vis .sym:nth-child(2) { bottom: 14px; left: 16px; }
+.badge-vis .sym:nth-child(3) { bottom: 14px; right: 16px; }
+
+/* ===== סגירת תיק ===== */
+.overlay {
+  position: fixed; inset: 0; background: rgba(74,22,32,.55); z-index: 50;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.closed-card {
+  background: var(--paper); border: 4px solid var(--maroon-deep); border-radius: 24px;
+  padding: 26px 22px; max-width: 460px; width: 100%; text-align: center;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+  animation: popIn .35s cubic-bezier(.2,1.4,.4,1);
+}
+.closed-card img.mascot { width: 120px; }
+.closed-stamp {
+  display: inline-block; font-family: var(--font-hand); font-size: 2rem; color: var(--maroon);
+  border: 4px solid var(--maroon); border-radius: 12px; padding: 4px 18px;
+  transform: rotate(-8deg); margin-bottom: 10px; background: rgba(255,255,255,.8);
+  animation: stampIn .5s cubic-bezier(.2,1.6,.4,1) .15s backwards;
+}
+.closed-card .closing-text { font-size: 1.05rem; line-height: 1.6; margin: 10px 0 4px; }
+.closed-card .tool-toast {
+  background: var(--mustard); border: 2px solid var(--maroon-deep); border-radius: 12px;
+  padding: 8px 12px; font-weight: 800; margin: 10px 0 0; display: none;
+}
+.closed-card .btns { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+.closed-card .btns button {
+  border: 3px solid var(--maroon-deep); border-radius: 999px; padding: 10px 20px;
+  font-weight: 800; font-size: 1rem; box-shadow: 0 3px 0 var(--maroon-deep);
+}
+.btn-next { background: var(--mustard); }
+.btn-board { background: #fff; }
+.confetti-bit { position: absolute; width: 10px; height: 16px; top: -20px; animation: fall linear forwards; }
+
+/* ===== אנימציות ===== */
+@keyframes clueFlash { 0%,100% { background: #FBE3A0; } 50% { background: #F2C14E; } }
+@keyframes shakeX { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
+.shake { animation: shakeX .4s ease; }
+@keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(242,193,78,0); } 50% { box-shadow: 0 0 0 8px rgba(242,193,78,.85); } }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes popIn { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes stampIn { from { transform: rotate(-8deg) scale(2.4); opacity: 0; } to { transform: rotate(-8deg) scale(1); opacity: 1; } }
+@keyframes fall { to { transform: translateY(110vh) rotate(560deg); } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.hidden { display: none !important; }
+@media (max-width: 480px) {
+  .hero img { width: 80px; }
+  .mission .question { font-size: 1.15rem; }
+  .picnic-wrap { width: 300px; height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="../../index.html">⬅ למשחקים</a>
+  <h1>🕵️‍♀️ הבלשית הקטנה</h1>
+  <span class="progress-pill" id="progressPill">0/10 תיקים</span>
+  <button class="icon-btn" id="muteBtn" aria-label="השתקה / הפעלת צלילים">🔊</button>
+</header>
+
+<main>
+  <!-- ===== מסך לוח התיקים ===== -->
+  <section id="boardScreen">
+    <div class="hero">
+      <img src="images/detective-mascot.png" alt="הבלשית הקטנה">
+      <div>
+        <h2>ברוכה הבאה לסוכנות הבלשים!</h2>
+        <p>בכל תיק מסתתרת תעלומה. קראי את הרמזים, הפעילי את הראש — ופתרי אותה בעצמך. בהצלחה, בלשית!</p>
+      </div>
+    </div>
+    <div class="tools" id="toolsStrip">
+      <p class="tools-title">🧰 ערכת הבלשית שלי:</p>
+    </div>
+    <div class="case-grid" id="caseGrid"></div>
+    <div class="board-footer">
+      <button id="resetBtn">איפוס התקדמות</button>
+    </div>
+  </section>
+
+  <!-- ===== מסך תיק ===== -->
+  <section id="caseScreen" class="hidden">
+    <div class="case-top">
+      <button class="to-board" id="backToBoard">📁 ללוח התיקים</button>
+      <span class="case-label" id="caseLabel"></span>
+      <button class="narrate" id="narrateBtn">🔊 הקראה</button>
+    </div>
+
+    <div class="mission">
+      <span class="mission-tag">המשימה שלך</span>
+      <p class="story" id="caseStory"></p>
+      <p class="question" id="caseQuestion"></p>
+    </div>
+
+    <div class="evidence">
+      <h4>📌 לוח הראיות</h4>
+      <div id="evidenceExtra"></div>
+      <ol id="cluesList"></ol>
+    </div>
+
+    <div class="bubble" id="bubble" aria-live="polite"></div>
+
+    <div class="board-area">
+      <h4 id="boardTitle"></h4>
+      <div id="boardMount"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== שכבת סגירת תיק ===== -->
+<div class="overlay hidden" id="closedOverlay">
+  <div class="closed-card" id="closedCard">
+    <div class="closed-stamp">✔ התיק נסגר!</div>
+    <div><img class="mascot" src="images/detective-mascot.png" alt=""></div>
+    <p class="closing-text" id="closingText"></p>
+    <div class="tool-toast" id="toolToast"></div>
+    <div class="btns">
+      <button class="btn-next" id="nextCaseBtn">לתיק הבא ⬅</button>
+      <button class="btn-board" id="overlayBoardBtn">📁 ללוח התיקים</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ================= צלילים (חבילות קיימות בפרויקט) ================= */
+const SFX_ROOT = '../../assets/';
+const JDS = SFX_ROOT + 'JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/mp3/JDSherbert - Ultimate UI SFX Pack - ';
+const SFX = {
+  tap:    JDS + 'Cursor - 1.mp3',
+  place:  JDS + 'Select - 1.mp3',
+  error:  JDS + 'Error - 1.mp3',
+  swipe:  JDS + 'Swipe - 1.mp3',
+  toggle: JDS + 'Cursor - 2.mp3',
+  open:   JDS + 'Popup Open - 1.mp3',
+  button: JDS + 'Select - 2.mp3',
+  win:    SFX_ROOT + 'level-up.mp3',
+  star:   SFX_ROOT + 'loot-pickup.mp3',
+};
+const audioCache = {};
+let muted = localStorage.getItem('ldMuted') === '1';
+function playSfx(name) {
+  if (muted) return;
+  try {
+    if (!audioCache[name]) {
+      audioCache[name] = new Audio(encodeURI(SFX[name]));
+      audioCache[name].volume = 0.45;
+    }
+    const a = audioCache[name].cloneNode();
+    a.volume = 0.45;
+    a.play().catch(() => {});
+  } catch (e) { /* אין אודיו - ממשיכים בשקט */ }
+}
+
+/* ================= דמויות הילדים ================= */
+const KIDS = {
+  maya:  { name: 'מאיה',  img: 'images/kids/maya.png',  emoji: '👧' },
+  leo:   { name: 'ליאו',  img: 'images/kids/leo.png',   emoji: '👦' },
+  sam:   { name: 'סאם',   img: 'images/kids/sam.png',   emoji: '👦' },
+  emma:  { name: 'אמה',   img: 'images/kids/emma.png',  emoji: '👧' },
+  mia:   { name: 'מיה',   img: 'images/kids/mia.png',   emoji: '👧' },
+  dan:   { name: 'דן',    img: 'images/kids/dan.png',   emoji: '👦' },
+  ben:   { name: 'בן',    img: 'images/kids/ben.png',   emoji: '👦' },
+  alex:  { name: 'אלכס',  img: 'images/kids/alex.png',  emoji: '👦' },
+  clara: { name: 'קלרה',  img: 'images/kids/clara.png', emoji: '👧' },
+  ava:   { name: 'אווה',  img: 'images/kids/ava.png',   emoji: '👧' },
+  chloe: { name: 'כלואי', img: 'images/kids/chloe.png', emoji: '👧' },
+  zoe:   { name: 'זואי',  img: 'images/kids/zoe.png',   emoji: '👧' },
+};
+function avatarHtml(kidId) {
+  const k = KIDS[kidId];
+  return `<span class="avatar"><img src="${k.img}" alt="" onerror="this.outerHTML='<span class=emoji-face>${k.emoji}</span>'"></span>`;
+}
+
+/* ================= SVG — מפתחות, סוליות, טביעת בוץ ================= */
+function keySvg(color, head, teeth) {
+  const fill = color === 'gold' ? '#F2C14E' : '#CFD6DD';
+  const headEl = head === 'round'
+    ? `<circle cx="60" cy="45" r="33" fill="${fill}" stroke="#4A1620" stroke-width="7"/>`
+    : `<rect x="27" y="12" width="66" height="66" rx="12" fill="${fill}" stroke="#4A1620" stroke-width="7"/>`;
+  const ys = teeth === 3 ? [122, 149, 176] : [132, 168];
+  const teethEls = ys.map(y => `<rect x="68" y="${y}" width="28" height="15" rx="5" fill="${fill}" stroke="#4A1620" stroke-width="6"/>`).join('');
+  return `<svg viewBox="0 0 120 210" role="img">
+    ${headEl}
+    <circle cx="60" cy="45" r="11" fill="#FBF3DF" stroke="#4A1620" stroke-width="5"/>
+    <rect x="50" y="74" width="20" height="118" rx="9" fill="${fill}" stroke="#4A1620" stroke-width="6"/>
+    ${teethEls}
+  </svg>`;
+}
+function soleSvg(color, pattern) {
+  const ys = [52, 92, 132, 172];
+  let marks = '';
+  if (pattern === 'zigzag') {
+    marks = ys.map(y => `<polyline points="34,${y} 47,${y-13} 60,${y} 73,${y-13} 86,${y}" fill="none" stroke="#4A1620" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  } else if (pattern === 'stripes') {
+    marks = ys.map(y => `<line x1="34" y1="${y-6}" x2="86" y2="${y-6}" stroke="#4A1620" stroke-width="6" stroke-linecap="round"/>`).join('');
+  } else if (pattern === 'circles') {
+    marks = [[45,50],[75,50],[45,100],[75,100],[60,150],[60,185]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="10" fill="none" stroke="#4A1620" stroke-width="6"/>`).join('');
+  } else if (pattern === 'stars') {
+    marks = [[60,58],[42,105],[78,105],[60,160]].map(([x,y]) => `<text x="${x}" y="${y}" font-size="30" text-anchor="middle" fill="#4A1620">★</text>`).join('');
+  }
+  return `<svg viewBox="0 0 120 210" role="img">
+    <rect x="18" y="8" width="84" height="194" rx="42" fill="${color}" stroke="#4A1620" stroke-width="7"/>
+    ${marks}
+  </svg>`;
+}
+function footprintSvg() {
+  const ys = [52, 92, 132, 172];
+  const zig = ys.map(y => `<polyline points="34,${y} 47,${y-13} 60,${y} 73,${y-13} 86,${y}" fill="none" stroke="#3E2812" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  return `<svg viewBox="0 0 120 210" role="img" aria-label="טביעת נעל בבוץ">
+    <ellipse cx="20" cy="30" rx="10" ry="6" fill="#7A5230"/>
+    <ellipse cx="104" cy="180" rx="9" ry="6" fill="#7A5230"/>
+    <ellipse cx="14" cy="150" rx="7" ry="5" fill="#7A5230"/>
+    <rect x="18" y="8" width="84" height="194" rx="42" fill="#8B5E34" stroke="#3E2812" stroke-width="5"/>
+    ${zig}
+  </svg>`;
+}
+function badgeHtml(symbols) {
+  return `<div class="badge-vis">${symbols.map(s => `<span class="sym">${s}</span>`).join('')}</div>`;
+}
+
+/* ================= נתוני 10 התיקים ================= */
+const CASES = [
+  {
+    id: 'lockers', num: 1, type: 'spatial', icon: '🚪',
+    title: 'תעלומת הארוניות בבית הספר',
+    story: 'למאיה, ליאו, סאם ואמה יש ארונית אחת לכל אחד — אבל פתקי השמות התבלבלו!',
+    mission: 'איזה צבע היא הארונית של אמה?',
+    clues: [
+      'הארונית של ליאו לא נמצאת באחד הקצוות.',
+      'הארונית של מאיה היא הצהובה.',
+      'הארונית של אמה נמצאת ממש ליד של מאיה — מצד ימין.',
+    ],
+    boardTitle: 'העמידי כל ילד וילדה מול הארונית שלהם',
+    tokens: ['maya', 'leo', 'sam', 'emma'],
+    solution: { sam: 0, leo: 1, maya: 2, emma: 3 },
+    answerToken: 'emma',
+    layout: 'lockers',
+    slots: [
+      { img: 'images/lockers/locker-blue.png',   label: 'כחולה' },
+      { img: 'images/lockers/locker-green.png',  label: 'ירוקה' },
+      { img: 'images/lockers/locker-yellow.png', label: 'צהובה' },
+      { img: 'images/lockers/locker-red.png',    label: 'אדומה' },
+    ],
+    reject: {
+      'maya-0': { c: 1, m: 'מאיה: "הארונית שלי היא הצהובה!"' },
+      'maya-1': { c: 1, m: 'מאיה: "הארונית שלי היא הצהובה!"' },
+      'maya-3': { c: 1, m: 'מאיה: "הארונית שלי היא הצהובה!"' },
+      'leo-0':  { c: 0, m: 'ליאו: "הארונית שלי לא באחד הקצוות!"' },
+      'leo-3':  { c: 0, m: 'ליאו: "הארונית שלי לא באחד הקצוות!"' },
+      'leo-2':  { c: 1, m: 'רגע — הארונית הצהובה היא של מאיה!' },
+      'sam-2':  { c: 1, m: 'רגע — הארונית הצהובה היא של מאיה!' },
+      'sam-1':  { c: 0, m: 'אם סאם יעמוד כאן, לא יישאר לליאו מקום שאינו בקצה!' },
+      'sam-3':  { c: 2, m: 'הארונית שמימין לצהובה שמורה לאמה!' },
+      'emma-0': { c: 2, m: 'אמה עומדת ממש מימין למאיה. מצאי קודם את הארונית של מאיה!' },
+      'emma-1': { c: 2, m: 'אמה עומדת ממש מימין למאיה. מצאי קודם את הארונית של מאיה!' },
+      'emma-2': { c: 1, m: 'הצהובה של מאיה! אמה עומדת ממש מימין לה.' },
+    },
+    closing: 'הארונית של אמה היא האדומה! מאיה בצהובה — ואמה ממש מימין לה. סאם קיבל את הכחולה וליאו את הירוקה, בדיוק לא בקצוות.',
+  },
+  {
+    id: 'icecream', num: 2, type: 'grid', icon: '🍦',
+    title: 'תעלומת הגלידה',
+    story: 'ארבעה חברים הזמינו ארבעה טעמים — וניל, שוקולד, תות ומנטה — אבל המלצר שכח מי הזמין מה!',
+    mission: 'איזה טעם גלידה בחר ליאם?',
+    clues: [
+      'ליאם לא אוהב שוקולד ומנטה.',
+      'זואי הזמינה תות.',
+      'נח הזמין שוקולד.',
+    ],
+    boardTitle: 'סמני בטבלה: ✗ = בטוח שלא, ✓ = בטוח שכן',
+    rows: [
+      { id: 'liam', name: 'ליאם', emoji: '👦' },
+      { id: 'zoe',  name: 'זואי', emoji: '👧' },
+      { id: 'noah', name: 'נח',   emoji: '👦' },
+      { id: 'mia2', name: 'מיה',  emoji: '👧' },
+    ],
+    cols: [
+      { id: 'vanilla', name: 'וניל',   emoji: '🍦' },
+      { id: 'choc',    name: 'שוקולד', emoji: '🍫' },
+      { id: 'straw',   name: 'תות',    emoji: '🍓' },
+      { id: 'mint',    name: 'מנטה',   emoji: '🌿' },
+    ],
+    solution: { liam: 'vanilla', zoe: 'straw', noah: 'choc', mia2: 'mint' },
+    wrong: {
+      'liam-choc':  { c: 0, m: 'ליאם לא אוהב שוקולד ומנטה!' },
+      'liam-mint':  { c: 0, m: 'ליאם לא אוהב שוקולד ומנטה!' },
+      'liam-straw': { c: 1, m: 'אבל את התות הזמינה זואי!' },
+      'zoe-vanilla': { c: 1, m: 'זואי הזמינה תות!' },
+      'zoe-choc':    { c: 1, m: 'זואי הזמינה תות!' },
+      'zoe-mint':    { c: 1, m: 'זואי הזמינה תות!' },
+      'noah-vanilla': { c: 2, m: 'נח הזמין שוקולד!' },
+      'noah-straw':   { c: 2, m: 'נח הזמין שוקולד!' },
+      'noah-mint':    { c: 2, m: 'נח הזמין שוקולד!' },
+      'mia2-straw': { c: 1, m: 'את התות הזמינה זואי!' },
+      'mia2-choc':  { c: 2, m: 'את השוקולד הזמין נח!' },
+      'mia2-vanilla': { c: 0, m: 'אם מיה תיקח וניל — מה יישאר לליאם? הוא לא אוהב שוקולד ומנטה!' },
+    },
+    closing: 'ליאם בחר וניל! הוא לא אוהב שוקולד ומנטה, את התות לקחה זואי ואת השוקולד נח — אז לליאם נשאר הווניל, ולמיה המנטה.',
+  },
+  {
+    id: 'mud', num: 3, type: 'detail', icon: '👟',
+    title: 'שביל הבוץ בגינה',
+    story: 'אוי לא! מישהו דרך על ערוגת הפרחים והשאיר טביעת נעל בבוץ.',
+    mission: 'איזו נעל השאירה את עקבות הבוץ?',
+    clues: ['התבונני היטב בתבנית שהסוליה השאירה בבוץ — והשוו אותה לכל נעל.'],
+    evidenceExtra: () => `<div class="footprint-wrap">${footprintSvg()}<div style="font-size:.8rem;font-weight:600;">הטביעה שנמצאה בבוץ</div></div>`,
+    boardTitle: 'הקישי על נעל שבטוח לא השאירה את הטביעה — עד שתישאר אחת',
+    candidates: [
+      { id: 's1', name: 'נעל 1', html: () => soleSvg('#6FA8C9', 'circles'),
+        chips: ['עיגולים'], reason: { c: 0, m: 'בסוליה הזאת יש עיגולים — ובבוץ רואים קווי זיגזג!' } },
+      { id: 's2', name: 'נעל 2', html: () => soleSvg('#7A9B76', 'zigzag'),
+        chips: ['זיגזג'], reason: null },
+      { id: 's3', name: 'נעל 3', html: () => soleSvg('#F2C14E', 'stars'),
+        chips: ['כוכבים'], reason: { c: 0, m: 'כוכבים? בטביעה שבבוץ יש זיגזג!' } },
+      { id: 's4', name: 'נעל 4', html: () => soleSvg('#C86F6F', 'stripes'),
+        chips: ['פסים ישרים'], reason: { c: 0, m: 'אלה פסים ישרים — אבל בבוץ הקווים משוננים כמו זיגזג!' } },
+    ],
+    closing: '{name} השאירה את העקבות — הזיגזג שעל הסוליה מתאים בדיוק לטביעה שבבוץ!',
+  },
+  {
+    id: 'picnic', num: 4, type: 'spatial', icon: '🧺',
+    title: 'שולחן הפיקניק העגול',
+    story: 'ארבעה חברים מתיישבים סביב שולחן פיקניק עגול: צפון, דרום, מזרח ומערב.',
+    mission: 'מי יושב בכיסא הדרומי, מול ליאו?',
+    clues: [
+      'ליאו יושב בצפון — בדיוק מול מיה.',
+      'מאיה יושבת מימינו של ליאו. שימי לב: ליאו פונה אל השולחן, אז היד הימנית שלו מצביעה למערב!',
+    ],
+    boardTitle: 'הושיבי כל אחד בכיסא שלו',
+    tokens: ['mia', 'maya', 'sam'],
+    fixed: { leo: 0 },
+    solution: { mia: 2, maya: 3, sam: 1 },
+    answerToken: 'mia',
+    layout: 'picnic',
+    slots: [
+      { pos: 'n', label: 'צפון' },
+      { pos: 'e', label: 'מזרח' },
+      { pos: 's', label: 'דרום' },
+      { pos: 'w', label: 'מערב' },
+    ],
+    reject: {
+      'mia-1':  { c: 0, m: 'מיה יושבת בדיוק מול ליאו — לא לידו!' },
+      'mia-3':  { c: 0, m: 'מיה יושבת בדיוק מול ליאו — לא לידו!' },
+      'maya-1': { c: 1, m: 'מאיה בצד של היד הימנית של ליאו — הוא פונה לשולחן, אז זה מערב!' },
+      'maya-2': { c: 1, m: 'מאיה בצד של היד הימנית של ליאו — הוא פונה לשולחן, אז זה מערב!' },
+      'sam-2':  { c: 0, m: 'המקום מול ליאו שמור למיה!' },
+      'sam-3':  { c: 1, m: 'מימינו של ליאו יושבת מאיה!' },
+    },
+    closing: 'מיה יושבת בדרום — בדיוק מול ליאו שבצפון! מאיה מימינו במערב, וסאם קיבל את מזרח.',
+  },
+  {
+    id: 'agent', num: 5, type: 'detail', icon: '🕶️',
+    title: 'התחפושת של הסוכן הסודי',
+    story: 'בנשף המסכות מסתתר סוכן סודי אמיתי — ושלושה מתחזים!',
+    mission: 'מי מהחשודים הוא הסוכן הסודי האמיתי?',
+    clues: [
+      'לסוכן האמיתי כובע ירוק.',
+      'לסוכן האמיתי משקפיים עגולים.',
+      'לסוכן האמיתי פפיון אדום.',
+    ],
+    boardTitle: 'הקישי על חשוד שבטוח אינו הסוכן — עד שיישאר אחד',
+    candidates: [
+      { id: 'b', name: 'חשוד 1', html: () => `<img src="images/secret-agent/agent-b.png" alt="">`,
+        chips: ['🎩 כחול', '👓 עגולים', '🎀 אדום'], reason: { c: 0, m: 'לחשוד הזה כובע כחול — לסוכן האמיתי יש כובע ירוק!' } },
+      { id: 'a', name: 'חשוד 2', html: () => `<img src="images/secret-agent/agent-a.png" alt="">`,
+        chips: ['🎩 ירוק', '👓 עגולים', '🎀 אדום'], reason: null },
+      { id: 'd', name: 'חשוד 3', html: () => `<img src="images/secret-agent/agent-d.png" alt="">`,
+        chips: ['🎩 ירוק', '👓 עגולים', '🎀 צהוב'], reason: { c: 2, m: 'פפיון צהוב! לסוכן האמיתי יש פפיון אדום.' } },
+      { id: 'c', name: 'חשוד 4', html: () => `<img src="images/secret-agent/agent-c.png" alt="">`,
+        chips: ['🎩 ירוק', '👓 מרובעים', '🎀 אדום'], reason: { c: 1, m: 'משקפיים מרובעים — לסוכן האמיתי יש עגולים!' } },
+    ],
+    closing: 'זה הסוכן האמיתי — היחיד עם כל שלושת הסימנים: כובע ירוק, משקפיים עגולים ופפיון אדום!',
+  },
+  {
+    id: 'pets', num: 6, type: 'grid', icon: '🐾',
+    title: 'התאמת אימוץ חיות המחמד',
+    story: 'ארבעה ילדים אימצו ארבע חיות: גור כלבים, גורת חתולים, ארנב ותוכי.',
+    mission: 'איזו חיית מחמד אימץ אוליבר?',
+    clues: [
+      'לוקאס אימץ חיה עם אוזניים ארוכות ורפויות.',
+      'החיה של אלה יודעת לנבוח.',
+      'לחיה של לילי יש נוצות צבעוניות.',
+    ],
+    boardTitle: 'סמני בטבלה: ✗ = בטוח שלא, ✓ = בטוח שכן',
+    rows: [
+      { id: 'lucas',  name: 'לוקאס',  emoji: '👦' },
+      { id: 'ella',   name: 'אלה',    emoji: '👧' },
+      { id: 'lily',   name: 'לילי',   emoji: '👧' },
+      { id: 'oliver', name: 'אוליבר', emoji: '👦' },
+    ],
+    cols: [
+      { id: 'puppy',  name: 'גור כלבים',   emoji: '🐶' },
+      { id: 'kitten', name: 'גורת חתולים', emoji: '🐱' },
+      { id: 'rabbit', name: 'ארנב',        emoji: '🐰' },
+      { id: 'parrot', name: 'תוכי',        emoji: '🦜' },
+    ],
+    solution: { lucas: 'rabbit', ella: 'puppy', lily: 'parrot', oliver: 'kitten' },
+    wrong: {
+      'lucas-puppy':  { c: 0, m: 'ללוקאס יש חיה עם אוזניים ארוכות ורפויות — למי יש כאלה?' },
+      'lucas-kitten': { c: 0, m: 'ללוקאס יש חיה עם אוזניים ארוכות ורפויות — למי יש כאלה?' },
+      'lucas-parrot': { c: 0, m: 'לתוכי בכלל אין אוזניים ארוכות ורפויות!' },
+      'ella-kitten': { c: 1, m: 'החיה של אלה יודעת לנבוח. חתולים מייללים...' },
+      'ella-rabbit': { c: 1, m: 'החיה של אלה יודעת לנבוח. ארנבים שקטים!' },
+      'ella-parrot': { c: 1, m: 'החיה של אלה נובחת — תוכי מדבר, לא נובח!' },
+      'lily-puppy':  { c: 2, m: 'לחיה של לילי יש נוצות צבעוניות!' },
+      'lily-kitten': { c: 2, m: 'לחיה של לילי יש נוצות צבעוניות!' },
+      'lily-rabbit': { c: 2, m: 'לחיה של לילי יש נוצות צבעוניות!' },
+      'oliver-puppy':  { c: 1, m: 'הכלב הנובח הוא של אלה!' },
+      'oliver-rabbit': { c: 0, m: 'הארנב עם האוזניים הארוכות הוא של לוקאס!' },
+      'oliver-parrot': { c: 2, m: 'התוכי עם הנוצות הוא של לילי!' },
+    },
+    closing: 'אוליבר אימץ את גורת החתולים! לוקאס לקח את הארנב (אוזניים ארוכות), אלה את הכלב (נובח) ולילי את התוכי (נוצות).',
+  },
+  {
+    id: 'badge', num: 7, type: 'detail', icon: '🎖️',
+    title: 'התג הסודי של מועדון החברים',
+    story: 'רק תג אחד הוא התג הרשמי של המועדון — ובו כל שלושת הסמלים.',
+    mission: 'איזה תג הוא התג הרשמי של המועדון?',
+    clues: [
+      'בתג הרשמי יש כוכב צהוב ⭐',
+      'בתג הרשמי יש לב ורוד 💗',
+      'בתג הרשמי יש ענן כחול ☁️',
+    ],
+    boardTitle: 'הקישי על תג שחסר בו סמל — עד שיישאר התג הרשמי',
+    candidates: [
+      { id: 'b2', name: 'תג 1', html: () => badgeHtml(['⭐', '💗', '🌙']),
+        chips: ['⭐', '💗', '🌙'], reason: { c: 2, m: 'אין כאן ענן כחול — יש ירח!' } },
+      { id: 'b1', name: 'תג 2', html: () => badgeHtml(['⭐', '💗', '☁️']),
+        chips: ['⭐', '💗', '☁️'], reason: null },
+      { id: 'b4', name: 'תג 3', html: () => badgeHtml(['🔴', '💗', '☁️']),
+        chips: ['🔴', '💗', '☁️'], reason: { c: 0, m: 'אין כוכב צהוב — יש עיגול אדום!' } },
+      { id: 'b3', name: 'תג 4', html: () => badgeHtml(['⭐', '🟢', '☁️']),
+        chips: ['⭐', '🟢', '☁️'], reason: { c: 1, m: 'אין לב ורוד — יש עיגול ירוק!' } },
+    ],
+    closing: '{name} הוא התג הרשמי — רק בו יש גם כוכב צהוב, גם לב ורוד וגם ענן כחול!',
+  },
+  {
+    id: 'treehouse', num: 8, type: 'rack', icon: '🏠',
+    title: 'ציר הזמן של בית העץ',
+    story: 'ארבעה חברים ביקרו היום בבית העץ — כל אחד בשעה אחרת.',
+    mission: 'מי היה בבית העץ בשעה 3 אחר הצהריים?',
+    clues: [
+      'אווה הייתה בבית העץ בשעה 1.',
+      'בן ביקר שעתיים אחרי אווה.',
+      'כלואי ביקרה שעה אחרי בן.',
+      'דן ביקר בין אווה לבן.',
+    ],
+    boardTitle: 'שבצי כל אחד בשעה שבה ביקר',
+    tokens: ['ben', 'chloe', 'dan'],
+    fixed: { ava: 0 },
+    solution: { dan: 1, ben: 2, chloe: 3 },
+    answerToken: 'ben',
+    layout: 'timeline',
+    slots: [
+      { clock: '🕐', label: '1 בצהריים' },
+      { clock: '🕑', label: '2 אחה"צ' },
+      { clock: '🕒', label: '3 אחה"צ' },
+      { clock: '🕓', label: '4 אחה"צ' },
+    ],
+    reject: {
+      'ben-1':   { c: 1, m: 'בן ביקר שעתיים אחרי אווה: 1 ועוד 2 = 3!' },
+      'ben-3':   { c: 1, m: 'שעתיים אחרי 1 זה 3 — לא 4!' },
+      'chloe-1': { c: 2, m: 'כלואי ביקרה שעה אחרי בן — זה מוקדם מדי!' },
+      'chloe-2': { c: 2, m: 'כלואי באה שעה אחרי בן. מתי היה בן?' },
+      'dan-2':   { c: 3, m: 'דן ביקר בין אווה לבן — באמצע!' },
+      'dan-3':   { c: 3, m: 'דן ביקר בין אווה לבן — לא אחרי בן!' },
+    },
+    closing: 'בן היה בבית העץ בשעה 3! אווה ב-1, דן ב-2 (בין אווה לבן), בן ב-3 וכלואי ב-4.',
+  },
+  {
+    id: 'heights', num: 9, type: 'rack', icon: '📏',
+    title: 'מסדר הגבהים',
+    story: 'ארבעה חברים מסתדרים בשורה — מהגבוה ביותר לנמוך ביותר.',
+    mission: 'מי השני הכי נמוך בקבוצה?',
+    clues: [
+      'דן הכי גבוה.',
+      'בן הכי נמוך.',
+      'אלכס גבוה מבן, אבל נמוך מקלרה.',
+    ],
+    boardTitle: 'העמידי כל אחד במקום שלו במסדר',
+    tokens: ['dan', 'ben', 'alex', 'clara'],
+    solution: { dan: 0, clara: 1, alex: 2, ben: 3 },
+    answerToken: 'alex',
+    layout: 'podium',
+    slots: [
+      { h: 130, label: '1 — הכי גבוה' },
+      { h: 100, label: '2' },
+      { h: 70,  label: '3' },
+      { h: 45,  label: '4 — הכי נמוך' },
+    ],
+    reject: {
+      'dan-1': { c: 0, m: 'אבל דן הכי גבוה מכולם!' },
+      'dan-2': { c: 0, m: 'אבל דן הכי גבוה מכולם!' },
+      'dan-3': { c: 0, m: 'אבל דן הכי גבוה מכולם!' },
+      'ben-0': { c: 1, m: 'אבל בן הכי נמוך!' },
+      'ben-1': { c: 1, m: 'אבל בן הכי נמוך!' },
+      'ben-2': { c: 1, m: 'אבל בן הכי נמוך!' },
+      'clara-0': { c: 0, m: 'הכי גבוה זה דן!' },
+      'clara-2': { c: 2, m: 'קלרה גבוהה מאלכס — מגיע לה מקום גבוה יותר!' },
+      'clara-3': { c: 1, m: 'הכי נמוך זה בן!' },
+      'alex-0': { c: 0, m: 'הכי גבוה זה דן!' },
+      'alex-1': { c: 2, m: 'אלכס נמוך מקלרה!' },
+      'alex-3': { c: 2, m: 'אלכס גבוה מבן — והכי נמוך זה בן!' },
+    },
+    closing: 'אלכס הוא השני הכי נמוך! הסדר המלא: דן, קלרה, אלכס, בן.',
+  },
+  {
+    id: 'key', num: 10, type: 'detail', icon: '🗝️',
+    title: 'המפתח הזהוב',
+    story: 'תיבת האוצר נעולה! רק מפתח אחד מתאים למנעול.',
+    mission: 'איזה מפתח יפתח את תיבת האוצר?',
+    clues: [
+      'מפתח האוצר עשוי זהב.',
+      'ראש המפתח עגול.',
+      'ללהב המפתח שלושה חריצים.',
+    ],
+    boardTitle: 'הקישי על מפתח שבטוח לא מתאים — עד שיישאר אחד',
+    candidates: [
+      { id: 'k3', name: 'מפתח 1', html: () => keySvg('gold', 'square', 3),
+        chips: ['זהב', 'ראש מרובע', '3 חריצים'], reason: { c: 1, m: 'הראש של המפתח הזה מרובע — צריך עגול!' } },
+      { id: 'k1', name: 'מפתח 2', html: () => keySvg('silver', 'round', 3),
+        chips: ['כסף', 'ראש עגול', '3 חריצים'], reason: { c: 0, m: 'המפתח הזה עשוי כסף — מפתח האוצר עשוי זהב!' } },
+      { id: 'k2', name: 'מפתח 3', html: () => keySvg('gold', 'round', 3),
+        chips: ['זהב', 'ראש עגול', '3 חריצים'], reason: null },
+      { id: 'k4', name: 'מפתח 4', html: () => keySvg('gold', 'round', 2),
+        chips: ['זהב', 'ראש עגול', '2 חריצים'], reason: { c: 2, m: 'ספרי את החריצים — יש רק שניים, וצריך שלושה!' } },
+    ],
+    closing: '{name} פותח את תיבת האוצר — זהב, ראש עגול ושלושה חריצים. כל שלושת הסימנים!',
+  },
+];
+
+/* ================= ארגז כלים (מטא-משחק) ================= */
+const TOOL_TYPES = {
+  spatial: { emoji: '🗺️', name: 'מפת הזירה' },
+  grid:    { emoji: '🧮', name: 'רשת ההיגיון' },
+  rack:    { emoji: '📐', name: 'סרגל הסדר' },
+  detail:  { emoji: '🔍', name: 'זכוכית המגדלת' },
+};
+
+/* ================= מצב ושמירה ================= */
+const STORE_KEY = 'littleDetectiveProgress';
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { solved: {} }; }
+  catch (e) { return { solved: {} }; }
+}
+function saveProgress(p) { localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
+let progress = loadProgress();
+let currentCase = null;
+
+/* ================= אלמנטים ================= */
+const $ = id => document.getElementById(id);
+const boardScreen = $('boardScreen'), caseScreen = $('caseScreen');
+const bubble = $('bubble');
+let bubbleTimer = null;
+
+/* ================= מסך לוח התיקים ================= */
+function unlockedTools() {
+  const types = new Set(CASES.filter(c => progress.solved[c.id]).map(c => c.type));
+  return types;
+}
+function renderBoard() {
+  const solvedCount = Object.keys(progress.solved).length;
+  $('progressPill').textContent = `${solvedCount}/${CASES.length} תיקים`;
+
+  const strip = $('toolsStrip');
+  strip.querySelectorAll('.tool').forEach(el => el.remove());
+  const owned = unlockedTools();
+  Object.entries(TOOL_TYPES).forEach(([type, t]) => {
+    const el = document.createElement('span');
+    el.className = 'tool' + (owned.has(type) ? '' : ' locked');
+    el.textContent = `${t.emoji} ${t.name}`;
+    strip.appendChild(el);
+  });
+
+  const grid = $('caseGrid');
+  grid.innerHTML = '';
+  CASES.forEach(c => {
+    const solved = !!progress.solved[c.id];
+    const card = document.createElement('button');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <span class="case-num">תיק מס' ${c.num}</span>
+      ${solved ? '<span class="stamp">נסגר ✔</span>' : ''}
+      <span class="case-icon">${c.icon}</span>
+      <h3>${c.title}</h3>
+      <span class="case-tool">${TOOL_TYPES[c.type].emoji} ${TOOL_TYPES[c.type].name}</span>`;
+    card.addEventListener('click', () => { playSfx('open'); openCase(c); });
+    grid.appendChild(card);
+  });
+}
+
+/* ================= בועת משוב + הבהוב רמז ================= */
+function showBubble(msg, kind, who) {
+  clearTimeout(bubbleTimer);
+  bubble.className = 'bubble show ' + (kind || 'info');
+  bubble.innerHTML = `<span class="who">${who || (kind === 'bad' ? '🤔' : kind === 'good' ? '🕵️‍♀️' : '💡')}</span><span>${msg}</span>`;
+  bubbleTimer = setTimeout(() => { bubble.classList.remove('show'); }, 5000);
+}
+function flashClue(idx) {
+  const li = $('cluesList').children[idx];
+  if (!li) return;
+  li.classList.remove('flash');
+  void li.offsetWidth; // מאלץ ריסטרט של האנימציה
+  li.classList.add('flash');
+}
+function shakeEl(el) {
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+/* ================= פתיחת תיק ================= */
+function openCase(c) {
+  currentCase = c;
+  stopNarration();
+  boardScreen.classList.add('hidden');
+  caseScreen.classList.remove('hidden');
+  window.scrollTo(0, 0);
+
+  $('caseLabel').textContent = `תיק מס' ${c.num} · ${c.title}`;
+  $('caseStory').textContent = c.story;
+  $('caseQuestion').textContent = c.mission;
+  $('boardTitle').textContent = c.boardTitle;
+  $('evidenceExtra').innerHTML = c.evidenceExtra ? c.evidenceExtra() : '';
+  const ol = $('cluesList');
+  ol.innerHTML = '';
+  c.clues.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    ol.appendChild(li);
+  });
+  bubble.className = 'bubble';
+  bubble.innerHTML = '';
+
+  const mount = $('boardMount');
+  mount.innerHTML = '';
+  if (c.type === 'grid') buildGrid(c, mount);
+  else if (c.type === 'detail') buildDetail(c, mount);
+  else buildPlacement(c, mount); // spatial + rack
+}
+
+/* ================= מנוע שיבוץ (מרחבי + סידור) ================= */
+function buildPlacement(c, mount) {
+  const st = { selected: null, placed: {} };
+
+  // מגש דמויות
+  const tray = document.createElement('div');
+  tray.className = 'tray';
+  const tokenEls = {};
+  c.tokens.forEach(tid => {
+    const b = document.createElement('button');
+    b.className = 'token';
+    b.innerHTML = avatarHtml(tid) + `<span class="t-name">${KIDS[tid].name}</span>`;
+    b.addEventListener('click', () => {
+      if (st.placed[tid] !== undefined) return;
+      playSfx('tap');
+      st.selected = st.selected === tid ? null : tid;
+      Object.values(tokenEls).forEach(el => el.classList.remove('selected'));
+      if (st.selected) b.classList.add('selected');
+    });
+    tokenEls[tid] = b;
+    tray.appendChild(b);
+  });
+  mount.appendChild(tray);
+
+  // בניית לוח לפי פריסה
+  const sockets = [];
+  const socketNames = [];
+  function mkSocket(idx) {
+    const s = document.createElement('button');
+    s.className = 'socket';
+    s.textContent = '?';
+    s.setAttribute('aria-label', 'מקום פנוי');
+    s.addEventListener('click', () => socketTap(idx));
+    sockets[idx] = s;
+    return s;
+  }
+  function mkName(idx) {
+    const n = document.createElement('div');
+    n.className = 'socket-name';
+    socketNames[idx] = n;
+    return n;
+  }
+
+  if (c.layout === 'lockers') {
+    const row = document.createElement('div');
+    row.className = 'lockers-row';
+    c.slots.forEach((sl, i) => {
+      const col = document.createElement('div');
+      col.className = 'locker-col';
+      col.innerHTML = `<img src="${sl.img}" alt="ארונית ${sl.label}">`;
+      col.appendChild(mkSocket(i));
+      col.appendChild(mkName(i));
+      row.appendChild(col);
+    });
+    mount.appendChild(row);
+  } else if (c.layout === 'picnic') {
+    const wrap = document.createElement('div');
+    wrap.className = 'picnic-wrap';
+    wrap.innerHTML = `<div class="picnic-table">🧺</div>`;
+    c.slots.forEach((sl, i) => {
+      const seat = document.createElement('div');
+      seat.className = 'seat ' + sl.pos;
+      const comp = document.createElement('div');
+      comp.className = 'compass';
+      comp.textContent = sl.label;
+      seat.appendChild(comp);
+      seat.appendChild(mkSocket(i));
+      seat.appendChild(mkName(i));
+      if (i === 0) {
+        const hint = document.createElement('div');
+        hint.className = 'leo-hint';
+        hint.textContent = '⬅ היד הימנית של ליאו';
+        seat.appendChild(hint);
+      }
+      wrap.appendChild(seat);
+    });
+    mount.appendChild(wrap);
+  } else if (c.layout === 'podium') {
+    const row = document.createElement('div');
+    row.className = 'podium-row';
+    c.slots.forEach((sl, i) => {
+      const col = document.createElement('div');
+      col.className = 'podium-col';
+      col.appendChild(mkSocket(i));
+      const step = document.createElement('div');
+      step.className = 'podium-step';
+      step.style.height = sl.h + 'px';
+      step.textContent = i + 1;
+      col.appendChild(step);
+      const lbl = document.createElement('div');
+      lbl.className = 'step-label';
+      lbl.textContent = sl.label;
+      col.appendChild(lbl);
+      col.insertBefore(mkName(i), step);
+      row.appendChild(col);
+    });
+    mount.appendChild(row);
+  } else if (c.layout === 'timeline') {
+    const row = document.createElement('div');
+    row.className = 'timeline-row';
+    c.slots.forEach((sl, i) => {
+      const col = document.createElement('div');
+      col.className = 'time-col';
+      col.innerHTML = `<span class="clock">${sl.clock}</span><span class="time-label">${sl.label}</span>`;
+      col.appendChild(mkSocket(i));
+      col.appendChild(mkName(i));
+      row.appendChild(col);
+    });
+    mount.appendChild(row);
+  }
+
+  // דמויות קבועות מראש (נתון בתיק, לא חלק מהחידה)
+  function fillSocket(idx, tid, isFixed) {
+    const s = sockets[idx];
+    s.classList.add('filled');
+    if (isFixed) s.classList.add('fixed');
+    s.innerHTML = avatarHtml(tid);
+    s.setAttribute('aria-label', KIDS[tid].name);
+    socketNames[idx].textContent = KIDS[tid].name;
+  }
+  Object.entries(c.fixed || {}).forEach(([tid, idx]) => fillSocket(idx, tid, true));
+
+  function tokenAt(idx) {
+    return Object.keys(st.placed).find(t => st.placed[t] === idx);
+  }
+
+  function socketTap(idx) {
+    const fixedToken = Object.keys(c.fixed || {}).find(t => c.fixed[t] === idx);
+    if (fixedToken) {
+      playSfx('tap');
+      showBubble(`${KIDS[fixedToken].name} כבר במקום — זה נתון בתיק!`, 'info');
+      return;
+    }
+    const occupant = tokenAt(idx);
+    if (occupant && !st.selected) {
+      // הסרה חזרה למגש
+      playSfx('tap');
+      delete st.placed[occupant];
+      const s = sockets[idx];
+      s.classList.remove('filled');
+      s.textContent = '?';
+      socketNames[idx].textContent = '';
+      tokenEls[occupant].classList.remove('used');
+      return;
+    }
+    if (!st.selected) {
+      showBubble('קודם בחרי דמות מהמגש למטה 👇', 'info');
+      return;
+    }
+    if (occupant) {
+      showBubble('המקום הזה תפוס — אפשר להקיש עליו כדי לפנות אותו.', 'info');
+      return;
+    }
+    const tid = st.selected;
+    if (c.solution[tid] === idx) {
+      // שיבוץ תקין — ננעל במקום
+      playSfx('place');
+      st.placed[tid] = idx;
+      fillSocket(idx, tid, false);
+      tokenEls[tid].classList.remove('selected');
+      tokenEls[tid].classList.add('used');
+      st.selected = null;
+      checkComplete();
+    } else {
+      // דחייה סיבתית: הרמז הספציפי שנשבר
+      playSfx('error');
+      shakeEl(sockets[idx]);
+      const r = c.reject[`${tid}-${idx}`] || { c: 0, m: 'משהו כאן מתנגש עם הרמזים — נסי שוב!' };
+      showBubble(r.m, 'bad');
+      flashClue(r.c);
+    }
+  }
+
+  function checkComplete() {
+    const done = c.tokens.every(t => st.placed[t] !== undefined);
+    if (!done) return;
+    // הדגשת התשובה למשימה מתוך מצב הלוח, ואז סגירת תיק
+    const ansIdx = c.solution[c.answerToken];
+    if (ansIdx !== undefined) sockets[ansIdx].classList.add('answer-glow');
+    setTimeout(() => caseSolved(c), 1400);
+  }
+}
+
+/* ================= מנוע רשת היגיון ================= */
+function buildGrid(c, mount) {
+  const marks = {}; // 'row-col' -> 'x' | 'v'
+  const cellEls = {};
+
+  const table = document.createElement('table');
+  table.className = 'grid-table';
+  const thead = document.createElement('tr');
+  thead.innerHTML = '<th></th>' + c.cols.map(col =>
+    `<th><span class="col-emoji">${col.emoji}</span>${col.name}</th>`).join('');
+  table.appendChild(thead);
+
+  c.rows.forEach(row => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.className = 'row-head';
+    th.innerHTML = `${row.emoji} ${row.name}`;
+    tr.appendChild(th);
+    c.cols.forEach(col => {
+      const td = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.className = 'grid-cell';
+      btn.addEventListener('click', () => cellTap(row.id, col.id));
+      cellEls[`${row.id}-${col.id}`] = btn;
+      td.appendChild(btn);
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+  mount.appendChild(table);
+
+  const legend = document.createElement('div');
+  legend.className = 'grid-legend';
+  legend.innerHTML = 'הקשה על משבצת: ריק ← ✗ ← ✓ ← ריק.<br>כשמסמנים ✓ — שאר המשבצות בשורה ובטור מקבלות ✗ אוטומטית (כל אחד מקבל בדיוק אחד!)';
+  mount.appendChild(legend);
+
+  function vInRow(rowId) { return c.cols.some(col => marks[`${rowId}-${col.id}`] === 'v'); }
+  function vInCol(colId) { return c.rows.some(row => marks[`${row.id}-${colId}`] === 'v'); }
+
+  function refresh() {
+    c.rows.forEach(row => c.cols.forEach(col => {
+      const key = `${row.id}-${col.id}`;
+      const el = cellEls[key];
+      const m = marks[key];
+      el.classList.remove('mark-x', 'mark-v', 'auto-x');
+      if (m === 'v') { el.textContent = '✓'; el.classList.add('mark-v'); }
+      else if (m === 'x') { el.textContent = '✗'; el.classList.add('mark-x'); }
+      else if (vInRow(row.id) || vInCol(col.id)) { el.textContent = '✗'; el.classList.add('auto-x'); }
+      else el.textContent = '';
+    }));
+  }
+
+  function cellTap(rowId, colId) {
+    const key = `${rowId}-${colId}`;
+    const cur = marks[key];
+    const el = cellEls[key];
+    if (cur === 'v') {
+      playSfx('toggle');
+      delete marks[key];
+    } else if (cur === 'x') {
+      // ניסיון לסמן ✓ — אכיפת חוק המבנה בלבד (לא פרשנות רמזים)
+      if (vInRow(rowId) || vInCol(colId)) {
+        playSfx('error');
+        shakeEl(el);
+        showBubble('כבר יש ✓ בשורה או בטור האלה — כל אחד מקבל בדיוק אחד!', 'bad');
+        return;
+      }
+      playSfx('place');
+      marks[key] = 'v';
+    } else {
+      if (vInRow(rowId) || vInCol(colId)) {
+        playSfx('error');
+        shakeEl(el);
+        showBubble('המשבצת הזאת כבר קיבלה ✗ אוטומטי — יש ✓ בשורה או בטור שלה.', 'bad');
+        return;
+      }
+      playSfx('toggle');
+      marks[key] = 'x';
+    }
+    refresh();
+    if (marks[key] === 'v') maybeValidate();
+  }
+
+  function maybeValidate() {
+    const allMarked = c.rows.every(row => vInRow(row.id));
+    if (!allMarked) return;
+    // הלוח מלא — בודקים מול הרמזים ומחזירים משוב סיבתי ספציפי
+    for (const row of c.rows) {
+      const vCol = c.cols.find(col => marks[`${row.id}-${col.id}`] === 'v').id;
+      if (c.solution[row.id] !== vCol) {
+        const w = c.wrong[`${row.id}-${vCol}`] || { c: 0, m: 'משהו לא מסתדר עם הרמזים — בדקי שוב!' };
+        playSfx('error');
+        shakeEl(cellEls[`${row.id}-${vCol}`]);
+        showBubble(w.m, 'bad');
+        flashClue(w.c);
+        return;
+      }
+    }
+    setTimeout(() => caseSolved(c), 700);
+  }
+
+  refresh();
+}
+
+/* ================= מנוע התאמת פרטים ================= */
+function buildDetail(c, mount) {
+  const gone = new Set();
+  let wrongTaps = 0;
+  const cardEls = {};
+
+  const grid = document.createElement('div');
+  grid.className = 'cands';
+  c.candidates.forEach(cand => {
+    const card = document.createElement('button');
+    card.className = 'cand';
+    card.innerHTML = `${cand.html()}
+      <div class="cand-name">${cand.name}</div>
+      <div class="chips">${cand.chips.map(ch => `<span>${ch}</span>`).join('')}</div>
+      <div class="why"></div>`;
+    card.addEventListener('click', () => candTap(cand.id));
+    cardEls[cand.id] = card;
+    grid.appendChild(card);
+  });
+  mount.appendChild(grid);
+
+  function remaining() { return c.candidates.filter(x => !gone.has(x.id)); }
+
+  function candTap(id) {
+    if (gone.has(id)) { playSfx('tap'); return; }
+    const cand = c.candidates.find(x => x.id === id);
+    const rem = remaining();
+
+    if (!cand.reason) {
+      // זה המועמד האמיתי
+      if (rem.length > 1) {
+        // עדיין לא הוכרע — דחיפה קדימה, לא הפסד ולא חשיפה
+        playSfx('error');
+        shakeEl(cardEls[id]);
+        wrongTaps++;
+        if (wrongTaps >= 2) {
+          grid.classList.add('show-chips');
+          showBubble('טיפ: תסתכלי על הפרטים הקטנים שמתחת לכל תמונה והשווי אותם לרמזים.', 'info');
+        } else {
+          showBubble('רגע! יש עוד חשודים שאפשר לפסול — בדקי שוב את הרמזים.', 'info');
+        }
+        return;
+      }
+      // נשאר אחרון — זו התשובה הסופית של הבלשית
+      playSfx('star');
+      caseSolved(c, cand.name);
+      return;
+    }
+
+    // פסילה נכונה — הילדה מצאה סתירה אמיתית
+    playSfx('swipe');
+    gone.add(id);
+    cardEls[id].classList.add('eliminated');
+    cardEls[id].querySelector('.why').textContent = cand.reason.m;
+    showBubble('בדיוק! ' + cand.reason.m, 'good');
+    flashClue(cand.reason.c);
+
+    const remNow = remaining();
+    if (remNow.length === 1) {
+      const lastEl = cardEls[remNow[0].id];
+      setTimeout(() => {
+        lastEl.classList.add('last-glow');
+        showBubble('נשאר רק אחד! הקישי עליו כדי לסגור את התיק. 🎯', 'info');
+      }, 900);
+    }
+  }
+}
+
+/* ================= סגירת תיק ================= */
+function caseSolved(c, dynamicName) {
+  const toolsBefore = unlockedTools();
+  const firstTime = !progress.solved[c.id];
+  progress.solved[c.id] = Date.now();
+  saveProgress(progress);
+
+  playSfx('win');
+  setTimeout(() => playSfx('star'), 500);
+
+  $('closingText').textContent = c.closing.replace('{name}', dynamicName || '');
+  const toast = $('toolToast');
+  if (firstTime && !toolsBefore.has(c.type)) {
+    const t = TOOL_TYPES[c.type];
+    toast.textContent = `🧰 כלי חדש נוסף לערכה: ${t.emoji} ${t.name}!`;
+    toast.style.display = 'block';
+  } else {
+    toast.style.display = 'none';
+  }
+
+  const nextCase = CASES.find(x => !progress.solved[x.id]);
+  $('nextCaseBtn').style.display = nextCase ? '' : 'none';
+
+  // קונפטי
+  const card = $('closedCard');
+  card.querySelectorAll('.confetti-bit').forEach(el => el.remove());
+  const colors = ['#F2C14E', '#8B2635', '#7A9B76', '#6FA8C9', '#E58BB0'];
+  for (let i = 0; i < 26; i++) {
+    const bit = document.createElement('span');
+    bit.className = 'confetti-bit';
+    bit.style.left = Math.random() * 100 + '%';
+    bit.style.background = colors[i % colors.length];
+    bit.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    bit.style.animationDelay = (Math.random() * 0.7) + 's';
+    card.appendChild(bit);
+  }
+
+  $('closedOverlay').classList.remove('hidden');
+}
+
+$('nextCaseBtn').addEventListener('click', () => {
+  playSfx('button');
+  $('closedOverlay').classList.add('hidden');
+  const next = CASES.find(x => !progress.solved[x.id]);
+  if (next) { playSfx('open'); openCase(next); }
+  else goBoard();
+});
+$('overlayBoardBtn').addEventListener('click', () => {
+  playSfx('button');
+  $('closedOverlay').classList.add('hidden');
+  goBoard();
+});
+
+/* ================= ניווט ================= */
+function goBoard() {
+  stopNarration();
+  currentCase = null;
+  caseScreen.classList.add('hidden');
+  boardScreen.classList.remove('hidden');
+  renderBoard();
+  window.scrollTo(0, 0);
+}
+$('backToBoard').addEventListener('click', () => { playSfx('button'); goBoard(); });
+
+$('resetBtn').addEventListener('click', () => {
+  if (confirm('לאפס את כל ההתקדמות? כל התיקים ייפתחו מחדש.')) {
+    progress = { solved: {} };
+    saveProgress(progress);
+    renderBoard();
+  }
+});
+
+/* ================= השתקה ================= */
+const muteBtn = $('muteBtn');
+function refreshMute() { muteBtn.textContent = muted ? '🔇' : '🔊'; }
+muteBtn.addEventListener('click', () => {
+  muted = !muted;
+  localStorage.setItem('ldMuted', muted ? '1' : '0');
+  refreshMute();
+  if (!muted) playSfx('tap');
+});
+refreshMute();
+
+/* ================= הקראה (תמיכה במי שעוד לא קוראת שוטף) ================= */
+let speaking = false;
+const narrateBtn = $('narrateBtn');
+function stopNarration() {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  speaking = false;
+  narrateBtn.classList.remove('speaking');
+}
+narrateBtn.addEventListener('click', () => {
+  if (!('speechSynthesis' in window)) {
+    showBubble('הדפדפן הזה לא תומך בהקראה.', 'info');
+    return;
+  }
+  if (speaking) { stopNarration(); return; }
+  const c = currentCase;
+  if (!c) return;
+  const text = [c.story, 'המשימה: ' + c.mission, 'הרמזים:', ...c.clues].join('. ');
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'he-IL';
+  u.rate = 0.92;
+  u.onend = () => { speaking = false; narrateBtn.classList.remove('speaking'); };
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  speaking = true;
+  narrateBtn.classList.add('speaking');
+});
+
+/* ================= התחלה ================= */
+renderBoard();
+</script>
+</body>
+</html>

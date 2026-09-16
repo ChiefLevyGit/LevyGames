@@ -1,6 +1,24 @@
 # קבצי עבודה פנימיים - לא עולים לפרודקשן
 Design.info/
 
+# חבילות מקור לנכסים - נשארות מקומית בלבד, לא עולות לפרודקשן.
+# מהאתר נצרכים רק: JDSherbert Mono/mp3, וקבצי mp3 בודדים בשורש assets.
+assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Stereo/
+assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/m4a/
+assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/ogg/
+assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/wav (HD)/
+assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/wav (SD)/
+assets/Kids-GUI/
+assets/Ambient 5 free sounds pack/
+assets/DEMO_Cozy_UI_Pack_doboui/
+assets/Pixel SHMUP Free 1.3/
+assets/potion-drink.mp3
+assets/spell-cast.mp3
+assets/sword-clash.mp3
+
+# גיליונות מקור של פרצופי הילדים (במשחק נטענים רק הקבצים החתוכים)
+games/Little-detective-new/images/kids/sheet-*.png
+
 # סודות - לעולם לא ל-git
 .env
 .env.local
@@ -15,3 +33,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# פרוטוטייפ v0 שנפסל (ראו tasks.md סבב 3) - נשאר מקומית, לא לפרודקשן
+games/logic-detective/

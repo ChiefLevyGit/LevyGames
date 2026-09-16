@@ -58,6 +58,7 @@ const res = await fetch("https://api.openai.com/v1/images/generations", {
     prompt: args.prompt,
     size: args.size,
     n: 1,
+    ...(args.background ? { background: args.background, output_format: "png" } : {}),
   }),
 });
 

@@ -131,6 +131,14 @@ const stars=Array.from({length:STAR_N},()=>({
   x:Math.random()*CW, y:Math.random()*CH,
   r:Math.random()*1.5+0.3, a:Math.random()*0.7+0.3
 }));
+function drawNebula(){
+  const n=G.imgs.nebula;
+  if(!n)return;
+  ctx.save(); ctx.globalAlpha=0.3;
+  if(n[0])ctx.drawImage(n[0],30,50,260,210);
+  if(n[1])ctx.drawImage(n[1],470,330,300,240);
+  ctx.restore();
+}
 function drawStars(){
   stars.forEach(s=>{
     ctx.globalAlpha=s.a; ctx.fillStyle='#fff';
@@ -162,6 +170,22 @@ function drawParts(){
     const s=p.sz*t; ctx.fillRect(p.x-s/2,p.y-s/2,s,s);
   });
   ctx.restore();
+}
+
+// === EXPLOSIONS ===
+const EXPLOSION_FRAME_S=0.045;
+function emitExplosion(x,y){G.fx.push({x,y,frame:0,t:0});}
+function updateFx(dt){
+  G.fx.forEach(f=>{f.t+=dt; if(f.t>=EXPLOSION_FRAME_S){f.t-=EXPLOSION_FRAME_S;f.frame++;}});
+  G.fx=G.fx.filter(f=>f.frame<8);
+}
+function drawFx(){
+  const frames=G.imgs.explosion;
+  if(!frames)return;
+  G.fx.forEach(f=>{
+    const img=frames[f.frame];
+    if(img)ctx.drawImage(img,f.x-22,f.y-22,44,44);
+  });
 }
 
 // === SHIELD ===
@@ -197,24 +221,6 @@ class Shield{
   }
 }
 
-// === SQUID DRAW ===
-function drawSquid(x,y,w,h,frame){
-  ctx.save(); ctx.translate(x+w/2,y+h/2);
-  const s=Math.min(w,h)/36;
-  ctx.fillStyle='#22ee44';
-  ctx.beginPath(); ctx.ellipse(0,-2*s,10*s,8*s,0,0,Math.PI*2); ctx.fill();
-  ctx.fillRect(-9*s,-12*s,4*s,5*s); ctx.fillRect(5*s,-12*s,4*s,5*s);
-  ctx.fillStyle='#ff2222';
-  ctx.beginPath(); ctx.arc(-4*s,-2*s,2.2*s,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(4*s,-2*s,2.2*s,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#22ee44'; ctx.lineWidth=1.8*s;
-  const sp=frame===0?1.1:0.85;
-  [-9*sp,-3*sp,3*sp,9*sp].forEach(tx=>{
-    ctx.beginPath(); ctx.moveTo(tx*0.5,6*s); ctx.lineTo(tx,15*s); ctx.stroke();
-  });
-  ctx.restore();
-}
-
 // === ENEMY ===
 class Enemy{
   constructor(type,row,col,x,y){
@@ -228,11 +234,9 @@ class Enemy{
   draw(imgs){
     if(!this.alive)return;
     const dx=this.x+(CELL_W-DRAW_W)/2,dy=this.y+(CELL_H-DRAW_H)/2;
-    if(this.type==='squid'){drawSquid(dx,dy,DRAW_W,DRAW_H,this.frame);return;}
-    const img=this.type==='crab'?imgs.crab:(this.frame===0?imgs.octA:imgs.octB);
+    const img=imgs.enemy[this.type][this.frame];
     if(!img)return;
-    ctx.save(); ctx.globalCompositeOperation='screen';
-    ctx.drawImage(img,dx,dy,DRAW_W,DRAW_H); ctx.restore();
+    ctx.drawImage(img,dx,dy,DRAW_W,DRAW_H);
   }
 }
 
@@ -328,7 +332,7 @@ class Player{
 // === GAME STATE ===
 const G={
   state:'loading', score:0, hi:+localStorage.getItem('siHi')||0,
-  player:null, swarm:null, pbullet:null, ebullets:[],
+  player:null, swarm:null, pbullet:null, ebullets:[], fx:[],
   shields:[], keys:{}, imgs:{}, lastT:0, raf:null,
   menuFrame:0, menuT:0
 };
@@ -347,23 +351,38 @@ function prescale(img,w,h){
 }
 async function loadAssets(){
   try{
-    const [ship,crab,octA,octB]=await Promise.all([
-      loadImg('Images/Gemini_Generated_Image_gsrexfgsrexfgsre.png'),
-      loadImg('Images/cancer.png'),
-      loadImg('Images/tamnon.png'),
-      loadImg('Images/tamnon2.png'),
+    const [ship,crab1,crab2,oct1,oct2,sq1,sq2,bp,be,neb1,neb2,life,
+      x1,x2,x3,x4,x5,x6,x7,x8]=await Promise.all([
+      loadImg('Images/ship.png'),
+      loadImg('Images/crab_1.png'), loadImg('Images/crab_2.png'),
+      loadImg('Images/octopus_1.png'), loadImg('Images/octopus_2.png'),
+      loadImg('Images/squid_1.png'), loadImg('Images/squid_2.png'),
+      loadImg('Images/bullet_player.png'), loadImg('Images/bullet_enemy.png'),
+      loadImg('Images/nebula_1.png'), loadImg('Images/nebula_2.png'),
+      loadImg('Images/icon_life.png'),
+      loadImg('Images/explosion_1.png'), loadImg('Images/explosion_2.png'),
+      loadImg('Images/explosion_3.png'), loadImg('Images/explosion_4.png'),
+      loadImg('Images/explosion_5.png'), loadImg('Images/explosion_6.png'),
+      loadImg('Images/explosion_7.png'), loadImg('Images/explosion_8.png'),
     ]);
     G.imgs.ship=prescale(ship,72,50);
-    G.imgs.crab=prescale(crab,DRAW_W,DRAW_H);
-    G.imgs.octA=prescale(octA,DRAW_W,DRAW_H);
-    G.imgs.octB=prescale(octB,DRAW_W,DRAW_H);
+    G.imgs.enemy={
+      crab:[prescale(crab1,DRAW_W,DRAW_H),prescale(crab2,DRAW_W,DRAW_H)],
+      octopus:[prescale(oct1,DRAW_W,DRAW_H),prescale(oct2,DRAW_W,DRAW_H)],
+      squid:[prescale(sq1,DRAW_W,DRAW_H),prescale(sq2,DRAW_W,DRAW_H)],
+    };
+    G.imgs.bulletPlayer=prescale(bp,10,32);
+    G.imgs.bulletEnemy=prescale(be,14,9);
+    G.imgs.nebula=[neb1,neb2];
+    G.imgs.life=prescale(life,20,20);
+    G.imgs.explosion=[x1,x2,x3,x4,x5,x6,x7,x8].map(im=>prescale(im,44,44));
   }catch(e){console.warn('Image load issue:',e);}
   G.state='menu'; startLoop();
 }
 
 // === INIT GAME ===
 function initGame(){
-  G.score=0; G.pbullet=null; G.ebullets=[]; parts=[];
+  G.score=0; G.pbullet=null; G.ebullets=[]; G.fx=[]; parts=[];
   G.player=new Player(G.imgs.ship||null);
   G.swarm=new Swarm(G.imgs);
   const sw=22*PSIZE, gap=(CW-4*sw)/5;
@@ -394,6 +413,7 @@ function update(dt){
   G.ebullets.forEach(b=>b.y+=EB_SPD*dt);
   G.ebullets=G.ebullets.filter(b=>b.y<CH+12);
   updateParts(dt);
+  updateFx(dt);
   collide();
   if(s.alive===0){SFX.stopMarch();SFX.victory();saveHi();G.state='victory';}
   if(p.lives<=0&&!p.alive){SFX.stopMarch();saveHi();G.state='gameover';}
@@ -412,6 +432,7 @@ function collide(){
       G.score+=e.pts; s.kill(e);
       SFX.boom(false); SFX.updateMarch(s.alive);
       emitParts(e.x+CELL_W/2,e.y+CELL_H/2,'#ff7700');
+      emitExplosion(e.x+CELL_W/2,e.y+CELL_H/2);
       G.pbullet=null; p.canShoot=true; hit=true;
     }
     if(G.pbullet){
@@ -422,7 +443,7 @@ function collide(){
   for(let i=G.ebullets.length-1;i>=0;i--){
     const b=G.ebullets[i],bb={x:b.x-2,y:b.y,w:4,h:10};
     if(p.alive&&aabb(bb,p.bounds())){
-      if(p.hit()){SFX.boom(true);emitParts(p.x+p.w/2,p.y+p.h/2,'#00ff88',20);}
+      if(p.hit()){SFX.boom(true);emitParts(p.x+p.w/2,p.y+p.h/2,'#00ff88',20);emitExplosion(p.x+p.w/2,p.y+p.h/2);}
       G.ebullets.splice(i,1); continue;
     }
     for(const sh of G.shields)
@@ -435,21 +456,21 @@ function drawHUD(){
   ctx.font='bold 17px monospace'; ctx.fillStyle='#00ff41';
   ctx.textAlign='left'; ctx.fillText('SCORE: '+G.score,18,26);
   ctx.textAlign='center'; ctx.fillText('HI-SCORE: '+G.hi,CW/2,26);
+  const ICON=20,GAP=4,rightEdge=CW-18;
+  const lives=G.player?Math.max(0,G.player.lives):0,lifeImg=G.imgs.life;
+  for(let i=0;i<lives;i++){
+    const ix=rightEdge-(i+1)*(ICON+GAP);
+    if(lifeImg)ctx.drawImage(lifeImg,ix,10,ICON,ICON);
+  }
   ctx.textAlign='right';
-  const lv=G.player?'▲ '.repeat(Math.max(0,G.player.lives)).trim():'';
-  ctx.fillText('LIVES: '+lv,CW-18,26);
+  ctx.fillText('LIVES:',rightEdge-MAX_LIVES*(ICON+GAP)-6,26);
   ctx.strokeStyle='rgba(0,255,65,0.2)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(0,34); ctx.lineTo(CW,34); ctx.stroke();
 }
 
 function drawMiniEnemy(type,x,y,frame){
-  ctx.save();
-  if(type==='squid'){drawSquid(x,y,34,26,frame);}
-  else{
-    const img=type==='crab'?G.imgs.crab:(frame===0?G.imgs.octA:G.imgs.octB);
-    if(img){ctx.globalCompositeOperation='screen';ctx.drawImage(img,x,y,34,26);}
-  }
-  ctx.restore();
+  const img=G.imgs.enemy[type][frame];
+  if(img)ctx.drawImage(img,x,y,34,26);
 }
 
 function renderMenu(){
@@ -493,6 +514,7 @@ function renderOverlay(title,col){
 
 function render(){
   ctx.fillStyle='#000010'; ctx.fillRect(0,0,CW,CH);
+  drawNebula();
   drawStars();
   if(G.state==='loading'){
     ctx.font='bold 26px monospace'; ctx.fillStyle='#00ff41'; ctx.textAlign='center';
@@ -501,10 +523,18 @@ function render(){
   if(G.state==='menu'){renderMenu();return;}
   G.shields.forEach(s=>s.draw());
   G.swarm.draw();
-  ctx.fillStyle='#ff4444';
-  G.ebullets.forEach(b=>ctx.fillRect(b.x-2,b.y,4,10));
+  const be=G.imgs.bulletEnemy;
+  G.ebullets.forEach(b=>{
+    if(be)ctx.drawImage(be,b.x-7,b.y-4,14,9);
+    else{ctx.fillStyle='#ff4444';ctx.fillRect(b.x-2,b.y,4,10);}
+  });
   G.player.draw();
-  if(G.pbullet){ctx.fillStyle='#ffff44';ctx.fillRect(G.pbullet.x-2,G.pbullet.y,4,14);}
+  if(G.pbullet){
+    const bp=G.imgs.bulletPlayer;
+    if(bp)ctx.drawImage(bp,G.pbullet.x-5,G.pbullet.y-16,10,32);
+    else{ctx.fillStyle='#ffff44';ctx.fillRect(G.pbullet.x-2,G.pbullet.y,4,14);}
+  }
+  drawFx();
   drawParts();
   drawHUD();
   if(G.state==='gameover')renderOverlay('GAME OVER','#ff3333');
