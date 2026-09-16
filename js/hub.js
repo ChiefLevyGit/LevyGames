@@ -1,5 +1,5 @@
 // ?v= בסוף הייבוא הוא cache-busting - ראו Design.info/tasks.md
-import { GAMES } from './games-data.js?v=4';
+import { GAMES } from './games-data.js?v=5';
 
 const grid = document.getElementById('gamesGrid');
 const countEl = document.getElementById('gamesCount');

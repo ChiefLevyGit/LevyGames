@@ -44,6 +44,17 @@ export const GAMES = [
     playLabel: 'לחקירה!',
     tags: ['חידות היגיון', '10 תיקים', 'גילאי 6-10'],
     gradient: ['#F2C14E', '#E8A0A0'],
+  },
+  {
+    id: 'code-a-bot',
+    emoji: '🤖',
+    name: 'מבוך הפקודות',
+    description: 'תכנתו את רובי הרובוט! בונים תוכנית מפקודות — קדימה, שמאלה, ימינה — ומובילים אותו אל הסוללה. 15 שלבים עם בורות, חיות מפחידות וכוכבים.',
+    playUrl: 'games/code-a-bot/index.html',
+    instructionsUrl: 'games/code-a-bot/instructions.html',
+    playLabel: 'לתכנת את רובי!',
+    tags: ['חשיבה תכנותית', '15 שלבים', 'גילאי 5-9'],
+    gradient: ['#7DD3FC', '#C4B5FD'],
     badge: 'חדש!',
   },
 ];
