@@ -3,11 +3,13 @@
 // { text: 'ספרי בדיחה לאמא או לאבא', reward: 'מזכה בברכה מיוחדת 😊' }
 // כל יום נבחרת משימה אחרת מהמערך לפי תאריך, כך שהיא לא משתנה שוב באותו היום.
 
-import { playCelebrate } from './ui-sounds.js?v=3';
+import { playCelebrate } from './hub-sounds.js?v=1';
+import { read, write } from './storage.js?v=1';
 
 const MISSIONS = [];
 
-const STORAGE_PREFIX = 'levygames.dailyMission.done.';
+// מתוייג-פרופיל: המשימה של דניאל לא מסומנת כבוצעה כשאופיר מסמנת אותה
+const DONE_NS = 'dailyMission.done.';
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -20,20 +22,13 @@ function dayOfYear() {
   return Math.floor(diff / 86400000);
 }
 
-function isDoneToday() {
-  try {
-    return localStorage.getItem(STORAGE_PREFIX + todayKey()) === '1';
-  } catch {
-    return false;
-  }
+async function isDoneToday() {
+  // truthy ולא === true: מפתחות שעברו מיגרציה מהפורמט הישן מגיעים כ-1
+  return !!(await read(DONE_NS + todayKey(), false));
 }
 
-function markDoneToday() {
-  try {
-    localStorage.setItem(STORAGE_PREFIX + todayKey(), '1');
-  } catch {
-    /* אין localStorage - הכפתור עדיין יעבוד ויזואלית, פשוט לא ייזכר אחרי רענון */
-  }
+async function markDoneToday() {
+  await write(DONE_NS + todayKey(), true);
 }
 
 function renderEmptyState(container) {
@@ -46,8 +41,7 @@ function renderEmptyState(container) {
   `;
 }
 
-function renderMission(container, mission) {
-  const done = isDoneToday();
+function renderMission(container, mission, done) {
   container.innerHTML = `
     <span class="mission-emoji" aria-hidden="true">🎁</span>
     <div class="mission-body">
@@ -60,14 +54,14 @@ function renderMission(container, mission) {
     </button>
   `;
   const btn = container.querySelector('#missionDoneBtn');
-  btn?.addEventListener('click', () => {
-    markDoneToday();
+  btn?.addEventListener('click', async () => {
+    await markDoneToday();
     playCelebrate();
-    renderMission(container, mission);
+    renderMission(container, mission, true);
   });
 }
 
-function init() {
+async function init() {
   const container = document.getElementById('dailyMissionCard');
   if (!container) return;
 
@@ -77,7 +71,7 @@ function init() {
   }
 
   const mission = MISSIONS[dayOfYear() % MISSIONS.length];
-  renderMission(container, mission);
+  renderMission(container, mission, await isDoneToday());
 }
 
 init();

@@ -1,26 +1,19 @@
 // רשימת משאלות: רעיונות למשחקים שהילדות מציעות. נשמר מקומית בדפדפן (אין שרת/בקאנד לאתר הזה).
-import { playSuccess } from './ui-sounds.js?v=3';
+import { playSuccess } from './hub-sounds.js?v=1';
+import { readGlobal, writeGlobal } from './storage.js?v=1';
 
-const STORAGE_KEY = 'levygames.wishlist.v1';
+// גלובלי ולא מתוייג-פרופיל: הרשימה משפחתית, כל אחת רואה את הרעיונות של כולן
+const WISHLIST_KEY = 'wishlist.v1';
 const MAX_ITEMS = 50;
 const MAX_LENGTH = 120;
 
-function loadWishes() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+async function loadWishes() {
+  const wishes = await readGlobal(WISHLIST_KEY, []);
+  return Array.isArray(wishes) ? wishes : [];
 }
 
-function saveWishes(wishes) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes.slice(0, MAX_ITEMS)));
-  } catch {
-    /* מצב פרטי / אחסון מלא - הרעיון עדיין יוצג ברשימה עד לרענון */
-  }
+async function saveWishes(wishes) {
+  return writeGlobal(WISHLIST_KEY, wishes.slice(0, MAX_ITEMS));
 }
 
 function renderWishes(listEl, wishes) {
@@ -40,27 +33,27 @@ function renderWishes(listEl, wishes) {
   });
 }
 
-function init() {
+async function init() {
   const form = document.getElementById('wishlistForm');
   const input = document.getElementById('wishlistInput');
   const listEl = document.getElementById('wishlistList');
   if (!form || !input || !listEl) return;
 
-  let wishes = loadWishes();
+  let wishes = await loadWishes();
   renderWishes(listEl, wishes);
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const text = input.value.trim().slice(0, MAX_LENGTH);
     if (!text) return;
 
     wishes = [{ text, addedAt: Date.now() }, ...wishes];
-    saveWishes(wishes);
     renderWishes(listEl, wishes);
     playSuccess();
 
     input.value = '';
     input.focus();
+    await saveWishes(wishes);
   });
 }
 

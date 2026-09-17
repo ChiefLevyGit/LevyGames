@@ -1,6 +1,11 @@
 # קבצי עבודה פנימיים - לא עולים לפרודקשן
 Design.info/
 
+# מקור של משחקים שדורשים build (Vite). הקוד כן עולה לגיט - רק התוצרים לא.
+# ה-build נפרס ל-games/<id>/ והוא זה שמוגש. ראו CLAUDE.md.
+src-games/*/node_modules/
+src-games/*/dist/
+
 # חבילות מקור לנכסים - נשארות מקומית בלבד, לא עולות לפרודקשן.
 # מהאתר נצרכים רק: JDSherbert Mono/mp3, וקבצי mp3 בודדים בשורש assets.
 assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Stereo/
@@ -34,5 +39,3 @@ desktop.ini
 .idea/
 *.swp
 
-# פרוטוטייפ v0 שנפסל (ראו tasks.md סבב 3) - נשאר מקומית, לא לפרודקשן
-games/logic-detective/

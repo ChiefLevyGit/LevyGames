@@ -1,19 +1,8 @@
-// צלילי UI לכל הכפתורים בהב הראשי - מיפוי לפי Design.info/sound-mapping.md.
-// לא נוגעים בסאונד של שחמט/Space Invaders עצמם - לשניהם יש כבר מערכת סאונד ייעודית משלהם.
+// צלילי UI של דף הבית - מיפוי לפי Design.info/sound-mapping.md.
+// הנכסים עצמם מגיעים מ-js/sfx.js; כאן רק חיווט ה-DOM של הפורטל.
+// לא נוגעים בסאונד של שחמט/Space Invaders עצמם - לשניהם מערכת סאונד ייעודית משלהם.
 
-const JD_PACK = 'assets/JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/mp3/JDSherbert - Ultimate UI SFX Pack - ';
-
-function makeAudio(url, volume) {
-  const audio = new Audio(url);
-  audio.volume = volume;
-  return audio;
-}
-function jdSound(name, volume = 0.5) {
-  return makeAudio(encodeURI(`${JD_PACK}${name}.mp3`), volume);
-}
-function localSound(filename, volume = 0.5) {
-  return makeAudio(encodeURI(`assets/${filename}`), volume);
-}
+import { jdSound, localSound, play } from './sfx.js?v=1';
 
 const sfx = {
   cursor: jdSound('Cursor - 1', 0.4),
@@ -22,13 +11,6 @@ const sfx = {
   chestOpen: localSound('chest-open.mp3', 0.6),
   enterGame: localSound('sound-with-a-choice-of-one-of-the-items-in-the-menu-ui.mp3', 0.6),
 };
-
-function play(audio) {
-  // משכפלים כל פעם כדי שקליקים מהירים ברצף לא יחתכו צליל קודם שעוד מתנגן
-  const clone = audio.cloneNode();
-  clone.volume = audio.volume;
-  clone.play().catch(() => {}); // מתעלמים אם הדפדפן חוסם ניגון אוטומטי מסיבה כלשהי
-}
 
 // --- ניווט עליון (#1-3) ---
 document.querySelectorAll('.nav-link').forEach((link) => {
@@ -51,11 +33,19 @@ function wireNavigatingLink(link, sound) {
   });
 }
 
-// כפתור הכניסה למשחק (#6/#8/#10) - אותו צליל בחירה לכל המשחקים
-document.querySelectorAll('.game-card').forEach((card) => {
-  wireNavigatingLink(card.querySelector('.btn-ghost'), sfx.select);
-  wireNavigatingLink(card.querySelector('.btn-primary'), sfx.enterGame);
-});
+// הכרטיסים נבנים ב-js/hub.js אחרי קריאת התקדמות (async), ולכן אי אפשר לחווט
+// אותם בטעינה - מחווטים כשהפורטל מכריז שהגריד מוכן.
+function wireGameCards() {
+  document.querySelectorAll('.game-card').forEach((card) => {
+    if (card.dataset.soundWired === '1') return; // לא לחווט פעמיים אחרי רינדור מחדש
+    card.dataset.soundWired = '1';
+    wireNavigatingLink(card.querySelector('.btn-ghost'), sfx.select);
+    wireNavigatingLink(card.querySelector('.btn-primary'), sfx.enterGame);
+  });
+}
+
+document.addEventListener('levygames:cards-rendered', wireGameCards);
+wireGameCards(); // אם הגריד כבר נבנה לפני שהמודול הזה נטען
 
 // --- משימת היום (#11) ורשימת משאלות (#12) - מיוצאים לשימוש מהמודולים האחרים ---
 export function playCelebrate() { play(sfx.chestOpen); }

@@ -6,7 +6,7 @@ import {
 } from './chessEngine.js?v=3';
 import { pieceSVG, PIECE_NAMES_HE } from './pieceArt.js?v=3';
 import { unlockAudio, playSelect, playMove, playCapture, playIllegal, playCheck, playWin } from './sounds.js?v=3';
-import { saveGame, loadGame, clearGame } from './storage.js?v=3';
+import { saveGame, loadGame, clearGame } from './storage.js?v=4';
 import { chooseAIMove } from './chessAI.js?v=3';
 
 const startScreenEl = document.getElementById('startScreen');
@@ -328,9 +328,9 @@ function undoMove() {
   announce(`המהלך בוטל. תור ${kingdomNamePlain(gameState.turn)}`);
 }
 
-function refreshResumeCard() {
+async function refreshResumeCard() {
   if (!resumeCardEl) return;
-  const saved = loadGame();
+  const saved = await loadGame();
   if (!saved) {
     resumeCardEl.classList.add('hidden');
     return;
@@ -340,8 +340,8 @@ function refreshResumeCard() {
   resumeCardEl.classList.remove('hidden');
 }
 
-function resumeGame() {
-  const saved = loadGame();
+async function resumeGame() {
+  const saved = await loadGame();
   if (!saved) {
     refreshResumeCard();
     return;

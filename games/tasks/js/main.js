@@ -1,6 +1,6 @@
 // ?v= בסוף כל ייבוא הוא cache-busting - ראו Design.info/tasks.md
 import { TASKS, TOTAL, cardIdentity, categoryIcon, categoryName } from './tasksData.js?v=2';
-import { saveProgress, loadProgress, clearProgress } from './storage.js?v=2';
+import { saveProgress, loadProgress, clearProgress } from './storage.js?v=3';
 
 const startScreenEl = document.getElementById('startScreen');
 const drawScreenEl = document.getElementById('drawScreen');
@@ -95,8 +95,8 @@ function persist() {
   }
 }
 
-function refreshResumeCard() {
-  const saved = loadProgress();
+async function refreshResumeCard() {
+  const saved = await loadProgress();
   if (!saved) {
     resumeCardEl.classList.add('hidden');
     return;
@@ -301,8 +301,8 @@ function backToMenu() {
   refreshResumeCard();
 }
 
-function resumeSaved() {
-  const saved = loadProgress();
+async function resumeSaved() {
+  const saved = await loadProgress();
   if (!saved) {
     refreshResumeCard();
     return;

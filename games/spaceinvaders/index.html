@@ -45,6 +45,8 @@ canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; 
 <body>
 <a href="../../index.html" class="hub-link" title="לדף המשחקים">🎮 Levy Games</a>
 <canvas id="c"></canvas>
+<!-- הגשר לשכבת האחסון המשותפת. חייב להיטען לפני הסקריפט של המשחק. -->
+<script src="../../js/levygames-bridge.js?v=1"></script>
 <script>
 // === CONSTANTS ===
 const CW=800, CH=600;
@@ -329,9 +331,16 @@ class Player{
   bounds(){return{x:this.x,y:this.y,w:this.w,h:this.h};}
 }
 
+// === STORAGE ===
+// השיא נשמר דרך שכבת האחסון המשותפת (js/storage.js) ומתוייג לפרופיל הפעיל.
+// הגשר נטען אסינכרונית, ולכן G.hi מתמלא ב-loadAssets ולא כאן.
+const STORE_NS='spaceinvaders.v1';
+const GAME_ID='spaceinvaders'; // חייב להיות זהה ל-id ב-js/games-data.js
+let storage=null;
+
 // === GAME STATE ===
 const G={
-  state:'loading', score:0, hi:+localStorage.getItem('siHi')||0,
+  state:'loading', score:0, hi:0,
   player:null, swarm:null, pbullet:null, ebullets:[], fx:[],
   shields:[], keys:{}, imgs:{}, lastT:0, raf:null,
   menuFrame:0, menuT:0
@@ -350,6 +359,13 @@ function prescale(img,w,h){
   return oc;
 }
 async function loadAssets(){
+  // שכבת האחסון קודם - כדי שמסך הפתיחה יציג את השיא האמיתי של הפרופיל
+  const LG=await window.LevyGames.ready;
+  if(LG){
+    storage=LG.storage;
+    const saved=await storage.read(STORE_NS,null);
+    G.hi=Number(saved?.hi)||0;
+  }
   try{
     const [ship,crab1,crab2,oct1,oct2,sq1,sq2,bp,be,neb1,neb2,life,
       x1,x2,x3,x4,x5,x6,x7,x8]=await Promise.all([
@@ -390,7 +406,14 @@ function initGame(){
   SFX.startMarch(66);
   G.state='playing';
 }
-function saveHi(){if(G.score>G.hi){G.hi=G.score;localStorage.setItem('siHi',G.hi);}}
+async function saveHi(){
+  if(G.score<=G.hi)return;
+  G.hi=G.score;
+  if(!storage)return;
+  await storage.write(STORE_NS,{hi:G.hi});
+  // דיווח ההתקדמות הוא נגזרת של השמירה - לכן הוא כאן, באותו מקום בדיוק
+  await storage.reportProgress(GAME_ID,{kind:'score',best:G.hi});
+}
 
 // === UPDATE ===
 function update(dt){

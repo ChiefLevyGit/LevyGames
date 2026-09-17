@@ -1,6 +1,11 @@
 // שמירת משחק בדפדפן, כדי שרענון / נעילת מסך / שיחה נכנסת לא ימחקו את המשחק.
+// האחסון עצמו עובר דרך שכבת האחסון המשותפת (js/storage.js בשורש), שמתייגת
+// אותו לפרופיל הפעיל. הוולידציה נשארת כאן - היא ידע של השחמט, לא של השכבה.
 
-const KEY = 'levygames.chess.v1';
+import { read, write, clear, reportProgress } from '../../../js/storage.js?v=1';
+
+const NS = 'chess.v1';
+const GAME_ID = 'chess'; // חייב להיות זהה ל-id ב-js/games-data.js
 
 function looksLikeBoard(board) {
   return Array.isArray(board) && board.length === 8 && board.every(
@@ -20,34 +25,23 @@ function isValidSave(data) {
     && Array.isArray(data.capturedByBlack);
 }
 
-export function saveGame(data) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify({ v: 1, savedAt: Date.now(), ...data }));
-  } catch (err) {
-    // מצב פרטי / אחסון מלא - המשחק ימשיך לעבוד, פשוט בלי שמירה
-    console.warn('שמירת המשחק נכשלה', err);
-  }
+export async function saveGame(data) {
+  await write(NS, { v: 1, ...data });
+  // דיווח ההתקדמות הוא נגזרת של השמירה - לכן הוא כאן, באותו מקום בדיוק
+  await reportProgress(GAME_ID, { kind: 'session', hasSave: true });
 }
 
-export function loadGame() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (!isValidSave(data)) {
-      localStorage.removeItem(KEY);
-      return null;
-    }
-    return data;
-  } catch {
+export async function loadGame() {
+  const data = await read(NS, null);
+  if (!data) return null;
+  if (!isValidSave(data)) {
+    await clearGame();
     return null;
   }
+  return data;
 }
 
-export function clearGame() {
-  try {
-    localStorage.removeItem(KEY);
-  } catch {
-    /* אין מה לעשות - ממשיכים */
-  }
+export async function clearGame() {
+  await clear(NS);
+  await reportProgress(GAME_ID, { kind: 'session', hasSave: false });
 }

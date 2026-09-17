@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מבוך הפקודות — איך משחקים?</title>
+<meta name="description" content="איך משחקים במבוך הפקודות: בונים תוכנית מפקודות ומובילים את רובי הרובוט אל הסוללה.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg1: #E0F2FE; --bg2: #DDD6FE; --card: #FFFFFF; --ink: #312E81;
+  --indigo: #4F46E5; --sky: #0EA5E9; --amber: #F59E0B; --pink: #D946EF; --green: #10B981;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: 'Rubik', system-ui, sans-serif; color: var(--ink);
+  background: linear-gradient(180deg, var(--bg1), var(--bg2)); min-height: 100vh;
+}
+header {
+  background: var(--indigo); color: #fff; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+header a { color: #fff; text-decoration: none; background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.4); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .9rem; }
+header h1 { font-size: 1.2rem; margin: 0; font-weight: 800; }
+main { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
+.card {
+  background: var(--card); border-radius: 22px; padding: 16px 20px; margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(79,70,229,.14);
+}
+.card h2 { color: var(--indigo); margin: 0 0 8px; font-size: 1.15rem; font-weight: 800; }
+.card p, .card li { line-height: 1.7; margin: 6px 0; }
+.card ul { padding-inline-start: 22px; margin: 6px 0; }
+.cmd { display: inline-block; border-radius: 12px; color: #fff; font-weight: 800; padding: 2px 12px; }
+.cmd.f { background: var(--sky); } .cmd.l { background: var(--amber); } .cmd.r { background: var(--pink); }
+.play-btn {
+  display: inline-block; background: var(--green); border-radius: 999px; padding: 14px 34px;
+  font-weight: 800; font-size: 1.15rem; color: #fff; text-decoration: none;
+  box-shadow: 0 6px 0 #047857;
+}
+.center { text-align: center; margin-top: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">⬅ למשחקים</a>
+  <h1>🤖 מבוך הפקודות — איך משחקים?</h1>
+</header>
+<main>
+  <div class="card">
+    <h2>🔋 מה המטרה?</h2>
+    <p>רובי הרובוט נגמרה לו הסוללה! בונים לו <b>תוכנית</b> — רשימת פקודות — ואז לוחצים <b>הפעל!</b> ורואים את רובי מבצע אותה צעד-צעד. המטרה: להגיע אל הסוללה הירוקה. בדרך כדאי לאסוף את כל הכוכבים ⭐!</p>
+  </div>
+  <div class="card">
+    <h2>🧩 שלוש פקודות בלבד</h2>
+    <ul>
+      <li><span class="cmd f">קדימה ⬆</span> — רובי זז משבצת אחת לכיוון שהוא מסתכל.</li>
+      <li><span class="cmd l">פנייה שמאלה ↺</span> — רובי מסתובב במקום שמאלה (לא זז!).</li>
+      <li><span class="cmd r">פנייה ימינה ↻</span> — רובי מסתובב במקום ימינה.</li>
+    </ul>
+    <p>שימו לב לאן רובי <b>מסתכל</b> — המשולש הצהוב הקטן מראה את הכיוון. "קדימה" זה תמיד קדימה <b>שלו</b>, לא שלכם!</p>
+  </div>
+  <div class="card">
+    <h2>⚠️ ממה נזהרים?</h2>
+    <ul>
+      <li><b>🪨 סלעים</b> — אי אפשר לעבור דרכם. רובי מתנגש ועוצר.</li>
+      <li><b>🦁 חיות מפחידות</b> — זאבים, תנינים ואפילו דינוזאור! רובי נבהל מהם.</li>
+      <li><b>🕳️ בורות</b> — הכי מסוכן! מי שדורך על בור... נופל פנימה. ספרו צעדים בזהירות!</li>
+      <li><b>קצה הלוח</b> — גם ממנו אפשר ליפול. 15 שלבים, וכל שלב קשה יותר!</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>💡 טיפים של מתכנתים אמיתיים</h2>
+    <ul>
+      <li>קודם <b>מתכננים</b> עם העיניים והאצבע על המסך — ורק אז בונים את התוכנית.</li>
+      <li>טעיתם? לוחצים על ה-✗ האדום כדי למחוק פקודה אחת, או על הפח 🗑️ כדי להתחיל מחדש.</li>
+      <li>רובי נפל? זה בסדר! מתקנים את התוכנית ומנסים שוב — ככה לומדים לתכנת 😊</li>
+      <li>בשלבים האחרונים יש בדיוק מספיק פקודות — כל צעד חייב להיות מדויק!</li>
+    </ul>
+  </div>
+  <div class="center">
+    <a class="play-btn" href="index.html">🤖 לתכנת את רובי!</a>
+  </div>
+</main>
+</body>
+</html>

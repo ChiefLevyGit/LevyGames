@@ -1,0 +1,330 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "name": "צעדים ראשונים",
+      "hint": "רובי צריך רק ללכת ישר עד הסוללה. כמה פעמים 'קדימה'?",
+      "grid": { "cols": 5, "rows": 3 },
+      "robotStart": { "x": 0, "y": 1, "dir": 1 },
+      "battery": { "x": 4, "y": 1 },
+      "obstacles": [],
+      "stars": [{ "x": 2, "y": 1 }],
+      "maxCommands": 6
+    },
+    {
+      "id": 2,
+      "name": "הפנייה הראשונה",
+      "hint": "ללכת עד הסוף, לפנות שמאלה, ולטפס עד הסוללה!",
+      "grid": { "cols": 5, "rows": 5 },
+      "robotStart": { "x": 0, "y": 4, "dir": 1 },
+      "battery": { "x": 4, "y": 0 },
+      "obstacles": [
+        { "x": 2, "y": 2 },
+        { "x": 1, "y": 1 }
+      ],
+      "stars": [
+        { "x": 2, "y": 4 },
+        { "x": 4, "y": 2 }
+      ],
+      "maxCommands": 12
+    },
+    {
+      "id": 3,
+      "name": "המסדרון המפותל",
+      "hint": "שתי פניות ימינה בדרך. עקבו אחרי הכוכבים — הם מסמנים את השביל.",
+      "grid": { "cols": 6, "rows": 5 },
+      "robotStart": { "x": 0, "y": 0, "dir": 1 },
+      "battery": { "x": 0, "y": 4 },
+      "obstacles": [
+        { "x": 1, "y": 1 },
+        { "x": 2, "y": 1 },
+        { "x": 4, "y": 1 },
+        { "x": 4, "y": 3 },
+        { "x": 2, "y": 3 },
+        { "x": 1, "y": 3 }
+      ],
+      "stars": [
+        { "x": 3, "y": 0 },
+        { "x": 3, "y": 2 },
+        { "x": 1, "y": 4 }
+      ],
+      "maxCommands": 14
+    },
+    {
+      "id": 4,
+      "name": "הזיגזג הגדול",
+      "hint": "למעלה, ימינה, למעלה, ימינה... כמו מדרגות! אספו את כל הכוכבים בדרך.",
+      "grid": { "cols": 7, "rows": 7 },
+      "robotStart": { "x": 0, "y": 6, "dir": 0 },
+      "battery": { "x": 4, "y": 4 },
+      "obstacles": [
+        { "x": 1, "y": 5 },
+        { "x": 1, "y": 3 },
+        { "x": 3, "y": 3 },
+        { "x": 3, "y": 1 },
+        { "x": 5, "y": 3 },
+        { "x": 5, "y": 5 }
+      ],
+      "stars": [
+        { "x": 0, "y": 4 },
+        { "x": 2, "y": 2 },
+        { "x": 4, "y": 3 }
+      ],
+      "maxCommands": 16
+    },
+    {
+      "id": 5,
+      "name": "היער הגדול",
+      "hint": "הלוח גדל! זאב רעב מסתובב ביער — לכו על השביל התחתון ואז טפסו למעלה.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 5, "dir": 1 },
+      "battery": { "x": 5, "y": 0 },
+      "obstacles": [
+        { "x": 2, "y": 4, "kind": "rock" },
+        { "x": 4, "y": 4, "kind": "animal", "emoji": "🐺" },
+        { "x": 1, "y": 2, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 2, "y": 5 },
+        { "x": 5, "y": 3 },
+        { "x": 5, "y": 1 }
+      ],
+      "maxCommands": 14
+    },
+    {
+      "id": 6,
+      "name": "הבור הראשון",
+      "hint": "זהירות, בור בדרך! אי אפשר לדרוך עליו — פנו לפניו.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 0, "dir": 1 },
+      "battery": { "x": 5, "y": 2 },
+      "obstacles": [
+        { "x": 3, "y": 0, "kind": "pit" },
+        { "x": 1, "y": 1, "kind": "rock" },
+        { "x": 4, "y": 3, "kind": "animal", "emoji": "🐍" },
+        { "x": 0, "y": 3, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 1, "y": 0 },
+        { "x": 2, "y": 2 },
+        { "x": 4, "y": 2 }
+      ],
+      "maxCommands": 12
+    },
+    {
+      "id": 7,
+      "name": "שביל הזיגזג",
+      "hint": "הפעם מתחילים מהצד השני! זיגזג זהיר בין שני בורות.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 5, "y": 5, "dir": 3 },
+      "battery": { "x": 1, "y": 1 },
+      "obstacles": [
+        { "x": 2, "y": 5, "kind": "pit" },
+        { "x": 3, "y": 2, "kind": "pit" },
+        { "x": 0, "y": 4, "kind": "animal", "emoji": "🐊" },
+        { "x": 2, "y": 2, "kind": "rock" },
+        { "x": 4, "y": 3, "kind": "rock" },
+        { "x": 2, "y": 0, "kind": "animal", "emoji": "🕷️" }
+      ],
+      "stars": [
+        { "x": 4, "y": 5 },
+        { "x": 2, "y": 3 },
+        { "x": 1, "y": 2 }
+      ],
+      "maxCommands": 13
+    },
+    {
+      "id": 8,
+      "name": "מעלה ההר",
+      "hint": "מטפסים! למעלה, ימינה, ושוב למעלה. ארבעה כוכבים מחכים בדרך.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 5, "dir": 0 },
+      "battery": { "x": 5, "y": 0 },
+      "obstacles": [
+        { "x": 0, "y": 1, "kind": "pit" },
+        { "x": 1, "y": 3, "kind": "rock" },
+        { "x": 2, "y": 1, "kind": "animal", "emoji": "🦖" },
+        { "x": 4, "y": 1, "kind": "animal", "emoji": "🦁" },
+        { "x": 2, "y": 4, "kind": "rock" },
+        { "x": 1, "y": 4, "kind": "pit" }
+      ],
+      "stars": [
+        { "x": 0, "y": 3 },
+        { "x": 2, "y": 2 },
+        { "x": 3, "y": 1 },
+        { "x": 4, "y": 0 }
+      ],
+      "maxCommands": 15
+    },
+    {
+      "id": 9,
+      "name": "הנחש המפותל",
+      "hint": "דרך ארוכה שמתפתלת כמו נחש — עקבו אחרי הכוכבים ואל תמהרו ישר.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 0, "dir": 1 },
+      "battery": { "x": 5, "y": 5 },
+      "obstacles": [
+        { "x": 4, "y": 3, "kind": "rock" },
+        { "x": 2, "y": 2, "kind": "pit" },
+        { "x": 1, "y": 1, "kind": "animal", "emoji": "🐺" },
+        { "x": 2, "y": 4, "kind": "animal", "emoji": "🦁" },
+        { "x": 5, "y": 3, "kind": "pit" },
+        { "x": 2, "y": 3, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 2, "y": 0 },
+        { "x": 5, "y": 1 },
+        { "x": 3, "y": 3 },
+        { "x": 4, "y": 4 }
+      ],
+      "maxCommands": 21
+    },
+    {
+      "id": 10,
+      "name": "שדה הכוכבים",
+      "hint": "הכוכבים מסמנים דרך מתפתלת. בורות אורבים למי שהולך ישר!",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 3, "dir": 1 },
+      "battery": { "x": 5, "y": 3 },
+      "obstacles": [
+        { "x": 2, "y": 3, "kind": "pit" },
+        { "x": 1, "y": 0, "kind": "rock" },
+        { "x": 4, "y": 1, "kind": "animal", "emoji": "🦁" },
+        { "x": 0, "y": 1, "kind": "rock" },
+        { "x": 3, "y": 4, "kind": "pit" },
+        { "x": 5, "y": 2, "kind": "rock" },
+        { "x": 2, "y": 4, "kind": "animal", "emoji": "🐍" }
+      ],
+      "stars": [
+        { "x": 1, "y": 2 },
+        { "x": 2, "y": 1 },
+        { "x": 3, "y": 2 },
+        { "x": 4, "y": 3 }
+      ],
+      "maxCommands": 15
+    },
+    {
+      "id": 11,
+      "name": "המערבולת",
+      "hint": "מסלול ענק מסביב לכל הלוח! אספו חמישה כוכבים בדרך פנימה.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 0, "dir": 1 },
+      "battery": { "x": 1, "y": 1 },
+      "obstacles": [
+        { "x": 2, "y": 2, "kind": "rock" },
+        { "x": 3, "y": 3, "kind": "animal", "emoji": "🦖" },
+        { "x": 4, "y": 2, "kind": "pit" },
+        { "x": 2, "y": 3, "kind": "pit" },
+        { "x": 4, "y": 4, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 2, "y": 0 },
+        { "x": 5, "y": 2 },
+        { "x": 3, "y": 5 },
+        { "x": 1, "y": 4 },
+        { "x": 1, "y": 2 }
+      ],
+      "maxCommands": 23
+    },
+    {
+      "id": 12,
+      "name": "המסלול הצר",
+      "hint": "אין מקום לטעויות — רק 15 פקודות! תכננו טוב לפני שמריצים.",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 5, "y": 0, "dir": 2 },
+      "battery": { "x": 0, "y": 5 },
+      "obstacles": [
+        { "x": 5, "y": 3, "kind": "pit" },
+        { "x": 1, "y": 2, "kind": "animal", "emoji": "🦁" },
+        { "x": 2, "y": 5, "kind": "pit" },
+        { "x": 3, "y": 3, "kind": "rock" },
+        { "x": 4, "y": 1, "kind": "rock" },
+        { "x": 0, "y": 2, "kind": "animal", "emoji": "🐺" }
+      ],
+      "stars": [
+        { "x": 5, "y": 1 },
+        { "x": 3, "y": 2 },
+        { "x": 2, "y": 3 },
+        { "x": 1, "y": 4 }
+      ],
+      "maxCommands": 15
+    },
+    {
+      "id": 13,
+      "name": "שביל החיות",
+      "hint": "שביל צר בין חיות מפחידות. ששש... אל תעירו את האריה!",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 2, "dir": 1 },
+      "battery": { "x": 5, "y": 3 },
+      "obstacles": [
+        { "x": 3, "y": 2, "kind": "pit" },
+        { "x": 2, "y": 0, "kind": "animal", "emoji": "🦁" },
+        { "x": 4, "y": 0, "kind": "animal", "emoji": "🐺" },
+        { "x": 5, "y": 1, "kind": "pit" },
+        { "x": 3, "y": 3, "kind": "animal", "emoji": "🐊" },
+        { "x": 1, "y": 1, "kind": "rock" },
+        { "x": 1, "y": 3, "kind": "animal", "emoji": "🕷️" },
+        { "x": 0, "y": 4, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 1, "y": 2 },
+        { "x": 2, "y": 1 },
+        { "x": 3, "y": 1 },
+        { "x": 4, "y": 2 }
+      ],
+      "maxCommands": 13
+    },
+    {
+      "id": 14,
+      "name": "הדרך חזרה",
+      "hint": "חמישה כוכבים בדרך מפותלת — ובסוף שתי פניות שמאלה ברצף!",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 0, "y": 5, "dir": 1 },
+      "battery": { "x": 2, "y": 1 },
+      "obstacles": [
+        { "x": 3, "y": 5, "kind": "pit" },
+        { "x": 5, "y": 3, "kind": "pit" },
+        { "x": 2, "y": 2, "kind": "rock" },
+        { "x": 1, "y": 2, "kind": "rock" },
+        { "x": 1, "y": 3, "kind": "animal", "emoji": "🐺" },
+        { "x": 5, "y": 1, "kind": "animal", "emoji": "🐍" },
+        { "x": 3, "y": 4, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 1, "y": 5 },
+        { "x": 2, "y": 4 },
+        { "x": 3, "y": 3 },
+        { "x": 4, "y": 2 },
+        { "x": 3, "y": 1 }
+      ],
+      "maxCommands": 16
+    },
+    {
+      "id": 15,
+      "name": "המסע הגדול",
+      "hint": "השלב האחרון! שישה כוכבים, שלושה בורות וכל החיות. בהצלחה, אלופים!",
+      "grid": { "cols": 6, "rows": 6 },
+      "robotStart": { "x": 5, "y": 5, "dir": 0 },
+      "battery": { "x": 4, "y": 4 },
+      "obstacles": [
+        { "x": 5, "y": 0, "kind": "pit" },
+        { "x": 0, "y": 1, "kind": "pit" },
+        { "x": 1, "y": 5, "kind": "pit" },
+        { "x": 3, "y": 2, "kind": "animal", "emoji": "🦁" },
+        { "x": 2, "y": 3, "kind": "animal", "emoji": "🐺" },
+        { "x": 4, "y": 3, "kind": "animal", "emoji": "🐊" },
+        { "x": 3, "y": 3, "kind": "rock" },
+        { "x": 2, "y": 2, "kind": "rock" }
+      ],
+      "stars": [
+        { "x": 5, "y": 3 },
+        { "x": 4, "y": 1 },
+        { "x": 2, "y": 1 },
+        { "x": 1, "y": 3 },
+        { "x": 2, "y": 4 },
+        { "x": 3, "y": 4 }
+      ],
+      "maxCommands": 18
+    }
+  ]
+}

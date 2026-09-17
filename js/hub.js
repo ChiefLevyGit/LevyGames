@@ -1,16 +1,57 @@
+// דף הבית: מוודא שיש פרופיל, ואז בונה את כרטיסי המשחקים עם ההתקדמות שלו.
 // ?v= בסוף הייבוא הוא cache-busting - ראו Design.info/tasks.md
-import { GAMES } from './games-data.js?v=5';
+import { GAMES } from './games-data.js?v=8';
+import { ensureProfile } from './profile-gate.js?v=1';
+import { readAllProgress } from './storage.js?v=1';
 
 const grid = document.getElementById('gamesGrid');
 const countEl = document.getElementById('gamesCount');
+const heroTitleEl = document.getElementById('heroTitle');
 
 function tagsHTML(tags) {
   if (!tags?.length) return '';
   return `<div class="game-tags">${tags.map((t) => `<span class="tag-pill">${t}</span>`).join('')}</div>`;
 }
 
-function cardHTML(game) {
+// שלושת סוגי ההתקדמות מחוזה js/storage.js. הפורטל לא מכיר אף משחק ספציפית -
+// הוא יודע להציג kind, וזה מה שמאפשר להוסיף משחק בלי לגעת כאן.
+function progressHTML(game, record) {
+  if (!record) return '';
+
+  if (record.kind === 'levels') {
+    const done = Number(record.done) || 0;
+    const total = Number(record.total) || 0;
+    if (!total) return '';
+    const pct = Math.min(100, Math.round((done / total) * 100));
+    const unit = game.progressUnit || 'שלבים';
+    return `
+      <div class="game-progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="${done}" aria-valuemin="0"
+             aria-valuemax="${total}" aria-label="התקדמות ב${game.name}">
+          <div class="progress-fill" style="width: ${pct}%;"></div>
+        </div>
+        <span class="progress-label">${done}/${total} ${unit}</span>
+      </div>
+    `;
+  }
+
+  if (record.kind === 'score') {
+    const best = Number(record.best) || 0;
+    if (!best) return '';
+    return `<div class="game-progress"><span class="progress-badge">🏆 שיא: ${best}</span></div>`;
+  }
+
+  if (record.kind === 'session' && record.hasSave) {
+    return '<div class="game-progress"><span class="progress-badge">▶ יש משחק שמור</span></div>';
+  }
+
+  return '';
+}
+
+function cardHTML(game, record) {
   const [from, to] = game.gradient || ['#e9d5ff', '#fbcfe8'];
+  const hasSave = record?.kind === 'session' && record.hasSave;
+  const playLabel = hasSave ? 'המשיכי! ▶' : (game.playLabel || '▶ שחקי');
   return `
     <article class="game-card" data-game-id="${game.id}">
       <div class="game-icon-panel" style="background: linear-gradient(135deg, ${from}, ${to});">
@@ -21,17 +62,43 @@ function cardHTML(game) {
         <h3 class="game-name">${game.name}</h3>
         <p class="game-desc">${game.description}</p>
         ${tagsHTML(game.tags)}
+        ${progressHTML(game, record)}
         <div class="game-links">
           <a class="btn btn-ghost" href="${game.instructionsUrl}">📖 הוראות</a>
-          <a class="btn btn-primary" href="${game.playUrl}">${game.playLabel || '▶ שחקי'}</a>
+          <a class="btn btn-primary" href="${game.playUrl}">${playLabel}</a>
         </div>
       </div>
     </article>
   `;
 }
 
-if (countEl) countEl.textContent = `(${GAMES.length})`;
+function greet(profile) {
+  if (!heroTitleEl || !profile) return;
+  // textContent ולא innerHTML - השם הוא קלט של המשתמשת
+  heroTitleEl.textContent = `${profile.emoji} ${profile.name}, איזה כיף שבאת! ✨`;
+}
 
-grid.innerHTML = GAMES.length
-  ? GAMES.map(cardHTML).join('')
-  : '<p class="empty-note">אין עדיין משחקים כאן... בקרוב! 🛠️</p>';
+function renderCards(progressByGame) {
+  if (countEl) countEl.textContent = `(${GAMES.length})`;
+
+  grid.innerHTML = GAMES.length
+    ? GAMES.map((game) => cardHTML(game, progressByGame[game.id])).join('')
+    : '<p class="empty-note">אין עדיין משחקים כאן... בקרוב! 🛠️</p>';
+
+  // js/hub-sounds.js מחווט את הכפתורים רק אחרי שהם קיימים ב-DOM
+  document.dispatchEvent(new CustomEvent('levygames:cards-rendered'));
+}
+
+async function init() {
+  try {
+    const profile = await ensureProfile();
+    greet(profile);
+    renderCards(await readAllProgress());
+  } catch (err) {
+    // כרטיסים בלי התקדמות עדיפים על פורטל ריק
+    console.warn('טעינת הפרופיל/ההתקדמות נכשלה', err);
+    renderCards({});
+  }
+}
+
+init();

@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <div id="app">
@@ -47,7 +47,8 @@
 
     <section class="hero">
       <p class="hero-badge">✨ ברוכות הבאות לממלכת המשחקים של לוי!</p>
-      <h1 class="hero-title">דניאל, אופיר - איזה כיף שבאתן! ✨</h1>
+      <!-- js/hub.js מחליף את הטקסט בשם הפרופיל הפעיל -->
+      <h1 class="hero-title" id="heroTitle">דניאל, אופיר - איזה כיף שבאתן! ✨</h1>
       <a href="#games" class="btn btn-primary">התחילי לשחק עכשיו 🎮</a>
     </section>
 
@@ -92,10 +93,10 @@
   </footer>
 </div>
 
-<script type="module" src="js/hub.js?v=6"></script>
-<script type="module" src="js/ui-sounds.js?v=3"></script>
-<script type="module" src="js/daily-mission.js?v=4"></script>
-<script type="module" src="js/wishlist.js?v=4"></script>
+<script type="module" src="js/hub.js?v=9"></script>
+<script type="module" src="js/hub-sounds.js?v=1"></script>
+<script type="module" src="js/daily-mission.js?v=5"></script>
+<script type="module" src="js/wishlist.js?v=5"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

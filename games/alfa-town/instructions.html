@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אלפא־טאון — איך משחקים?</title>
+<meta name="description" content="איך משחקים באלפא־טאון: פותרים מילים, וכל מילה מנחיתה פריט חדש בעיר שלך.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg1: #FCE7F3; --bg2: #DDD6FE; --card: #FFFFFF; --ink: #4C1D95;
+  --violet: #7C3AED; --sky: #0EA5E9; --amber: #F59E0B; --green: #10B981; --emerald: #059669;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: 'Rubik', system-ui, sans-serif; color: var(--ink);
+  background: linear-gradient(180deg, var(--bg1), var(--bg2)); min-height: 100vh;
+}
+header {
+  background: var(--violet); color: #fff; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+header a { color: #fff; text-decoration: none; background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.4); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .9rem; }
+header h1 { font-size: 1.2rem; margin: 0; font-weight: 800; }
+main { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
+.card {
+  background: var(--card); border-radius: 22px; padding: 16px 20px; margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(124,58,237,.14);
+}
+.card h2 { color: var(--violet); margin: 0 0 8px; font-size: 1.15rem; font-weight: 800; }
+.card p, .card li { line-height: 1.7; margin: 6px 0; }
+.card ul { padding-inline-start: 22px; margin: 6px 0; }
+.age { display: inline-block; border-radius: 999px; color: #fff; font-weight: 800; padding: 2px 12px; font-size: .9rem; }
+.age.a { background: var(--emerald); } .age.b { background: var(--sky); } .age.c { background: var(--violet); }
+.letter { display: inline-block; background: #EDE9FE; border-bottom: 3px solid var(--violet); border-radius: 8px; padding: 1px 10px; font-weight: 800; }
+.play-btn {
+  display: inline-block; background: var(--green); border-radius: 999px; padding: 14px 34px;
+  font-weight: 800; font-size: 1.15rem; color: #fff; text-decoration: none;
+  box-shadow: 0 6px 0 #047857;
+}
+.center { text-align: center; margin-top: 24px; }
+.note { background: #FEF3C7; border-radius: 16px; padding: 12px 16px; font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">⬅ למשחקים</a>
+  <h1>🏙️ אלפא־טאון — איך משחקים?</h1>
+</header>
+<main>
+  <div class="card">
+    <h2>🏗️ מה המטרה?</h2>
+    <p>בהתחלה יש רק שמיים וקרקע ריקה. <b>כל מילה שאת פותרת מנחיתה בעיר פריט חדש</b> — גשר, אריה, חללית — והוא נשאר שם לתמיד.</p>
+    <p>אות בודדת לא מביאה כלום. הפרס הוא המילה השלמה, ולכן שווה להתאמץ בשבילו.</p>
+    <p>העיר נשארת שלך. היא נשמרת גם כשסוגרים את המשחק, וממשיכה לגדול בפעם הבאה.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎈 בוחרות רמה לפי גיל</h2>
+    <ul>
+      <li><span class="age a">גילאי 5-6</span> — רואים <b>תמונה</b> של המילה, ורק אות אחת או שתיים חסרות.</li>
+      <li><span class="age b">גילאי 7-8</span> — <b>חידה קטנה</b> ("נוסעת על פסים ומשמיעה טו-טו"), ואותיות מעורבבות לבחירה.</li>
+      <li><span class="age c">גילאי 9-10</span> — <b>חידה אמיתית</b>, ומקלדת עברית מלאה כולל אותיות סופיות.</li>
+    </ul>
+    <p>בוחרים את הגיל בתחתית מפת העיר, ואפשר להחליף בכל רגע — <b>העיר נשארת</b> ולא מתאפסת.</p>
+  </div>
+
+  <div class="card">
+    <h2>💚 אי אפשר להפסיד</h2>
+    <p>לחצת על אות לא נכונה? המקש פשוט רוטט ומתעמעם, וממשיכים. <b>אין חיים, אין טיימר, אין "נגמר המשחק".</b></p>
+    <p>בסוף כל מילה מקבלים <b>כוכבים</b> ⭐ לפי כמה טעויות היו — אבל גם כוכב אחד מספיק כדי להמשיך.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔤 אותיות סופיות</h2>
+    <p>במילה כמו <b>בניין</b> האות האחרונה היא <span class="letter">ן</span>. לא צריך לחפש אותה — אפשר פשוט ללחוץ על <span class="letter">נ</span> הרגילה, והמשחק יציב את הצורה הנכונה ויסביר מה קרה.</p>
+    <p class="note">כך לומדים תוך כדי משחק ש-כ ם ן ף ץ הן אותן אותיות, רק בסוף מילה.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔊 כפתורים שכדאי להכיר</h2>
+    <ul>
+      <li><b>הרמקול</b> — מקריא את החידה בקול. שימושי למי שעוד לא קוראת שוטף.</li>
+      <li><b>הנורה</b> 💡 — רמז: חושף אות אחת, במחיר כוכב אחד.</li>
+      <li><b>המפה</b> 🗺️ שבפינה — חזרה למפת העיר, לבחור שכונה או גיל אחר.</li>
+      <li><b>הרמקול המושתק</b> — מכבה את כל הצלילים.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🗺️ המפה — משם מתחילים</h2>
+    <p>המסך הראשון הוא <b>מפת העיר</b>: רואים בה את כל מה שבנית עד עכשיו, בוחרים גיל למטה, ונוגעים בשכונה כדי לשחק בה.</p>
+    <p><b>כל ארבע השכונות פתוחות מההתחלה</b> — מרכז העיר, פארק החיות, החוף ומגרש החלל. אפשר להתחיל דווקא מהחלל אם בא לך. השכונה שמהבהבת בזהוב היא רק <i>המלצה</i> איפה להמשיך, לא חובה.</p>
+    <p>בסך הכול <b>45 מילים</b>: 15 בכל רמת גיל, ובכל רמה יש מילים בכל ארבע השכונות.</p>
+  </div>
+
+  <div class="center">
+    <a class="play-btn" href="index.html">קדימה, לבנות עיר! 🏙️</a>
+  </div>
+</main>
+</body>
+</html>

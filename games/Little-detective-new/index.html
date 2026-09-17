@@ -447,36 +447,40 @@ main { max-width: 900px; margin: 0 auto; padding: 16px 14px 60px; }
   </div>
 </div>
 
+<!-- הגשר לשכבת האחסון והצליל המשותפות. חייב להיטען לפני הסקריפט של המשחק. -->
+<script src="../../js/levygames-bridge.js?v=1"></script>
 <script>
 'use strict';
 
-/* ================= צלילים (חבילות קיימות בפרויקט) ================= */
-const SFX_ROOT = '../../assets/';
-const JDS = SFX_ROOT + 'JDSherbert - Ultimate UI SFX Pack (FREE)/Mono/mp3/JDSherbert - Ultimate UI SFX Pack - ';
-const SFX = {
-  tap:    JDS + 'Cursor - 1.mp3',
-  place:  JDS + 'Select - 1.mp3',
-  error:  JDS + 'Error - 1.mp3',
-  swipe:  JDS + 'Swipe - 1.mp3',
-  toggle: JDS + 'Cursor - 2.mp3',
-  open:   JDS + 'Popup Open - 1.mp3',
-  button: JDS + 'Select - 2.mp3',
-  win:    SFX_ROOT + 'level-up.mp3',
-  star:   SFX_ROOT + 'loot-pickup.mp3',
+/* ================= צלילים ================= */
+// הנכסים מגיעים מ-js/sfx.js דרך הגשר - המשחק לא מכיר את מבנה חבילת הצלילים
+const SFX_SPEC = {
+  tap:    ['jd', 'Cursor - 1'],
+  place:  ['jd', 'Select - 1'],
+  error:  ['jd', 'Error - 1'],
+  swipe:  ['jd', 'Swipe - 1'],
+  toggle: ['jd', 'Cursor - 2'],
+  open:   ['jd', 'Popup Open - 1'],
+  button: ['jd', 'Select - 2'],
+  win:    ['local', 'level-up.mp3'],
+  star:   ['local', 'loot-pickup.mp3'],
 };
-const audioCache = {};
-let muted = localStorage.getItem('ldMuted') === '1';
+const SFX_VOLUME = 0.45;
+let sfxLib = null;   // מתמלא כשהגשר נטען (ראו boot בסוף הקובץ)
+let playAudio = null;
+let muted = false;
+
+function buildSfx(sfx) {
+  sfxLib = {};
+  playAudio = sfx.play;
+  for (const [key, [kind, arg]] of Object.entries(SFX_SPEC)) {
+    sfxLib[key] = kind === 'jd' ? sfx.jdSound(arg, SFX_VOLUME) : sfx.localSound(arg, SFX_VOLUME);
+  }
+}
+
 function playSfx(name) {
-  if (muted) return;
-  try {
-    if (!audioCache[name]) {
-      audioCache[name] = new Audio(encodeURI(SFX[name]));
-      audioCache[name].volume = 0.45;
-    }
-    const a = audioCache[name].cloneNode();
-    a.volume = 0.45;
-    a.play().catch(() => {});
-  } catch (e) { /* אין אודיו - ממשיכים בשקט */ }
+  if (muted || !sfxLib || !playAudio) return; // לפני שהגשר נטען - בשקט
+  playAudio(sfxLib[name]);
 }
 
 /* ================= דמויות הילדים ================= */
@@ -866,14 +870,24 @@ const TOOL_TYPES = {
 };
 
 /* ================= מצב ושמירה ================= */
-const STORE_KEY = 'littleDetectiveProgress';
-function loadProgress() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { solved: {} }; }
-  catch (e) { return { solved: {} }; }
-}
-function saveProgress(p) { localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
-let progress = loadProgress();
+// כל השמירה עוברת דרך שכבת האחסון המשותפת (js/storage.js), שמתייגת אותה
+// לפרופיל הפעיל. הגשר נטען אסינכרונית - ראו boot בסוף הקובץ.
+const STORE_NS = 'littleDetective.v1';
+const GAME_ID = 'little-detective'; // חייב להיות זהה ל-id ב-js/games-data.js
+let storage = null;
+let progress = { solved: {} };
 let currentCase = null;
+
+async function saveProgress(p) {
+  if (!storage) return;
+  await storage.write(STORE_NS, { solved: p.solved });
+  // דיווח ההתקדמות הוא נגזרת של השמירה - לכן הוא כאן, באותו מקום בדיוק
+  await storage.reportProgress(GAME_ID, {
+    kind: 'levels',
+    done: Object.keys(p.solved).length,
+    total: CASES.length,
+  });
+}
 
 /* ================= אלמנטים ================= */
 const $ = id => document.getElementById(id);
@@ -1399,11 +1413,11 @@ const muteBtn = $('muteBtn');
 function refreshMute() { muteBtn.textContent = muted ? '🔇' : '🔊'; }
 muteBtn.addEventListener('click', () => {
   muted = !muted;
-  localStorage.setItem('ldMuted', muted ? '1' : '0');
+  // גלובלי ולא מתוייג-פרופיל: השתקה היא העדפת מכשיר, לא של מי שמשחקת
+  storage?.writeGlobal('ldMuted', muted);
   refreshMute();
   if (!muted) playSfx('tap');
 });
-refreshMute();
 
 /* ================= הקראה (תמיכה במי שעוד לא קוראת שוטף) ================= */
 let speaking = false;
@@ -1433,7 +1447,20 @@ narrateBtn.addEventListener('click', () => {
 });
 
 /* ================= התחלה ================= */
-renderBoard();
+// מחכים לשכבת האחסון לפני הציור הראשון, כדי שהלוח יוצג עם ההתקדמות האמיתית
+// של הפרופיל הפעיל ולא יקפוץ אחרי רגע.
+(async function boot() {
+  const LG = await window.LevyGames.ready;
+  if (LG) {
+    storage = LG.storage;
+    buildSfx(LG.sfx);
+    muted = (await storage.readGlobal('ldMuted', false)) === true;
+    const saved = await storage.read(STORE_NS, null);
+    if (saved?.solved) progress = { solved: saved.solved };
+  }
+  refreshMute();
+  renderBoard();
+}());
 </script>
 </body>
 </html>

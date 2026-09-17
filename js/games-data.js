@@ -1,5 +1,9 @@
 // רשימת המשחקים שמופיעים בדף הבית.
 // כל פעם שבונים משחק חדש - פשוט מוסיפים כאן אובייקט נוסף, וזהו.
+//
+// progressUnit (אופציונלי): מה סופרים בפס ההתקדמות של המשחק, למשל 'תיקים'.
+// ברירת המחדל 'שלבים'. ה-id חייב להיות זהה ל-gameId שהמשחק שולח
+// ל-reportProgress() - זה מה שמחבר את ההתקדמות לכרטיס.
 export const GAMES = [
   {
     id: 'chess',
@@ -42,6 +46,7 @@ export const GAMES = [
     playUrl: 'games/Little-detective-new/index.html',
     instructionsUrl: 'games/Little-detective-new/instructions.html',
     playLabel: 'לחקירה!',
+    progressUnit: 'תיקים',
     tags: ['חידות היגיון', '10 תיקים', 'גילאי 6-10'],
     gradient: ['#F2C14E', '#E8A0A0'],
   },
@@ -55,6 +60,18 @@ export const GAMES = [
     playLabel: 'לתכנת את רובי!',
     tags: ['חשיבה תכנותית', '15 שלבים', 'גילאי 5-9'],
     gradient: ['#7DD3FC', '#C4B5FD'],
+  },
+  {
+    id: 'alfa-town',
+    emoji: '🏙️',
+    name: 'אלפא־טאון',
+    description: 'עיר שנבנית ממילים: כל מילה שפותרים מנחיתה בעיר גשר, אריה או חללית. ארבע שכונות, שלוש רמות גיל, 45 מילים — ובלי שום דרך להפסיד.',
+    playUrl: 'games/alfa-town/index.html',
+    instructionsUrl: 'games/alfa-town/instructions.html',
+    playLabel: 'לבנות עיר!',
+    tags: ['אוצר מילים', '45 מילים', 'גילאי 5-10'],
+    progressUnit: 'מילים',
+    gradient: ['#F9A8D4', '#C4B5FD'],
     badge: 'חדש!',
   },
 ];

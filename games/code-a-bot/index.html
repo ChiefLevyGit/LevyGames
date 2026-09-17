@@ -18,8 +18,8 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
-    <link rel="manifest" href="../../manifest.webmanifest" />
+    <!-- apple-touch-icon ו-manifest מוזרקים ב-vite.config.ts (portalSharedLinks).
+         הם קבצים משותפים עם הפורטל ואסור ש-Vite יעתיק אותם לכאן - ראו ההסבר שם. -->
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>"
@@ -30,10 +30,16 @@
       href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="./assets/index-BnsYYQ5c.js"></script>
+    <script type="module" crossorigin src="./assets/index-B5xrx5c2.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DZHuiVsw.css">
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+    <link rel="manifest" href="../../manifest.webmanifest">
   </head>
   <body>
     <div id="root"></div>
+    <!-- שכבת האחסון של הפורטל (פרופילים + התקדמות). בפיתוח עצמאי
+         (npm run dev) הקובץ לא קיים, ואז המשחק נופל חזרה ל-localStorage -
+         ראו src/hooks/useGameEngine.ts -->
+    <script src="../../js/levygames-bridge.js?v=1"></script>
   </body>
 </html>
