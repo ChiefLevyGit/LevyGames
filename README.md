@@ -55,6 +55,8 @@ js/levygames-bridge.js  אותה שכבה, ל-<script> קלאסי ול-bundle ש
   gradient: ['#93C5FD', '#6EE7B7'],// אופציונלי - רקע פאנל האייקון
   progressUnit: 'תיקים',           // אופציונלי - ברירת מחדל 'שלבים'
   badge: 'חדש!',                   // אופציונלי
+  video: 'assets/cards/x.mp4',     // אופציונלי - קליפ 2:1 במקום האמוג'י
+  poster: 'assets/cards/x.webp',   // חובה אם יש video
 }
 ```
 

@@ -227,6 +227,21 @@ main {
   font-size: 3rem;
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
 }
+
+/* כרטיס עם וידאו: הפאנל נפתח לבאנר 2:1 במקום רצועת האמוג'י.
+   רק כרטיסים כאלה גדלים - השאר נשארים 96px. */
+.game-icon-panel.has-video {
+  height: auto;
+  aspect-ratio: 2 / 1;
+}
+.game-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* הפוסטר מוצג עד שהוידאו יורד (ובמצב צמצום תנועה - לתמיד) */
+  background: center / cover no-repeat;
+}
 .game-badge {
   position: absolute;
   top: 12px;
