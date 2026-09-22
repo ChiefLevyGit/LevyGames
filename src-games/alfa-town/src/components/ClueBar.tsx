@@ -2,7 +2,7 @@ import { Volume2, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { WordLevel } from '../types';
 import { spriteUrl } from '../data/sprites';
-import { canSpeak, speak } from '../audio';
+import { canSpeak, speak, uiTap } from '../audio';
 
 /**
  * הרמז. ברמה 1 מוצגת גם תמונת הפריט — ילדה בת חמש מזהה תמונה הרבה
@@ -17,15 +17,15 @@ export function ClueBar({
   onHint: () => void;
   hintDisabled: boolean;
 }) {
-  const narrate = () =>
-    speak(level.tier === 1 ? `${level.word}. ${level.clue}` : level.clue);
+  const narrate = () => (uiTap(),
+    speak(level.tier === 1 ? `${level.word}. ${level.clue}` : level.clue));
 
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-3">
-      {level.tier === 1 && (
+      {level.tier === 1 && level.pic && (
         <motion.img
           key={level.id}
-          src={spriteUrl(level.sprite)}
+          src={spriteUrl(level.pic)}
           alt={level.clue}
           draggable={false}
           initial={{ scale: 0.6, opacity: 0 }}

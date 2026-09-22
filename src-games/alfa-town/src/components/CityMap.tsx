@@ -1,14 +1,18 @@
 import { motion } from 'framer-motion';
-import type { Hood, Tier, WordLevel } from '../types';
-import { HOODS, TIER_LABEL, mapSpot } from '../data/levels';
+import type { Hood, Tier } from '../types';
+import { HOODS, TIER_LABEL } from '../data/levels';
 import { spriteUrl } from '../data/sprites';
+import type { HoodStatus } from './HoodPanel';
 
 /**
- * מסך הפתיחה: מבט מלא על העיר, בחירת גיל, ובחירת שכונה.
+ * מסך הפתיחה: מבט מלא על העולם, בחירת גיל, ובחירת שכונה.
  *
- * כל השכונות פתוחות מההתחלה. בגרסה הקודמת השכונות היו רצף נעול בפועל —
- * רמה 1 הגיעה לחלל רק אחרי 21 מילים, ואלעד פשוט לא הגיע לשם. כאן נוגעים
- * בשכונה ומשחקים בה, והמשחק רק *ממליץ* איפה להמשיך.
+ * הרקע הוא `full-town` — אותה תמונה של מסך הכניסה. השבילים שרואים הם חלק
+ * מהציור עצמו, ולכן אין כאן קווים מצוירים שצריך להתאים להם צבע.
+ *
+ * על כל שכונה יושב **צ'יפ אוסף**: שלושת הפריטים האחרונים שנפתחו, חופפים
+ * כמו קלפים ביד, ומונה. האוסף המלא נפתח בלחיצה (`HoodPanel`) — פיזור עשרה
+ * ספרייטים ישירות על ציור עמוס היה הופך לרעש.
  */
 
 const TONE: Record<Tier, string> = {
@@ -18,92 +22,72 @@ const TONE: Record<Tier, string> = {
 };
 
 export function CityMap({
-  tier, onTier, unlocked, progressOf, onEnter,
+  tier, onTier, statusOf, onOpen,
 }: {
   tier: Tier;
   onTier: (t: Tier) => void;
-  unlocked: WordLevel[];
-  progressOf: (h: Hood) => { done: number; total: number };
-  onEnter: (h: Hood) => void;
+  statusOf: (h: Hood) => HoodStatus;
+  onOpen: (h: Hood) => void;
 }) {
-  // ההמלצה: השכונה הראשונה שעוד לא הושלמה ברמה הנבחרת.
+  // ההמלצה: השכונה הראשונה שעוד נשארו בה מילים ברמה הנבחרת.
   const suggested = HOODS.find((h) => {
-    const p = progressOf(h.id);
-    return p.done < p.total;
+    const s = statusOf(h.id);
+    return s.wordsDone < s.wordsTotal;
   })?.id;
 
-  // אינדקס בתוך השכונה קובע את המיקום על המפה — יציב בין רינדורים.
-  const spotOf = (l: WordLevel) => {
-    const sameHood = unlocked.filter((u) => u.hood === l.hood);
-    return mapSpot(l.hood, sameHood.indexOf(l));
-  };
-
   return (
-    // בלי כותרת פנימית: הכותרת של האפליקציה כבר מציגה את השם ואת המונה,
-    // ושתי שורות כותרת זו על גבי זו נראו כמו תקלה.
     <div className="grid h-full grid-rows-[minmax(0,1fr)_auto] gap-2">
-      {/* ── המפה ─────────────────────────────────────────────── */}
       <div
         dir="ltr"
-        className="relative min-h-0 overflow-hidden rounded-2xl bg-emerald-100 bg-cover bg-center"
-        style={{ backgroundImage: 'url(bg/bg-citymap.webp)' }}
+        className="relative min-h-0 overflow-hidden rounded-2xl bg-sky-100 bg-cover bg-center"
+        style={{ backgroundImage: 'url(bg/full-town.webp)' }}
       >
-        {unlocked.map((l) => {
-          const s = spotOf(l);
-          return (
-            <motion.img
-              key={l.id}
-              src={spriteUrl(l.sprite)}
-              alt={l.word}
-              title={l.word}
-              draggable={false}
-              loading="lazy"
-              className="absolute w-[7%] select-none drop-shadow-[0_2px_3px_rgba(0,0,0,0.25)]"
-              style={{ left: `${s.x}%`, top: `${s.y}%`, translate: '-50% -80%' }}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 18 }}
-            />
-          );
-        })}
-
         {HOODS.map((h) => {
-          const p = progressOf(h.id);
-          const done = p.done >= p.total;
+          const s = statusOf(h.id);
           const isSuggested = h.id === suggested;
+          const chips = s.found.slice(-3);
           return (
             <div
               key={h.id}
               className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: `${h.map.x}%`, top: `${h.map.y}%`, zIndex: 20 }}
             >
-              {/* ההילה פועמת, לא הכפתור. מטרת לחיצה שזזה היא מטרה שקשה
-                  לקלוע אליה — גם לאצבע של בת חמש וגם לבדיקה אוטומטית. */}
+              {/* ההילה פועמת, לא הכפתור. מטרת לחיצה שזזה קשה לפגיעה —
+                  גם לאצבע של בת חמש וגם לבדיקה אוטומטית. */}
               {isSuggested && (
                 <motion.span
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-amber-300"
-                  animate={{ scale: [1, 1.45, 1], opacity: [0.75, 0, 0.75] }}
+                  className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-amber-300"
+                  animate={{ scale: [1, 1.35, 1], opacity: [0.7, 0, 0.7] }}
                   transition={{ duration: 1.7, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
               <button
                 type="button"
-                onClick={() => onEnter(h.id)}
-                aria-label={`${h.label} — ${p.done} מתוך ${p.total} מילים`}
-                className={[
-                  'flex items-center gap-1.5 rounded-full border-b-4 px-3 py-1.5',
-                  'text-sm font-black shadow-lg active:scale-95',
-                  done
-                    ? 'border-emerald-700 bg-emerald-500 text-white'
-                    : 'border-white bg-white/95 text-slate-700',
-                ].join(' ')}
+                onClick={() => onOpen(h.id)}
+                aria-label={`${h.label} — ${s.earned} מתוך ${s.objects.length} פריטים`}
+                className="flex flex-col items-center gap-1 rounded-2xl border-b-4 border-white bg-white/95 px-2.5 py-1.5 shadow-lg active:scale-95"
               >
-                <span aria-hidden>{h.emoji}</span>
-                <span dir="rtl">{h.label}</span>
-                <span className={done ? 'text-emerald-100' : 'text-violet-600'}>
-                  {p.done}/{p.total}
+                <span dir="rtl" className="flex items-center gap-1.5 text-sm font-black text-slate-700">
+                  <span aria-hidden>{h.emoji}</span>
+                  {h.label}
+                  <span className="text-violet-600">{s.earned}/{s.objects.length}</span>
                 </span>
+                {chips.length > 0 && (
+                  <span className="flex" aria-hidden>
+                    {chips.map((o, i) => (
+                      <img
+                        key={o.id}
+                        src={spriteUrl(o.sprite)}
+                        alt=""
+                        draggable={false}
+                        loading="lazy"
+                        className="h-7 w-7 object-contain drop-shadow-sm"
+                        style={{ marginInlineStart: i === 0 ? 0 : -8 }}
+                      />
+                    ))}
+                  </span>
+                )}
               </button>
             </div>
           );

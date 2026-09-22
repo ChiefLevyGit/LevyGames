@@ -1,6 +1,6 @@
 // דף הבית: מוודא שיש פרופיל, ואז בונה את כרטיסי המשחקים עם ההתקדמות שלו.
 // ?v= בסוף הייבוא הוא cache-busting - ראו Design.info/tasks.md
-import { GAMES } from './games-data.js?v=9';
+import { GAMES } from './games-data.js?v=10';
 import { ensureProfile } from './profile-gate.js?v=1';
 import { readAllProgress } from './storage.js?v=1';
 

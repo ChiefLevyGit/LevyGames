@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { SoundToggle } from './SoundToggle';
+import { gateOpen } from '../audio';
 
 /**
  * מסך הכניסה. התמונה היא שער אבן עם חור מנעול שמסגר את העיר — ולכן היא
@@ -18,6 +20,12 @@ export function Splash({ onEnter, totalSolved }: { onEnter: () => void; totalSol
       {/* הכהיה עדינה בקצה העליון והתחתון, כדי שהטקסט ייקרא מעל הציור */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900/45 via-transparent to-slate-900/45" />
 
+      {/* מתג הקול חייב להיות גם כאן — המסך הזה מכסה את הכותרת, וזו הסיבה
+          שהוא לא נמצא בפעם הקודמת. */}
+      <div className="absolute top-3 left-3 z-10">
+        <SoundToggle tone="dark" />
+      </div>
+
       <div className="relative flex h-full flex-col items-center justify-between py-[3dvh]">
         <motion.div
           className="text-center"
@@ -35,7 +43,7 @@ export function Splash({ onEnter, totalSolved }: { onEnter: () => void; totalSol
 
         <motion.button
           type="button"
-          onClick={onEnter}
+          onClick={() => { gateOpen(); onEnter(); }}
           autoFocus
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

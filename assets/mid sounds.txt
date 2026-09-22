@@ -1,0 +1,27 @@
+function sfx(notes) {
+  const c = sfx.ctx || (sfx.ctx = new AudioContext());
+  if (c.state === 'suspended') c.resume();
+  const t = c.currentTime;
+  for (const [type, f0, f1, st, d, v] of notes) {
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t + st);
+    g.gain.exponentialRampToValueAtTime(v, t + st + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + st + d);
+    let src, freq;
+    if (type === 'noise') {
+      const b = c.createBuffer(1, Math.ceil(c.sampleRate * d), c.sampleRate);
+      const data = b.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      src = c.createBufferSource(); src.buffer = b;
+      const f = c.createBiquadFilter(); f.type = 'lowpass'; freq = f.frequency;
+      src.connect(f).connect(g);
+    } else {
+      src = c.createOscillator(); src.type = type; freq = src.frequency;
+      src.connect(g);
+    }
+    freq.setValueAtTime(f0, t + st);
+    if (f1 !== f0) freq.exponentialRampToValueAtTime(f1, t + st + d);
+    g.connect(sfx.out || c.destination);
+    src.start(t + st); src.stop(t + st + d + 0.02);
+  }
+}

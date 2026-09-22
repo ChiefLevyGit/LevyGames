@@ -1,7 +1,7 @@
 import { motion, useReducedMotion, type TargetAndTransition } from 'framer-motion';
-import type { Alive, Hood, WordLevel } from '../types';
+import type { Alive, CityObject, Hood } from '../types';
 import { HOOD_BY_ID } from '../data/levels';
-import { spriteUrl } from '../data/sprites';
+import { spriteUrl, SPRITE_BY_ID } from '../data/sprites';
 import { BurstConfetti, DustRing, Sparks } from './LandingFX';
 
 /**
@@ -31,13 +31,14 @@ const IMPACT_AT = 0.42;
 const FALL_SEC = 1.6;
 
 function CityItem({
-  level, landing, reduced,
+  item, landing, reduced, label,
 }: {
-  level: WordLevel;
+  item: CityObject;
   landing: boolean;
   reduced: boolean;
+  label: string;
 }) {
-  const { x, y } = level.pos;
+  const { x, y } = item.pos;
   const scale = depthScale(y);
   const box = {
     left: `${x}%`,
@@ -58,12 +59,12 @@ function CityItem({
         transition={{ duration: 0.25 }}
       >
         <motion.img
-          src={spriteUrl(level.sprite)}
-          alt={level.word}
+          src={spriteUrl(item.sprite)}
+          alt={label}
           draggable={false}
           loading="lazy"
           className="w-full select-none drop-shadow-[0_4px_6px_rgba(0,0,0,0.18)]"
-          animate={level.alive ? IDLE[level.alive] : undefined}
+          animate={item.alive ? IDLE[item.alive] : undefined}
         />
       </motion.div>
     );
@@ -79,7 +80,7 @@ function CityItem({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <img src={spriteUrl(level.sprite)} alt={level.word} className="w-full" />
+        <img src={spriteUrl(item.sprite)} alt={label} className="w-full" />
       </motion.div>
     );
   }
@@ -108,8 +109,8 @@ function CityItem({
         }}
       >
         <motion.img
-          src={spriteUrl(level.sprite)}
-          alt={level.word}
+          src={spriteUrl(item.sprite)}
+          alt={label}
           draggable={false}
           className="w-full select-none drop-shadow-[0_10px_14px_rgba(0,0,0,0.3)]"
           animate={{ filter: ['brightness(1)', 'brightness(1.45)', 'brightness(1)'] }}
@@ -124,14 +125,14 @@ function CityItem({
 }
 
 export function CityPanel({
-  hood, unlocked, landingId,
+  hood, objects, landingId,
 }: {
   hood: Hood;
-  unlocked: WordLevel[];
+  objects: CityObject[];
   landingId?: string | null;
 }) {
   const meta = HOOD_BY_ID.get(hood)!;
-  const items = unlocked.filter((l) => l.hood === hood);
+  const items = objects.filter((o) => o.hood === hood);
   const reduced = useReducedMotion() ?? false;
 
   return (
@@ -144,8 +145,14 @@ export function CityPanel({
       role="img"
       aria-label={`${meta.label} — ${items.length} פריטים`}
     >
-      {items.map((l) => (
-        <CityItem key={l.id} level={l} landing={l.id === landingId} reduced={reduced} />
+      {items.map((o) => (
+        <CityItem
+          key={o.id}
+          item={o}
+          label={SPRITE_BY_ID.get(o.sprite)?.label ?? ''}
+          landing={o.id === landingId}
+          reduced={reduced}
+        />
       ))}
 
       <div className="absolute top-2 right-3 rounded-full bg-white/80 px-3 py-1 text-sm font-bold text-slate-700 backdrop-blur-sm">

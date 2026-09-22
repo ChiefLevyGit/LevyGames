@@ -1,24 +1,43 @@
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { Star, ArrowLeft, RotateCcw, Map } from 'lucide-react';
-import type { WordLevel } from '../types';
-import { spriteUrl } from '../data/sprites';
+import type { CityObject, WordLevel } from '../types';
+import { spriteUrl, SPRITE_BY_ID } from '../data/sprites';
+import { starPop } from '../audio';
 
 /**
  * כרטיס הסיכום — **פס תחתון, לא מודאל ממורכז.**
- * בסבב הקודם הוא היה חלון במרכז המסך שעלה ברגע שהמילה נפתרה, ובדיוק כיסה
- * את האובייקט שזה עתה נחת. הפרס צריך להישאר גלוי, ולכן הכרטיס נכנס מלמטה
- * ויושב באזור המקלדת בלבד.
+ * הוא היה חלון במרכז המסך שעלה ברגע שהמילה נפתרה, ובדיוק כיסה את האובייקט
+ * שזה עתה נחת. הפרס צריך להישאר גלוי, ולכן הכרטיס נכנס מלמטה ויושב באזור
+ * המקלדת בלבד.
+ *
+ * כשלא הורווח אובייקט הוא מזכיר כמה מילים נשארו — המטרה נשארת על המסך.
  */
 export function WinBar({
-  level, stars, onNext, onReplay, onMap, isLastInHood,
+  level, stars, prize, nextPrize, wordsLeft, onNext, onReplay, onMap, isLastInHood,
 }: {
   level: WordLevel;
   stars: number;
+  /** האובייקט שנחת עכשיו, אם המד נסגר */
+  prize: CityObject | null;
+  /** האובייקט הבא שעובדים עליו */
+  nextPrize: CityObject | null;
+  wordsLeft: number;
   onNext: () => void;
   onReplay: () => void;
   onMap: () => void;
   isLastInHood: boolean;
 }) {
+  useEffect(() => {
+    const t = [1, 2, 3]
+      .filter((n) => n <= stars)
+      .map((n, i) => window.setTimeout(() => starPop(n as 1 | 2 | 3), 120 * i + 120));
+    return () => t.forEach(window.clearTimeout);
+  }, [stars]);
+
+  const prizeLabel = prize ? SPRITE_BY_ID.get(prize.sprite)?.label : null;
+  const nextLabel = nextPrize ? SPRITE_BY_ID.get(nextPrize.sprite)?.label : null;
+
   return (
     <motion.div
       initial={{ y: '110%' }}
@@ -29,13 +48,13 @@ export function WinBar({
     >
       <div className="mx-auto flex max-w-2xl items-center gap-3">
         <img
-          src={spriteUrl(level.sprite)}
+          src={spriteUrl(prize ? prize.sprite : (level.pic ?? nextPrize?.sprite ?? ''))}
           alt=""
-          className="h-[9dvh] max-h-24 w-auto shrink-0 drop-shadow-md"
+          className={`h-[9dvh] max-h-24 w-auto shrink-0 drop-shadow-md ${prize ? '' : 'opacity-60'}`}
         />
 
         <div className="min-w-0 flex-1">
-          <p className="text-[3.4dvh] font-black leading-tight text-slate-800">{level.word}</p>
+          <p className="text-[3.2dvh] font-black leading-tight text-slate-800">{level.word}</p>
           <div className="mt-0.5 flex gap-1" aria-label={`${stars} כוכבים`}>
             {[1, 2, 3].map((n) => (
               <motion.span
@@ -45,13 +64,17 @@ export function WinBar({
                 transition={{ delay: 0.12 * n, type: 'spring', stiffness: 400, damping: 12 }}
               >
                 <Star
-                  className={`h-7 w-7 ${n <= stars ? 'fill-amber-400 text-amber-500' : 'fill-slate-200 text-slate-300'}`}
+                  className={`h-6 w-6 ${n <= stars ? 'fill-amber-400 text-amber-500' : 'fill-slate-200 text-slate-300'}`}
                 />
               </motion.span>
             ))}
           </div>
           <p className="mt-0.5 text-sm font-bold text-emerald-600">
-            {isLastInHood ? 'סיימת את כל השכונה!' : 'העיר שלך גדלה!'}
+            {prize
+              ? `${prizeLabel} הצטרף לעיר שלך!`
+              : nextLabel
+                ? `עוד ${wordsLeft} מילים ו${nextLabel} שלך`
+                : 'יפה מאוד!'}
           </p>
         </div>
 

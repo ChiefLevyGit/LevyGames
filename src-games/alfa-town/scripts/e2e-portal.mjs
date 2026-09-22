@@ -40,7 +40,7 @@ await page.waitForTimeout(900);
 /** מסך הכניסה מוצג בכל טעינה. */
 async function dismissSplash() {
   const enter = page.getByRole('button', { name: /נכנסות לעיר|ממשיכות לבנות/ });
-  if (await enter.count()) { await enter.click(); await page.waitForTimeout(600); }
+  if (await enter.count()) { await enter.click(); await page.waitForTimeout(700); }
 }
 await dismissSplash();
 
@@ -54,9 +54,11 @@ ok('הגשר של הפורטל נטען והמשחק רואה את שכבת הא
 await page.getByRole('button', { name: 'גילאי 5-6', exact: true }).click();
 await page.waitForTimeout(350);
 await page.locator('button[aria-label^="מרכז העיר"]').click();
-await page.waitForTimeout(500);
+await page.waitForTimeout(600);
+await page.getByRole('button', { name: 'שחקי כאן' }).click();
+await page.waitForTimeout(600);
 
-const solved = () => page.locator('text=/העיר שלך גדלה|סיימת את כל השכונה/').count();
+const solved = () => page.locator('text=/הצטרף לעיר שלך|מילים ו|יפה מאוד/').count();
 for (let i = 0; i < 30; i++) {
   if (await solved()) break;
   const keys = page.locator('button[aria-label^="האות"]:not([disabled])');
@@ -77,14 +79,21 @@ ok('רקורד ההתקדמות נכתב', !!progKey, progKey ?? '');
 
 const record = progKey ? await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), progKey) : null;
 ok('הרקורד בפורמט חוזה ההתקדמות',
-  record?.kind === 'levels' && record.done >= 1 && record.total === 45,
+  record?.kind === 'levels' && record.done >= 1 && record.total === 120,
   JSON.stringify(record));
 
 await page.reload({ waitUntil: 'networkidle' });
 await page.waitForTimeout(1000);
 await dismissSplash();
-const counter = (await page.locator('header span').first().textContent())?.trim();
-ok('ההתקדמות שורדת רענון בתוך הפורטל', /^[1-9]/.test(counter ?? ''), counter);
+// אחרי רענון חוזרים למפה, והמונה שם סופר *פריטים* ולא מילים — מילה אחת
+// עדיין שווה אפס פריטים. לכן בודקים את השמירה עצמה.
+const savedAfter = await page.evaluate(() => {
+  const key = Object.keys(localStorage).find((k) => k.includes('alfaTown.v2'));
+  return key ? JSON.parse(localStorage.getItem(key)) : null;
+});
+ok('ההתקדמות שורדת רענון בתוך הפורטל',
+  (savedAfter?.solved?.length ?? 0) >= 1,
+  `${savedAfter?.solved?.length ?? 0} מילים שמורות`);
 
 // ── הכרטיס בדף הבית ───────────────────────────────────────────────────────
 await page.goto(`${BASE}/index.html`, { waitUntil: 'networkidle' });
