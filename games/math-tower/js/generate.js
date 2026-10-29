@@ -70,7 +70,9 @@ function choicesFor(rng, answer, count, { min, max, typical = [] }) {
 // 10 (מוצג כחיבור הפוך על המאזניים, כמו ב-ג').
 function scaleLittle(rng, floor) {
   if (floor <= 2) {
-    const n = floor === 1 ? int(rng, 2, 4) : int(rng, 3, 6);
+    // 2-4 היה רק 3 ערכים אפשריים - עם שתי מכונות באותה קומה שתיהן מושכות
+    // מאותה בריכה, חזרה כמעט מובטחת. מורחב ל-5/6 ערכים.
+    const n = floor === 1 ? int(rng, 2, 6) : int(rng, 3, 7);
     return {
       kind: 'count',
       left: { value: n, groups: [n] },

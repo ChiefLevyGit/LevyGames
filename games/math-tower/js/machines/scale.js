@@ -8,7 +8,7 @@
 //   ctx.sound(name)          צליל
 //   ctx.prompt(text, voice)  שורת ההנחיה (voice: טקסט להקראה במסלול קטנה)
 
-import { rightValue } from '../generate.js?v=4';
+import { rightValue } from '../generate.js?v=5';
 import { el, enableDrag } from './shared.js?v=1';
 
 const HINT_AFTER = 2;

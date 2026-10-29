@@ -4,7 +4,7 @@
 
 import { read, write, reportProgress } from '../../../js/storage.js?v=2';
 import { FLOORS, TOTAL_FLOORS, TRACKS, MACHINE_META } from './floors.js?v=1';
-import { generate, makeRng } from './generate.js?v=4';
+import { generate, makeRng } from './generate.js?v=5';
 import { sound, isMuted, setMuted } from './sound.js?v=2';
 import { speak, stopSpeaking, canSpeak } from './voice.js?v=1';
 import * as scale from './machines/scale.js?v=2';
@@ -165,6 +165,12 @@ let playToken = 0;
 let lastVoice = null;
 let lastSpokenText = null; // כדי שלא תוקרא אותה הנחיה שוב ושוב בכל חידה
 
+// זוכר את החידה האחרונה שהוצגה לכל צירוף (מסלול, מכונה) - כדי שאותה חידה
+// בדיוק לא תחזור מיד שוב, גם אם בריכת הערכים האפשריים צרה (למשל קומה 1,
+// שבה יש רק כמה ערכים אפשריים ושתי מכונות מאזניים באותה קומה)
+const lastPuzzle = {};
+const puzzleSignature = ({ choices, ...rest }) => JSON.stringify(rest);
+
 const ctx = {
   sound,
   prompt(text, voice) {
@@ -199,7 +205,12 @@ async function playFloor(n) {
 
   for (let i = 0; i < machines.length; i++) {
     pips.children[i].classList.add('active');
-    const puzzle = generate(machines[i], state.track, n, rng);
+    const key = `${state.track}:${machines[i]}`;
+    let puzzle = generate(machines[i], state.track, n, rng);
+    for (let tries = 0; puzzleSignature(puzzle) === lastPuzzle[key] && tries < 5; tries++) {
+      puzzle = generate(machines[i], state.track, n, rng);
+    }
+    lastPuzzle[key] = puzzleSignature(puzzle);
     await MACHINES[machines[i]].mount(stage, puzzle, ctx);
     if (token !== playToken) return; // יצאו מהקומה באמצע
     pips.children[i].classList.replace('active', 'fixed');
