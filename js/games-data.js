@@ -85,4 +85,17 @@ export const GAMES = [
     video: 'assets/cards/alfa-town.mp4',
     poster: 'assets/cards/alfa-town.webp',
   },
+  {
+    id: 'math-tower',
+    emoji: '⚙️',
+    name: 'מכונות המגדל',
+    description: 'הממציא ננעל בראש מגדל של מכונות! מאזנים מאזניים, מחשבים ועולים קומה אחרי קומה. שני מסלולים: לפני כיתה א\' וכיתה ג\'.',
+    playUrl: 'games/math-tower/index.html',
+    instructionsUrl: 'games/math-tower/instructions.html',
+    playLabel: 'לתקן מכונות!',
+    progressUnit: 'קומות',
+    tags: ['חשבון', '12 קומות', 'גילאי 5-9'],
+    gradient: ['#FCD34D', '#93C5FD'],
+    badge: 'חדש!',
+  },
 ];

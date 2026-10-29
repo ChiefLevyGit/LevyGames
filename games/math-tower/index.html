@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>מכונות המגדל | Levy Games</title>
+<meta name="description" content="קווסט חשבון: ממציא נעול בראש מגדל של מכונות. מאזנים מאזניים, מחשבים ועולים קומה אחרי קומה. שני מסלולים: לפני כיתה א' וכיתה ג'.">
+<meta name="theme-color" content="#1d2b53">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Levy Games">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="מכונות המגדל">
+<meta property="og:description" content="קווסט חשבון: מתקנים מכונות בחידות מספרים ועולים במגדל עד לממציא הנעול.">
+<meta property="og:url" content="https://chieflevygit.github.io/LevyGames/games/math-tower/">
+<meta property="og:image" content="https://chieflevygit.github.io/LevyGames/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tower.css?v=1">
+</head>
+<body data-screen="start">
+
+<!-- ===== פתיחה ===== -->
+<section class="screen screen-start" data-screen="start">
+  <header class="bar">
+    <a class="bar-btn" href="../../index.html" aria-label="חזרה לפורטל">🏠</a>
+    <span class="bar-spacer"></span>
+    <a class="bar-btn" href="instructions.html" aria-label="הוראות">❓</a>
+    <button class="bar-btn mute-btn" type="button">🔊</button>
+  </header>
+
+  <div class="start-hero">
+    <div class="start-art" aria-hidden="true">
+      <span class="art-gear art-gear-a">⚙️</span>
+      <span class="art-inventor">🧑‍🔬</span>
+      <span class="art-gear art-gear-b">⚙️</span>
+    </div>
+    <h1>מכונות המגדל</h1>
+    <p class="start-story">הממציא ננעל בראש המגדל, וכל המכונות נתקעו.<br>תקנו אותן בעזרת מספרים, ועלו קומה אחרי קומה עד אליו!</p>
+  </div>
+
+  <div class="tracks">
+    <button class="track" type="button" data-track="little">
+      <span class="track-icon" aria-hidden="true">🐣</span>
+      <span class="track-name">קטנה</span>
+      <span class="track-grade">לפני כיתה א'</span>
+      <span class="track-progress"></span>
+    </button>
+    <button class="track" type="button" data-track="g3">
+      <span class="track-icon" aria-hidden="true">🚀</span>
+      <span class="track-name">גדולה</span>
+      <span class="track-grade">כיתה ג'</span>
+      <span class="track-progress"></span>
+    </button>
+  </div>
+</section>
+
+<!-- ===== המגדל ===== -->
+<section class="screen screen-tower" data-screen="tower" hidden>
+  <header class="bar">
+    <a class="bar-btn" href="../../index.html" aria-label="חזרה לפורטל">🏠</a>
+    <h1 class="bar-title">מכונות המגדל</h1>
+    <button class="chip" id="track-chip" type="button" aria-label="החלפת מסלול"></button>
+    <button class="bar-btn mute-btn" type="button">🔊</button>
+  </header>
+
+  <div class="tower-wrap">
+    <div class="roof" id="roof">
+      <div class="cage" aria-hidden="true"><span class="inventor">🧑‍🔬</span></div>
+      <p class="inventor-msg" id="inventor-msg"></p>
+    </div>
+    <div class="floors" id="floors"></div>
+    <div class="base" id="base"></div>
+  </div>
+</section>
+
+<!-- ===== קומה ===== -->
+<section class="screen screen-floor" data-screen="floor" hidden>
+  <header class="bar">
+    <button class="bar-btn" id="back-to-tower" type="button" aria-label="חזרה למגדל">🗼</button>
+    <h1 class="bar-title" id="floor-title"></h1>
+    <div class="pips" id="pips"></div>
+    <button class="bar-btn mute-btn" type="button">🔊</button>
+  </header>
+
+  <div class="prompt">
+    <button class="speak-btn" id="speak-btn" type="button" aria-label="להקריא שוב" hidden>🗣️</button>
+    <p id="prompt-text"></p>
+  </div>
+  <main class="stage" id="stage"></main>
+</section>
+
+<!-- ===== קומה תוקנה ===== -->
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="done-title" hidden>
+  <div class="done-card">
+    <div class="done-burst" aria-hidden="true">⚙️✨⚙️</div>
+    <h2 id="done-title"></h2>
+    <p id="done-text"></p>
+    <button class="big-btn" id="done-btn" type="button">למגדל 🗼</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script type="module" src="js/main.js?v=5"></script>
+</body>
+</html>

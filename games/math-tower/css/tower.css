@@ -1,0 +1,500 @@
+/* ===== מכונות המגדל ===== */
+:root {
+  --sky-top: #16213f;
+  --sky-mid: #2a2f66;
+  --sky-low: #5a3f7a;
+  --stone: #3a3160;
+  --stone-dark: #251f42;
+  --brass: #e3ae4a;
+  --brass-light: #f7d58b;
+  --brass-dark: #9c6b1f;
+  --copper: #d0794a;
+  --copper-dark: #8c4424;
+  --steel: #aab4c8;
+  --steel-dark: #66718a;
+  --teal: #4fe0c8;
+  --cream: #fff6e3;
+  --ink: #2a2340;
+  --ink-soft: #5b4f78;
+  --white: #ffffff;
+  --radius: 18px;
+  --font-num: 'Fredoka', 'Rubik', system-ui, sans-serif;
+  --font-body: 'Rubik', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  color: var(--white);
+  background:
+    radial-gradient(1.5px 1.5px at 12% 18%, #fff9 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 78% 9%, #fff8 50%, transparent 51%),
+    radial-gradient(2px 2px at 64% 26%, #fff7 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 28% 40%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 90% 44%, #fff6 50%, transparent 51%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-low) 100%) fixed;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; color: inherit; }
+[hidden] { display: none !important; }
+h1, h2 { font-family: var(--font-num); margin: 0; }
+
+/* ===== סרגל עליון ===== */
+.bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: rgba(22, 33, 63, 0.82);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid rgba(227, 174, 74, 0.35);
+}
+.bar-title { font-size: 22px; color: var(--brass-light); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-spacer { flex: 1; }
+.bar-btn {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  font-size: 22px; text-decoration: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.1);
+}
+.bar-btn:active { transform: scale(.94); }
+.chip {
+  flex-shrink: 0;
+  min-height: 40px; padding: 0 14px;
+  border-radius: 999px;
+  border: 2px solid var(--brass);
+  background: rgba(227,174,74,.15);
+  font-weight: 700; font-size: 16px;
+}
+
+/* ===== פתיחה ===== */
+.start-hero { text-align: center; padding: 28px 16px 8px; }
+.start-art { position: relative; height: 120px; display: flex; justify-content: center; align-items: center; gap: 4px; }
+.art-inventor { font-size: 84px; position: relative; z-index: 1; filter: drop-shadow(0 6px 10px rgba(0,0,0,.4)); }
+.art-gear { font-size: 54px; animation: spin 8s linear infinite; }
+.art-gear-b { animation-direction: reverse; font-size: 42px; }
+.start-hero h1 { font-size: clamp(34px, 9vw, 52px); color: var(--brass-light); text-shadow: 0 4px 0 var(--copper-dark); margin-top: 6px; }
+.start-story { font-size: 18px; line-height: 1.6; max-width: 440px; margin: 12px auto 0; color: #e6e0ff; }
+
+.tracks {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  max-width: 480px; margin: 22px auto 32px; padding: 0 16px;
+}
+.track {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 18px 10px 16px;
+  border-radius: 24px;
+  border: 3px solid var(--brass);
+  background: linear-gradient(180deg, var(--cream), #f5e2b8);
+  color: var(--ink);
+  box-shadow: 0 8px 0 var(--brass-dark), 0 14px 22px rgba(0,0,0,.35);
+  transition: transform .12s;
+}
+.track:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--brass-dark); }
+.track.is-current { border-color: var(--teal); box-shadow: 0 8px 0 #1f8c7b, 0 0 0 4px rgba(79,224,200,.35); }
+.track-icon { font-size: 52px; }
+.track-name { font-family: var(--font-num); font-size: 26px; font-weight: 700; }
+.track-grade { font-size: 15px; color: var(--ink-soft); }
+.track-progress { font-size: 14px; font-weight: 700; color: var(--copper-dark); min-height: 1.2em; }
+
+/* ===== המגדל ===== */
+.tower-wrap { max-width: 420px; margin: 0 auto; padding: 18px 16px 40px; }
+
+.roof { text-align: center; position: relative; padding-top: 6px; }
+.roof::before {
+  content: ''; display: block; margin: 0 auto;
+  width: 78%; height: 70px;
+  background: linear-gradient(180deg, var(--copper), var(--copper-dark));
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.cage {
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  width: 64px; height: 56px;
+  display: grid; place-items: end center;
+  border-radius: 30px 30px 6px 6px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(40,25,10,.9) 9px 12px);
+  border: 3px solid #3a2410;
+}
+.inventor { font-size: 40px; line-height: 1; }
+.roof.freed .cage { background: none; border-color: transparent; }
+.roof.freed .inventor { animation: hop 1s ease-in-out infinite; }
+.inventor-msg { margin: 8px 0 10px; font-weight: 700; color: var(--brass-light); }
+
+.floors { display: flex; flex-direction: column; gap: 6px; }
+.floor {
+  display: grid; grid-template-columns: 40px 1fr auto 52px; align-items: center; gap: 10px;
+  width: 100%; min-height: 64px; padding: 8px 12px;
+  border-radius: 12px;
+  border: 2px solid rgba(0,0,0,.25);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.12)),
+    var(--stone);
+  text-align: start;
+}
+.floor-num { font-family: var(--font-num); font-size: 24px; font-weight: 700; color: var(--brass-light); text-align: center; }
+.floor-windows { display: flex; gap: 8px; }
+.window {
+  width: 20px; height: 26px; border-radius: 10px 10px 3px 3px;
+  background: var(--stone-dark);
+  border: 2px solid rgba(0,0,0,.35);
+}
+.floor-machines { font-size: 20px; letter-spacing: 2px; }
+.floor-badge { font-weight: 800; text-align: center; font-size: 18px; }
+
+.floor-done .window { background: #ffd66b; box-shadow: 0 0 10px #ffcf4d, inset 0 -6px 0 #f0b43c; }
+.floor-done .floor-badge { color: var(--teal); font-size: 26px; }
+.floor-current { border-color: var(--teal); animation: pulse 1.6s ease-in-out infinite; }
+.floor-current .floor-badge { color: var(--teal); }
+.floor-building {
+  background:
+    repeating-linear-gradient(-45deg, rgba(227,174,74,.18) 0 12px, transparent 12px 24px),
+    var(--stone);
+}
+.floor-locked { opacity: .5; cursor: default; }
+.floor.just-lit .window { animation: light-up .9s ease-out both; }
+.floor.just-lit .window:nth-child(2) { animation-delay: .2s; }
+.floor.just-lit .window:nth-child(3) { animation-delay: .4s; }
+
+.base {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 6px; padding: 14px;
+  border-radius: 12px 12px 22px 22px;
+  background: linear-gradient(180deg, #4a3d2a, #2e2618);
+  border: 2px solid rgba(0,0,0,.35);
+}
+.flywheel { width: 110px; height: 110px; }
+.flywheel .seg { fill: rgba(255,255,255,.12); stroke: rgba(0,0,0,.4); stroke-width: .8; }
+.flywheel .seg-on { fill: var(--brass); }
+.flywheel .hub { fill: var(--copper); stroke: var(--copper-dark); stroke-width: 2; }
+.base-count { font-family: var(--font-num); font-size: 30px; font-weight: 700; color: var(--brass-light); }
+
+/* ===== קומה ===== */
+.pips { display: flex; gap: 6px; }
+.pip {
+  width: 36px; height: 36px; display: grid; place-items: center; font-size: 18px;
+  border-radius: 50%; background: rgba(255,255,255,.08); opacity: .45;
+  border: 2px solid transparent;
+}
+.pip.active { opacity: 1; border-color: var(--brass); transform: scale(1.1); }
+.pip.fixed { opacity: 1; border-color: var(--teal); background: rgba(79,224,200,.18); }
+
+.prompt {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 16px 4px; text-align: center;
+}
+.prompt p { margin: 0; font-size: 20px; font-weight: 700; }
+.speak-btn {
+  flex-shrink: 0; width: 48px; height: 48px; font-size: 24px;
+  border-radius: 50%; border: 2px solid var(--brass); background: rgba(227,174,74,.18);
+}
+.stage { max-width: 600px; margin: 0 auto; padding: 0 16px 32px; }
+
+/* ===== ⚖️ מאזניים =====
+   המכונה היא מכשיר פיזי, ולכן גיאומטריה פיזית (left/right) ו-dir="ltr":
+   צלחת שמאל היא תמיד המטען, ימין תמיד המקום הריק. */
+.scale-rig {
+  --tilt: 0deg; --dy-left: 0px; --dy-right: 0px;
+  --swing: .7s cubic-bezier(.34, 1.45, .64, 1);
+  position: relative;
+  height: clamp(250px, 62vw, 320px);
+  margin: 6px auto 0;
+}
+.scale-post {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 18px; top: 18%;
+  background: linear-gradient(90deg, var(--brass-dark), var(--brass), var(--brass-dark));
+  border-radius: 6px 6px 0 0;
+}
+.scale-post::after {
+  content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 18px; border-radius: 10px 10px 4px 4px;
+  background: linear-gradient(180deg, var(--brass), var(--brass-dark));
+}
+.scale-beam {
+  position: absolute; top: 18%; left: 22%; right: 22%; height: 12px; margin-top: -6px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--brass-light), var(--brass) 50%, var(--brass-dark));
+  transform: rotate(var(--tilt));
+  transition: transform var(--swing), box-shadow .4s;
+  z-index: 2;
+}
+.scale-beam::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 26px; height: 26px; transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--copper), var(--copper-dark));
+  border: 3px solid var(--brass-dark);
+  transition: background .3s;
+}
+.pan {
+  position: absolute; top: 18%; width: 42%; height: 64%;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  transition: transform var(--swing);
+  z-index: 1;
+}
+.pan-left { left: 1%; transform: translateY(var(--dy-left)); }
+.pan-right { right: 1%; transform: translateY(var(--dy-right)); }
+/* החוטים: שני אלכסונים מאמצע הקורה לקצוות הצלחת */
+.pan::before, .pan::after {
+  content: ''; position: absolute; top: 0; bottom: 12px; width: 50%;
+}
+.pan::before { left: 0; background: linear-gradient(to bottom right, transparent calc(50% - 1.5px), var(--steel) calc(50% - 1px), var(--steel) calc(50% + 1px), transparent calc(50% + 1.5px)); }
+.pan::after { right: 0; background: linear-gradient(to bottom left, transparent calc(50% - 1.5px), var(--steel) calc(50% - 1px), var(--steel) calc(50% + 1px), transparent calc(50% + 1.5px)); }
+.pan-load {
+  position: relative; z-index: 1;
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 4px;
+  padding: 0 4px 2px;
+}
+.pan-plate {
+  position: relative; z-index: 1;
+  height: 14px; border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(180deg, var(--brass-light), var(--brass-dark));
+  box-shadow: 0 6px 10px rgba(0,0,0,.3);
+}
+.pan-right.drop-hover .slot { border-color: var(--teal); background: rgba(79,224,200,.25); transform: scale(1.1); }
+
+/* משקולות */
+.weight {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 54px; min-height: 48px; padding: 6px 10px;
+  border-radius: 10px 10px 16px 16px;
+  font-family: var(--font-num); font-size: 24px; font-weight: 700; color: var(--ink);
+  background: linear-gradient(180deg, var(--brass-light), var(--brass) 60%, var(--brass-dark));
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+.weight::before {
+  content: ''; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  width: 22px; height: 12px; border: 4px solid var(--brass-dark); border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+}
+.weight-load { background: linear-gradient(180deg, #f2a77c, var(--copper) 60%, var(--copper-dark)); color: var(--white); }
+.weight-load::before { border-color: var(--copper-dark); }
+.weight-known { background: linear-gradient(180deg, #e3e8f2, var(--steel) 60%, var(--steel-dark)); }
+.weight-known::before { border-color: var(--steel-dark); }
+.op { font-family: var(--font-num); font-size: 26px; font-weight: 700; align-self: center; }
+.slot {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 56px; min-height: 50px;
+  border: 3px dashed rgba(255,255,255,.75); border-radius: 12px;
+  transition: transform .2s, background .2s, border-color .2s;
+  animation: breathe 1.8s ease-in-out infinite;
+}
+.slot.filled { border-color: transparent; animation: none; }
+.weight-placed { animation: drop .35s cubic-bezier(.3, 1.6, .6, 1) both; }
+
+/* כמויות: נקודות/תפוחים בשורות של 5 */
+.qty { display: inline-grid; grid-template-columns: repeat(5, auto); gap: 3px; justify-content: center; direction: ltr; }
+.qty-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
+.qty-glyph { font-size: 22px; line-height: 1; position: relative; }
+.qty-gap { width: 14px; }
+.weight .qty { gap: 4px; }
+.is-little .weight { min-width: 64px; padding: 8px; }
+/* רמז (קטנה): מספר על כל תפוח */
+.hinted .apples .qty-item::after {
+  content: attr(data-n);
+  position: absolute; top: -6px; right: -6px;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  display: grid; place-items: center;
+  font: 700 11px/1 var(--font-num); color: var(--ink); background: var(--white);
+  animation: pop .3s ease-out both;
+}
+.hinted .weight-load, .hinted .weight-known { animation: pop .4s ease-out; }
+
+/* תוקן */
+.fixed .scale-beam { box-shadow: 0 0 18px 4px var(--teal); }
+.fixed .scale-beam::after { background: radial-gradient(circle at 35% 35%, #9ff5e6, #1f8c7b); }
+
+/* שורת התרגיל */
+.eq {
+  margin: 14px auto 0; width: fit-content; max-width: 100%;
+  padding: 8px 22px; border-radius: 999px;
+  font-family: var(--font-num); font-size: 30px; font-weight: 700;
+  background: rgba(0,0,0,.25); border: 2px solid rgba(255,255,255,.15);
+  white-space: nowrap;
+}
+.eq-slot { display: inline-block; min-width: 1.4em; text-align: center; color: var(--brass-light); }
+.fixed .eq { border-color: var(--teal); }
+
+/* המגש */
+.tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+.tile {
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  min-width: 76px; min-height: 80px; padding: 16px 8px 10px;
+  display: grid; place-items: center;
+  border-radius: 20px; border: 0;
+  background: linear-gradient(180deg, #4a3f78, var(--stone-dark));
+  box-shadow: 0 6px 0 #17122b, 0 10px 16px rgba(0,0,0,.3);
+  transition: transform .12s, opacity .3s, filter .3s;
+}
+.tile:active { transform: translateY(4px); box-shadow: 0 2px 0 #17122b; }
+.tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.tile.in-use, .tile.dragging { opacity: .25; }
+.tile.tried { opacity: .3; filter: grayscale(1); cursor: default; }
+.tile-ghost { position: fixed; z-index: 100; pointer-events: none; margin: 0; opacity: .95; transition: none; }
+
+/* ===== שבב ספרה משותף למכונות שאינן מאזניים (בלי ידית התיק) ===== */
+.chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 48px; min-height: 42px; padding: 6px 12px;
+  border-radius: 12px;
+  font-family: var(--font-num); font-size: 24px; font-weight: 700; color: var(--ink);
+  background: linear-gradient(180deg, var(--brass-light), var(--brass) 60%, var(--brass-dark));
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.18), 0 3px 6px rgba(0,0,0,.25);
+}
+
+/* ===== 💧 צינורות ===== */
+.pipes-machine { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 4px; }
+.tank {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 22px; border-radius: 16px;
+  background: rgba(0,0,0,.25); border: 2px solid rgba(255,255,255,.15);
+}
+.tank-icon { font-size: 26px; }
+.tank-total { font-family: var(--font-num); font-size: 30px; font-weight: 700; color: var(--brass-light); }
+.jars { display: flex; flex-wrap: wrap; gap: clamp(6px, 2.6vw, 20px); justify-content: center; margin-top: 10px; }
+.jar {
+  position: relative; width: clamp(38px, 13vw, 58px); height: 150px;
+  border: 3px solid var(--steel); border-top: 0; border-radius: 0 0 16px 16px;
+  background: rgba(255,255,255,.04); overflow: hidden;
+}
+.jar-fill {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 0%;
+  background: linear-gradient(180deg, #7fe3d4, #2fb6a0);
+  transition: height .45s cubic-bezier(.3, 1.4, .6, 1);
+}
+.jar-line { position: absolute; left: -4px; right: -4px; bottom: var(--line); border-top: 3px dashed var(--brass-light); z-index: 2; }
+.jar-line-label {
+  position: absolute; left: 100%; bottom: var(--line); transform: translate(4px, 50%);
+  font-family: var(--font-num); font-weight: 700; color: var(--brass-light); font-size: 14px;
+}
+.jar.over .jar-fill { background: linear-gradient(180deg, #ffb37a, #e2683f); }
+.jar.under .jar-fill { opacity: .65; }
+.fixed .jar { border-color: var(--teal); }
+.fixed .jar-fill { box-shadow: inset 0 0 14px 2px rgba(79,224,200,.7); }
+
+/* ===== ⚙️ גלגלי שיניים ===== */
+.gears-machine { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px; }
+.gear-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0; }
+.gear {
+  position: relative; width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: repeating-conic-gradient(var(--brass-dark) 0deg 8deg, var(--brass) 8deg 20deg);
+  box-shadow: 0 4px 0 var(--brass-dark), 0 8px 12px rgba(0,0,0,.3);
+}
+.gear::after {
+  content: ''; position: absolute; inset: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-light), var(--brass) 70%);
+}
+.gear-num { position: relative; z-index: 1; font-family: var(--font-num); font-size: 19px; font-weight: 700; color: var(--ink); }
+.gear-unknown {
+  background: repeating-conic-gradient(rgba(255,255,255,.14) 0deg 8deg, rgba(255,255,255,.28) 8deg 20deg);
+  animation: breathe 1.8s ease-in-out infinite;
+}
+.gear-unknown::after { background: rgba(0,0,0,.25); border: 3px dashed rgba(255,255,255,.6); }
+.gear-unknown .gear-num { color: var(--white); }
+.gear-unknown.filled { animation: none; }
+.gear-link { width: 14px; height: 6px; background: var(--steel-dark); align-self: center; flex-shrink: 0; }
+.fixed .gear { animation: spin 1s linear; }
+.fixed .gear-unknown { animation: spin 1s linear; }
+.fixed .gear::after { box-shadow: 0 0 10px 2px var(--teal) inset; }
+.gear-hints { display: flex; flex-wrap: wrap; gap: 8px; min-height: 22px; justify-content: center; }
+.gear-diff {
+  font-family: var(--font-num); font-weight: 700; color: var(--teal); font-size: 14px;
+  background: rgba(79,224,200,.15); padding: 2px 10px; border-radius: 999px;
+}
+
+/* ===== 🔷 מנעול צורות ===== */
+.shapes-machine { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 6px; }
+.shape-stage { width: min(260px, 70vw); }
+.shape-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.shape-outline { fill: rgba(227,174,74,.12); stroke: var(--brass-light); stroke-width: 4; }
+.shape-mark { fill: var(--teal); }
+.shape-right { fill: none; stroke: var(--teal); stroke-width: 3; }
+.shape-side-label {
+  font-family: var(--font-num); font-size: 18px; font-weight: 700; fill: var(--white);
+  text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--stone-dark); stroke-width: 4px;
+}
+.shape-stage.fixed .shape-outline { stroke: var(--teal); filter: drop-shadow(0 0 8px rgba(79,224,200,.6)); }
+.shape-stage.shake { animation: shake-x .4s; }
+.mirror-line { stroke: rgba(255,255,255,.4); stroke-width: 3; stroke-dasharray: 6 6; }
+.dot-filled { fill: var(--brass); stroke: var(--brass-dark); stroke-width: 2; }
+.dot-missing { fill: none; stroke: rgba(255,255,255,.5); stroke-width: 3; stroke-dasharray: 4 4; }
+.hinted .shape-mark, .hinted .shape-right, .hinted .dot-missing { animation: pop .4s ease-out; }
+
+/* ===== חלון "הקומה תוקנה" ===== */
+.done {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center; padding: 16px;
+  background: rgba(10, 12, 30, .6);
+  backdrop-filter: blur(3px);
+}
+.done-card {
+  width: min(380px, 100%); padding: 26px 22px 22px; text-align: center;
+  border-radius: 28px; color: var(--ink);
+  background: linear-gradient(180deg, var(--cream), #f5e2b8);
+  border: 4px solid var(--brass);
+  animation: pop .45s cubic-bezier(.3, 1.6, .6, 1) both;
+}
+.done-burst { font-size: 44px; animation: spin 4s linear infinite; display: inline-block; }
+.done-card h2 { font-size: 30px; margin: 6px 0; color: var(--copper-dark); }
+.done-card p { font-size: 17px; line-height: 1.5; color: var(--ink-soft); }
+.big-btn {
+  min-height: 56px; padding: 0 28px; margin-top: 6px;
+  border-radius: 999px; border: 0;
+  font-size: 20px; font-weight: 800; color: var(--ink);
+  background: linear-gradient(180deg, var(--brass-light), var(--brass));
+  box-shadow: 0 6px 0 var(--brass-dark);
+}
+.big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--brass-dark); }
+
+.toast {
+  position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  z-index: 60; max-width: calc(100% - 32px);
+  padding: 12px 20px; border-radius: 999px;
+  background: var(--cream); color: var(--ink); font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
+
+/* ===== אנימציות ===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes hop { 50% { transform: translateY(-8px); } }
+@keyframes pulse { 50% { box-shadow: 0 0 0 4px rgba(79,224,200,.35), 0 0 18px rgba(79,224,200,.4); } }
+@keyframes breathe { 50% { border-color: var(--brass-light); background: rgba(227,174,74,.12); } }
+@keyframes drop { from { transform: translateY(-40px) scale(.9); opacity: 0; } }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } }
+@keyframes light-up {
+  0% { background: var(--stone-dark); box-shadow: none; }
+  60% { background: #fff3c4; box-shadow: 0 0 22px #ffe08a; }
+}
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+@media (max-width: 380px) {
+  .floor { grid-template-columns: 32px 1fr auto 40px; gap: 6px; padding: 8px; }
+  .window { width: 14px; height: 20px; }
+  .floor-windows { gap: 5px; }
+  .floor-machines { font-size: 17px; letter-spacing: 0; }
+  .eq { font-size: 24px; padding: 8px 14px; }
+  .weight { font-size: 20px; min-width: 46px; }
+  .tile { min-width: 70px; min-height: 72px; }
+  .slot { min-width: 48px; }
+  .pips { gap: 3px; }
+  .pip { width: 30px; height: 30px; font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  .scale-rig { --swing: .2s ease-out; }
+}
