@@ -2,7 +2,7 @@
 // אם אין במכשיר קול עברי - שקט. לא נותנים לקול אנגלי להקריא עברית, וכל
 // חידה פתירה גם בלי הקראה.
 
-import { isMuted } from './sound.js?v=1';
+import { isMuted } from './sound.js?v=2';
 
 let hebrewVoice = null;
 

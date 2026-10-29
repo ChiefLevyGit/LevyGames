@@ -5,7 +5,7 @@
 import { read, write, reportProgress } from '../../../js/storage.js?v=2';
 import { FLOORS, TOTAL_FLOORS, TRACKS, MACHINE_META } from './floors.js?v=1';
 import { generate, makeRng } from './generate.js?v=4';
-import { sound, isMuted, setMuted } from './sound.js?v=1';
+import { sound, isMuted, setMuted } from './sound.js?v=2';
 import { speak, stopSpeaking, canSpeak } from './voice.js?v=1';
 import * as scale from './machines/scale.js?v=2';
 import * as pipes from './machines/pipes.js?v=1';
