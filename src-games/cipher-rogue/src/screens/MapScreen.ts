@@ -3,11 +3,11 @@ import type { Level } from '../types.ts';
 import { h, wait } from '../ui/dom.ts';
 import { button, soundToggle, starsRow } from '../ui/components.ts';
 import { IMG } from '../media.ts';
-import { MAIN_LEVELS, SECRET_LEVEL, SECRET_UNLOCK_STARS } from '../config/levels.ts';
+import { MAIN_LEVELS, MAIN_TOTAL, SECRET_LEVEL, SECRET_UNLOCK_STARS, vaultNo } from '../config/levels.ts';
 import { Sound } from '../core/SoundManager.ts';
 
 /**
- * מגדל הכספות: עשר כספות מלמטה למעלה, וקיר סודי בראש. כל כספת שנפתחה מציגה
+ * מגדל הכספות: הכספות מלמטה למעלה, וקיר סודי בראש. כל כספת שנפתחה מציגה
  * את הכוכבים שלה, והאוצר שהוחזר עולה למדף בתחתית - שכבת ה"מטא" של המשחק.
  */
 export class MapScreen implements Screen {
@@ -34,7 +34,7 @@ export class MapScreen implements Screen {
     pipe.setAttribute('aria-hidden', 'true');
     tower.append(pipe);
 
-    // הסודית למעלה, ואז 10..1 - כך שבגלילה רגילה מתחילים מלמטה
+    // הסודית למעלה, ואז מהאחרונה לראשונה - כך שבגלילה רגילה מתחילים מלמטה
     const order: Level[] = [SECRET_LEVEL, ...[...MAIN_LEVELS].reverse()];
     order.forEach((level, i) => tower.append(this.node(level, current, i)));
 
@@ -55,7 +55,7 @@ export class MapScreen implements Screen {
         'header',
         { class: 'map-head' },
         button('', () => e.showTitle(), { variant: 'ghost', icon: '🏠', aria: 'למסך הפתיחה', cls: 'icon-only' }),
-        h('div', { class: 'map-title' }, h('h1', {}, 'מגדל הכספות'), h('p', {}, `⭐ ${e.totalStars()} / 30`)),
+        h('div', { class: 'map-title' }, h('h1', {}, 'מגדל הכספות'), h('p', {}, `⭐ ${e.totalStars()} / ${MAIN_TOTAL * 3}`)),
         soundToggle(e.isMuted, e.toggleMute),
       ),
       h('div', { class: 'tower-scroll' }, tower),
@@ -91,7 +91,7 @@ export class MapScreen implements Screen {
       ? unlocked
         ? `הכספת הסודית${stars ? `, ${stars} כוכבים` : ''}`
         : `קיר סודי — נפתח ב-${SECRET_UNLOCK_STARS} כוכבים`
-      : `כספת ${level.id}: ${level.title}${unlocked ? (stars ? `, ${stars} כוכבים` : ', פתוחה') : ', נעולה'}`;
+      : `כספת ${vaultNo(level)}: ${level.title}${unlocked ? (stars ? `, ${stars} כוכבים` : ', פתוחה') : ', נעולה'}`;
 
     const medal = h(
       'button',
@@ -102,7 +102,7 @@ export class MapScreen implements Screen {
         onclick: () => this.pick(level, medal),
       },
       h('img', { class: 'medal-img', src: stars ? IMG.doorOpen : IMG.doorClosed, alt: '' }),
-      h('span', { class: 'medal-num' }, level.secret ? (unlocked ? '?' : '🔒') : String(level.id)),
+      h('span', { class: 'medal-num' }, level.secret ? (unlocked ? '?' : '🔒') : String(vaultNo(level))),
     );
 
     return h(

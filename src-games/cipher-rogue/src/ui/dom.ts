@@ -32,7 +32,7 @@ export function append(el: Element, children: Child[]): void {
 /** משוואה או מספר בתוך טקסט עברי - מבודד בכיוון LTR כדי שהסימנים לא יתהפכו */
 export const ltr = (text: string) => h('bdi', { dir: 'ltr', class: 'ltr' }, text);
 
-const MATH = /\d+(?:\s*[×÷+\-=]\s*(?:\d+|\?))+/g;
+const MATH = /\d+(?:\s*[×÷+\-−=/]\s*(?:\d+|\?))+/g;
 
 /**
  * עוטף כל ביטוי חשבוני בטקסט עברי ב-LRI...PDI (בידוד LTR).

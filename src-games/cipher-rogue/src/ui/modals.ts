@@ -7,6 +7,7 @@ import { canSpeak, speak, stopSpeaking } from '../core/speech.ts';
 import { FX, centerOf } from '../fx/Particles.ts';
 import { MAIN_LEVELS, SECRET_UNLOCK_STARS } from '../config/levels.ts';
 import { isValve } from '../systems/MathSystem.ts';
+import { vaultNo } from '../config/levels.ts';
 
 /** שכבת מודאל אחת: רקע מוחשך (60%), כרטיס במרכז, ופוקוס נלכד בתוכו */
 function overlay(cls: string, card: HTMLElement, label: string): { root: HTMLDivElement; close: () => Promise<void> } {
@@ -40,7 +41,7 @@ export function showIntro(level: Level): Promise<'go' | 'map'> {
       h(
         'div',
         { class: 'chips' },
-        h('span', { class: 'chip' }, level.secret ? 'הכספת הסודית' : `כספת ${level.id} מתוך ${MAIN_LEVELS.length}`),
+        h('span', { class: 'chip' }, level.secret ? 'הכספת הסודית' : `כספת ${vaultNo(level)} מתוך ${MAIN_LEVELS.length}`),
         h('span', { class: 'chip chip-grade' }, gradeLabel(level.grade)),
       ),
       h('h2', { class: 'intro-title' }, level.title),
@@ -65,7 +66,22 @@ export function showIntro(level: Level): Promise<'go' | 'map'> {
             ),
             h('p', { class: 'small' }, 'הצעד הראשון פותח את השסתום (ענבר). פתחת ואין השלמה ליד? חזרי לאבן ירוקה כדי לשחרר אותו.'),
           )
-        : null,
+        : level.mechanic === 'equation_trail'
+          ? h(
+              'div',
+              { class: 'valve-explain trail-explain' },
+              h('p', {}, 'כאן אין אבנים אסורות — כל אבן מוסיפה או מורידה אנרגיה למאזניים:'),
+              h('div', { class: 'valve-demo', dir: 'ltr' },
+                h('span', { class: 'vd vd-close' }, '+30'),
+                h('span', { class: 'vd vd-close' }, '+45'),
+                h('span', { class: 'vd vd-open' }, '−5'),
+                h('span', { class: 'vd vd-close' }, '+30'),
+                h('span', { class: 'vd-op' }, '='),
+                h('span', { class: 'vd vd-sum' }, String(level.targetNumber)),
+              ),
+              h('p', { class: 'small' }, `לשער נכנסים רק עם ${level.targetNumber} בדיוק. אבן שעוזבים נשרפת — אז מתכננים את השביל מראש!`),
+            )
+          : null,
       h(
         'p',
         { class: 'intro-treasure' },

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * בדיקת קצה-לקצה בדפדפן אמיתי, מתוך הפורטל: משחקת את כל 11 הכספות.
+ * בדיקת קצה-לקצה בדפדפן אמיתי, מתוך הפורטל: משחקת את כל הכספות.
  *
  *   python -m http.server 8765        (מהשורש של LevyGames/, אחרי npm run deploy)
  *   node scripts/e2e.mjs [baseUrl]
@@ -11,6 +11,8 @@
  *   - שלושה פעמונים: השומר מתעורר והחדר מתאפס
  *   - רמז מצביע על הצעד הבא הנכון ומגביל ל-2 כוכבים
  *   - שלב 9: פתיחת שסתום, שחרור בחזרה לאבן ירוקה, סגירה שגויה וסגירה נכונה
+ *   - שביל המשוואה (id 12): מאזניים, מבוי סתום שמאפס את החדר, ירידה מתחת
+ *     לאפס, אבן שרופה שלא מצלצלת, וסיום
  *   - כוכבים לפי טעויות, סיום המסע, פתיחת הכספת הסודית ב-24 כוכבים
  *   - שמירה דרך שכבת האחסון של הפורטל, והתקדמות על הכרטיס בדף הבית
  *   - מובייל 390px: אבנים בגודל אצבע, בלי גלילה אופקית, בועה בתוך המסך
@@ -20,7 +22,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LEVELS } from '../src/config/levels.ts';
-import { solve, initialState } from '../src/systems/MathSystem.ts';
+import { rulesFor, solve, solveLevel } from '../src/rules/index.ts';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SHOTS = join(ROOT, 'Design.info', 'shots');
@@ -39,7 +41,11 @@ const errors = [];
 const watch = (page) => {
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   page.on('pageerror', (e) => errors.push(String(e)));
-  page.on('requestfailed', (r) => errors.push(`רשת: ${r.url()}`));
+  // ERR_ABORTED = הדפדפן ביטל טעינה כי המסך התחלף באמצע (למשל תמונת החתולה במפה) - לא קובץ חסר
+  page.on('requestfailed', (r) => {
+    const why = r.failure()?.errorText ?? '';
+    if (!/ERR_ABORTED/.test(why)) errors.push(`רשת: ${r.url()} (${why})`);
+  });
 };
 
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 }, locale: 'he-IL' });
@@ -105,12 +111,12 @@ async function finish(id, expectStars, button) {
   await pause(1700); // הכוכבים נוחתים אחד-אחד
   const label = await page.locator('.complete-card .stars').getAttribute('aria-label');
   ok(`כספת ${id}: ${expectStars} כוכבים`, label?.startsWith(String(expectStars)), label ?? '');
-  if (id === 1 || id === 9) await shot(`complete-${id}`);
+  if (id === 1 || id === 9 || id === 12) await shot(`complete-${id}`);
   await dlg.getByRole('button', { name: button }).click();
   await pause(700);
 }
 
-const pathOf = (id) => solve(LEVELS.find((l) => l.id === id), initialState(LEVELS.find((l) => l.id === id)));
+const pathOf = (id) => solveLevel(LEVELS.find((l) => l.id === id));
 
 // ── כספת 1: הדרכה, צעד שגוי, מלכודת ידועה ────────────────────────────────
 await enter(1, { tutorial: true });
@@ -185,7 +191,7 @@ ok('שלב 9: סגירה נכונה מאשרת את שתי האבנים', (await
 await walk([cell(2, 2), cell(1, 2), cell(1, 3), cell(0, 3)]);
 await finish(9, 2, /אל החדר הבא/);
 
-// ── כספת 10 + סיום המסע + פתיחת הסודית ───────────────────────────────────
+// ── כספת 10: הכרזה על הסודית, וממשיכים לאולם המנגנונים ────────────────
 await page.getByRole('button', { name: /קדימה, לכספת/ }).click();
 await pause(900);
 await walk(pathOf(10));
@@ -193,10 +199,50 @@ const dlg10 = page.getByRole('dialog', { name: 'הכספת נפתחה' });
 await dlg10.waitFor({ timeout: 9000 });
 await pause(1700);
 ok('ב-24 כוכבים מוכרז על הכספת הסודית', (await page.locator('.complete-card .secret-unlocked').count()) === 1);
-await page.getByRole('button', { name: /לכספת הסודית/ }).click();
+await dlg10.getByRole('button', { name: /אל החדר הבא/ }).click();
+await pause(700);
+ok('אחרי כספת 10 אין עדיין חגיגת סיום', (await page.getByRole('dialog', { name: 'סיום המסע' }).count()) === 0);
+
+// ── שביל המשוואה (id 12, "כספת 11") ───────────────────────────────────────
+ok('שביל המשוואה מוצג ככספת 11', /כספת 11 מתוך 11/.test((await page.locator('.intro-card .chip').first().textContent()) ?? ''));
+await page.getByRole('button', { name: /קדימה, לכספת/ }).click();
 await pause(900);
+const balance = () => page.locator('.bal-read').textContent();
+ok('שביל: המאזניים מתחילים ב-0', (await balance())?.trim() === '0 / 100', await balance());
+ok('שביל: היציאה מסומנת ביעד', (await tile(cell(0, 2)).textContent())?.includes('=100'));
+await shot('15-trail-start');
+// 30 → 65 → 100 ליד השער אבל לא עליו: מבוי סתום
+await step(cell(3, 2));
+await step(cell(2, 2));
+ok('שביל: אבן שעזבו נשרפת', (await stateOf(cell(3, 2))) === 'burnt');
+await tile(cell(2, 3)).click();
+await pause(900);
+ok('שביל: המאזניים מתאזנים ב-100', (await page.locator('.balance.level').count()) === 1);
+const deadWhy = (await page.locator('.whisper').textContent()) ?? '';
+ok('שביל: מבוי סתום מוסבר', /בדיוק 100/.test(deadWhy) && /אין דרך לשער/.test(deadWhy), deadWhy);
+ok('שביל: מבוי סתום מצלצל', (await rung()) === 1);
+await shot('16-trail-dead');
+await pause(3600);
+ok('שביל: אחרי מבוי סתום החדר מתאפס', (await stateOf(cell(3, 2))) === 'normal' && (await balance())?.trim() === '0 / 100');
+// 10, ואז −15 - מתחת לאפס
+await step(cell(4, 3));
+await wrong(cell(3, 3));
+ok('שביל: ירידה מתחת לאפס היא טעות', (await rung()) === 2);
+ok('שביל: אחרי טעות צל נשארת במקום', (await balance())?.trim() === '10 / 100');
+// חזרה להתחלה השרופה - בלי פעמון
+await tile(cell(4, 2)).click();
+await pause(700);
+ok('שביל: אבן שרופה לא מצלצלת', (await rung()) === 2);
+ok('שביל: אבן שרופה מוסברת', /נשרפה/.test((await page.locator('.whisper').textContent()) ?? ''));
+{
+  const L = LEVELS.find((l) => l.id === 12);
+  const r = rulesFor(L);
+  const o = r.attempt(L, r.initial(L), cell(4, 3));
+  await walk(solve(r, L, o.state));
+}
+await finish(12, 2, /לכספת הסודית/);
 const finale = page.getByRole('dialog', { name: 'סיום המסע' });
-ok('אחרי הכספת העשירית יש חגיגת סיום', (await finale.count()) === 1);
+ok('אחרי הכספת האחרונה יש חגיגת סיום', (await finale.count()) === 1);
 await pause(600);
 await shot('09-finale');
 await finale.getByRole('button', { name: /למגדל/ }).click();
@@ -211,7 +257,7 @@ const secretFinale = page.getByRole('dialog', { name: 'סיום המסע' });
 ok('הכספת הסודית מסתיימת בחגיגה משלה', (await secretFinale.count()) === 1);
 await secretFinale.getByRole('button', { name: /למגדל/ }).click();
 await pause(800);
-ok('המדף מלא - 10 אוצרות', (await page.locator('.shelf-item.got').count()) === 10);
+ok('המדף מלא - 11 אוצרות', (await page.locator('.shelf-item.got').count()) === 11);
 
 // ── שמירה וחוזה ההתקדמות ─────────────────────────────────────────────────
 const keys = await page.evaluate(() => Object.keys(localStorage));
@@ -220,7 +266,7 @@ const progKey = keys.find((k) => k.includes('progress.cipher-rogue'));
 ok('השמירה מתויגת לפרופיל דרך שכבת האחסון', !!saveKey && !saveKey.includes('.guest.'), saveKey ?? '');
 ok('אין כתיבה למפתח ה-fallback', !keys.includes('cipherrogue:v1'));
 const record = progKey ? await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), progKey) : null;
-ok('רקורד ההתקדמות: 10/10 כספות', record?.kind === 'levels' && record.done === 10 && record.total === 10, JSON.stringify(record));
+ok('רקורד ההתקדמות: 11/11 כספות', record?.kind === 'levels' && record.done === 11 && record.total === 11, JSON.stringify(record));
 
 await page.reload({ waitUntil: 'networkidle' });
 await pause(1100);
@@ -238,7 +284,7 @@ const card = await page.evaluate(() => {
   };
 });
 ok('הכרטיס מופיע בדף הבית', card.found);
-ok('הכרטיס מציג התקדמות בכספות', /10.*10.*כספות|כספות/.test(card.progress) && /10/.test(card.progress), card.progress);
+ok('הכרטיס מציג התקדמות בכספות', /כספות/.test(card.progress) && /11/.test(card.progress), card.progress);
 ok('הכרטיס מציג וידאו', card.video);
 await page.screenshot({ path: join(SHOTS, '11-hub.png'), fullPage: true });
 

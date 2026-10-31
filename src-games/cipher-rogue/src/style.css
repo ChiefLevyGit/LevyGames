@@ -882,6 +882,99 @@ img {
   animation: gaugePulse 1.2s ease-in-out infinite;
 }
 
+/* מאזני הזהב (שביל המשוואה). ציור זמני ב-SVG עד שיגיעו התמונות של אלעד. */
+.balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 4px;
+  border-radius: 99px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(252, 211, 77, 0.35);
+  transition: background var(--t-med), border-color var(--t-med), box-shadow var(--t-med);
+}
+
+.bal-art {
+  width: 84px;
+  height: 46px;
+  overflow: visible;
+}
+
+.bal-stand rect,
+.bal-stand path {
+  fill: #9a5a16;
+}
+
+.bal-knob {
+  fill: var(--gold-light);
+}
+
+.bal-beam {
+  transform-box: view-box;
+  transform-origin: 60px 14px;
+  transform: rotate(var(--a, 0deg));
+  transition: transform 0.8s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.bal-beam rect {
+  fill: var(--gold);
+  stroke: #6b3a0f;
+  stroke-width: 1;
+}
+
+.bal-pan {
+  transform: translateY(var(--dy, 0px));
+  transition: transform 0.8s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.bal-chain {
+  stroke: #d79a35;
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.bal-dish {
+  fill: #b45309;
+  stroke: #f7d27a;
+  stroke-width: 1;
+}
+
+.bal-lock .bal-dish {
+  fill: #4a2c14;
+}
+
+.bal-num {
+  font: 900 9px var(--font);
+  fill: var(--cream);
+  text-anchor: middle;
+}
+
+.bal-read {
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--gold-light);
+  min-width: 4.6em;
+  text-align: center;
+}
+
+.balance.over .bal-read {
+  color: var(--warning-light);
+}
+
+.balance.level {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--emerald);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
+}
+
+.balance.level .bal-beam rect {
+  fill: var(--mint);
+}
+
+.balance.level .bal-read {
+  color: #ecfdf5;
+}
+
 @keyframes gaugePulse {
   50% {
     box-shadow: 0 0 12px rgba(217, 119, 36, 0.7);
@@ -1067,6 +1160,35 @@ img {
 
 .tile[data-state='trap'] .tile-num {
   opacity: 0.55;
+}
+
+/* שביל המשוואה: אבן שעזבו נשרפת - פחם כבוי עם גחלת עמומה, ואין עליה הילה */
+.tile[data-state='burnt'] {
+  cursor: not-allowed;
+}
+
+.tile[data-state='burnt'] .tile-face {
+  filter: grayscale(0.9) sepia(0.35) brightness(0.32);
+}
+
+.tile[data-state='burnt'] .tile-mark {
+  inset: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.28) 0%, rgba(120, 53, 15, 0.18) 45%, transparent 70%);
+}
+
+.tile[data-state='burnt'] .tile-num {
+  opacity: 0.3;
+}
+
+/* אבן מינוס: ספרות אדמדמות, כדי שההבדל בין +10 ל-−10 ייקלט במבט */
+.tile.is-neg .tile-num {
+  color: #fecaca;
+}
+
+/* תווית ארוכה (=100) קטנה מעט, כדי לא לחרוג מהאבן */
+.tile-num.is-long {
+  font-size: calc(var(--tile) * 0.3);
 }
 
 /* היציאה: טבעת זהב שקטה מתחת לדלת */

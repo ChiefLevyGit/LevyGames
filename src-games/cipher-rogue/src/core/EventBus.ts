@@ -1,8 +1,9 @@
 import type { Cell } from '../types.ts';
+import type { StepKind } from '../rules/index.ts';
 
 /** אירועי המשחק. הסאונד, האפקטים והשמירה מאזינים - אף אחד מהם לא יודע על השני. */
 export interface GameEvents {
-  STEP_ON_TILE: { cell: Cell; value: number; kind: 'valid' | 'revisit' | 'valve_open' | 'valve_close' };
+  STEP_ON_TILE: { cell: Cell; value: number; kind: Exclude<StepKind, 'valve_release'> };
   INVALID_MOVE: { cell: Cell; value: number; known: boolean };
   STEALTH_CHANGE: { left: number; max: number };
   ROOM_RESET: { level: number };

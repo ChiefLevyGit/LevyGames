@@ -9,25 +9,21 @@ import { Grid } from '../entities/Grid.ts';
 import { Player } from '../entities/Player.ts';
 import { VaultDoor } from '../entities/VaultDoor.ts';
 import { StealthMeter } from '../systems/StealthMeter.ts';
-import {
-  equationFor,
-  explainInvalid,
-  explainValve,
-  isValid,
-  isValve,
-  nextStep,
-  VALVE_SUM,
-} from '../systems/MathSystem.ts';
+import { VALVE_SUM } from '../systems/MathSystem.ts';
+import { rulesFor, solve } from '../rules/index.ts';
+import type { BaseState, Outcome, Rules } from '../rules/index.ts';
+import { Balance } from '../ui/Balance.ts';
 import { EventBus } from '../core/EventBus.ts';
 import { FX, centerOf } from '../fx/Particles.ts';
-import { levelById } from '../config/levels.ts';
+import { levelById, vaultNo } from '../config/levels.ts';
 import { PALETTE } from '../config/theme.ts';
 
 const DOOR_RATIO = 900 / 684;
 
 /**
  * לולאת המשחק בתוך כספת אחת. תצפית (כרטיס הפתיחה) -> צעדים מחושבים -> פתיחה.
- * מחזיקה את מצב החדר: איפה צל, אילו אבנים אושרו, שסתום פתוח (שלב 9), פעמונים.
+ * מה מותר ומה קורה בכל צעד מחליט מודול החוקים (src/rules/); כאן רק מתרגמים
+ * את התוצאה לתנועה, סימון אבנים, צליל וטקסט, ומנהלים פעמונים ורמזים.
  */
 export class LevelScreen implements Screen {
   private el!: HTMLElement;
@@ -38,6 +34,7 @@ export class LevelScreen implements Screen {
   private wrap!: HTMLDivElement;
   private bells!: HTMLDivElement;
   private gauge: HTMLElement | null = null;
+  private balance: Balance | null = null;
   private whisperEl!: HTMLDivElement;
   private floorFx!: HTMLVideoElement;
   private whisperTimer = 0;
@@ -45,9 +42,9 @@ export class LevelScreen implements Screen {
   private busy = false;
   private started = false;
   private hinted = false;
-  private pending: Cell | null = null;
   private destroyed = false;
-  private readonly valve: boolean;
+  private readonly rules: Rules<BaseState>;
+  private state: BaseState;
 
   private onResize = () => this.layout();
   private onKey = (e: KeyboardEvent) => this.key(e);
@@ -58,14 +55,20 @@ export class LevelScreen implements Screen {
   constructor(engine: Engine, level: Level) {
     this.engine = engine;
     this.level = level;
-    this.valve = isValve(level);
+    this.rules = rulesFor(level);
+    this.state = this.rules.initial(level);
   }
 
   // ---------------------------------------------------------------- build
 
   mount(root: HTMLElement): void {
     const L = this.level;
-    this.grid = new Grid(L, (c) => void this.attemptMove(c));
+    this.grid = new Grid(
+      L,
+      (c) => void this.attemptMove(c),
+      (c) => this.rules.label(L, c),
+      this.rules.initialMarks(L),
+    );
 
     this.wrap = h('div', { class: 'board-wrap' }, this.door.el, this.grid.el);
     this.player = new Player(this.grid, L.start);
@@ -83,8 +86,11 @@ export class LevelScreen implements Screen {
     });
     this.floorFx.muted = true;
 
-    if (this.valve) {
+    const hud = this.rules.hud?.(L, this.state);
+    if (hud?.type === 'valve') {
       this.gauge = h('div', { class: 'gauge', role: 'status' });
+    } else if (hud?.type === 'balance') {
+      this.balance = new Balance(hud.target);
     }
 
     this.el = h(
@@ -101,7 +107,7 @@ export class LevelScreen implements Screen {
           h(
             'div',
             { class: 'hud-banner' },
-            h('span', { class: 'hud-level' }, L.secret ? 'כספת סודית' : `כספת ${L.id} · ${gradeLabel(L.grade)}`),
+            h('span', { class: 'hud-level' }, L.secret ? 'כספת סודית' : `כספת ${vaultNo(L)} · ${gradeLabel(L.grade)}`),
             h('h1', { class: 'hud-title' }, L.title),
           ),
           this.bells,
@@ -113,6 +119,7 @@ export class LevelScreen implements Screen {
           h('span', { class: 'rule-k' }, 'המנעול:'),
           h('strong', { class: 'rule-v' }, L.target),
           this.gauge,
+          this.balance?.el,
         ),
       ),
       h('main', { class: 'play' }, this.wrap),
@@ -131,7 +138,7 @@ export class LevelScreen implements Screen {
 
     root.append(this.el);
     this.updateBells();
-    this.updateGauge();
+    this.updateHud();
     this.layout();
     window.addEventListener('resize', this.onResize);
     window.addEventListener('keydown', this.onKey);
@@ -151,12 +158,7 @@ export class LevelScreen implements Screen {
     }
     this.started = true;
     this.refreshReachable();
-    this.whisper(
-      this.valve
-        ? 'פתחי שסתום באבן אחת — והשלימי אותו ל-100 באבן שלידה.'
-        : `דרכי רק על ${this.level.target}. מאיזו אבן ממשיכים?`,
-      'info',
-    );
+    this.whisper(this.rules.intro(this.level), 'info');
     this.grid.tile(this.player.at).focus({ preventScroll: true });
   }
 
@@ -223,19 +225,9 @@ export class LevelScreen implements Screen {
     }
   }
 
-  private neighbors(c: Cell): Cell[] {
-    const out: Cell[] = [];
-    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-      const r = c.row + dr;
-      const k = c.col + dc;
-      if (r >= 0 && k >= 0 && r < this.level.tiles.length && k < this.level.tiles[0].length) out.push({ row: r, col: k });
-    }
-    return out;
-  }
-
   private refreshReachable(): void {
     if (!this.started) return this.grid.setReachable([]);
-    this.grid.setReachable(this.neighbors(this.player.at).filter((c) => this.grid.state(c) !== 'trap'));
+    this.grid.setReachable(this.rules.reachable(this.level, this.state));
   }
 
   private async attemptMove(to: Cell): Promise<void> {
@@ -250,103 +242,52 @@ export class LevelScreen implements Screen {
       return;
     }
     this.grid.clearHints();
-    if (this.valve) return this.stepValve(to);
-
-    const st = this.grid.state(to);
+    const o = this.rules.attempt(this.level, this.state, to);
     const v = this.grid.value(to);
 
-    if (st === 'good') {
-      this.busy = true;
-      EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: 'revisit' });
-      await this.player.hopTo(to);
-      return this.afterMove();
-    }
-
-    if (st === 'trap') {
-      EventBus.emit('INVALID_MOVE', { cell: to, value: v, known: true });
+    if (o.kind === 'refuse') {
+      EventBus.emit('INVALID_MOVE', { cell: to, value: v, known: o.known });
       this.grid.shakeTile(to);
-      this.whisper(`כבר גילית שזו מלכודת: ${explainInvalid(this.level, v)}`, 'bad');
+      this.whisper(o.why, 'bad');
       return;
     }
-
-    if (isValid(this.level, v)) {
-      this.busy = true;
-      const hop = this.player.hopTo(to);
-      await wait(reducedMotion() ? 0 : 170);
-      this.grid.setState(to, 'good');
-      void this.grid.playAnim(to, 'good');
-      this.sparkle(to);
-      this.grid.float(to, equationFor(this.level, v), 'good');
-      EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: 'valid' });
-      await hop;
-      return this.afterMove();
-    }
-
-    await this.wrongStep(to, v, explainInvalid(this.level, v), true);
+    if (o.kind === 'wrong') return this.wrongStep(to, v, o);
+    return this.step(to, v, o);
   }
 
-  /** שלב 9: צעד ראשון פותח שסתום, השני חייב להשלים ל-100 */
-  private async stepValve(to: Cell): Promise<void> {
-    const st = this.grid.state(to);
-    const v = this.grid.value(to);
+  /** צעד שהתקבל: קפיצה, ובאמצע שלה - סימון האבנים, ניצוצות ומשוואה צפה */
+  private async step(to: Cell, v: number, o: Extract<Outcome<BaseState>, { kind: 'move' }>): Promise<void> {
+    this.busy = true;
+    this.state = o.state;
+    const showy = !!(o.lit?.length || o.float);
+    const emit = () => {
+      if (o.step === 'valve_release') EventBus.emit('VALVE_RELEASE', { cell: o.marks?.[0]?.[0] ?? to });
+      else EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: o.step });
+    };
+    if (!showy) emit();
 
-    if (st === 'good') {
-      this.busy = true;
-      if (this.pending) {
-        this.grid.setState(this.pending, 'normal');
-        EventBus.emit('VALVE_RELEASE', { cell: this.pending });
-        this.pending = null;
-        this.updateGauge();
-        this.whisper('השסתום שוחרר בשקט. אפשר לבחור אבן פתיחה אחרת.', 'info');
-      } else {
-        EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: 'revisit' });
-      }
-      await this.player.hopTo(to);
-      return this.afterMove();
-    }
-
-    if (!this.pending) {
-      this.busy = true;
-      await this.player.hopTo(to);
-      this.grid.setState(to, 'pending');
-      this.pending = to;
-      this.updateGauge(); // המד בראש המסך מציג את הזוג הפתוח - בלי משוואה צפה שתכסה אבנים
-      EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: 'valve_open' });
-      this.whisper(`השסתום פתוח על ${v}. עכשיו צריך אבן צמודה עם ${VALVE_SUM - v}.`, 'info');
-      return this.afterMove();
-    }
-
-    const a = this.grid.value(this.pending);
-    if (a + v === VALVE_SUM) {
-      this.busy = true;
-      const opened = this.pending;
-      const hop = this.player.hopTo(to);
-      await wait(reducedMotion() ? 0 : 170);
-      this.grid.setState(opened, 'good');
-      this.grid.setState(to, 'good');
-      void this.grid.playAnim(opened, 'good');
-      void this.grid.playAnim(to, 'good');
-      this.sparkle(to);
-      this.grid.float(to, `${a} + ${v} = ${VALVE_SUM}`, 'good');
-      this.pending = null;
-      this.updateGauge();
-      EventBus.emit('STEP_ON_TILE', { cell: to, value: v, kind: 'valve_close' });
-      await hop;
-      return this.afterMove();
-    }
-
-    await this.wrongStep(to, v, explainValve(a, v), false);
+    const hop = this.player.hopTo(to);
+    if (o.marks?.length || showy) await wait(reducedMotion() ? 0 : 170);
+    for (const [c, m] of o.marks ?? []) this.grid.setState(c, m);
+    for (const c of o.lit ?? []) void this.grid.playAnim(c, 'good');
+    if (o.lit?.length) this.sparkle(to);
+    if (o.float) this.grid.float(to, o.float, 'good');
+    if (showy) emit();
+    this.updateHud();
+    if (o.whisper) this.whisper(o.whisper, 'info');
+    await hop;
+    return this.afterMove();
   }
 
   private async afterMove(): Promise<void> {
     this.busy = false;
     this.refreshReachable();
-    if (sameCell(this.player.at, this.level.exit) && !this.pending && this.grid.state(this.level.exit) === 'good') {
-      await this.complete();
-    }
+    if (this.rules.isWin(this.level, this.state)) return this.complete();
+    const dead = this.rules.deadEnd?.(this.level, this.state);
+    if (dead) await this.deadEnd(dead);
   }
 
-  private async wrongStep(to: Cell, v: number, why: string, markTrap: boolean): Promise<void> {
+  private async wrongStep(to: Cell, v: number, o: Extract<Outcome<BaseState>, { kind: 'wrong' }>): Promise<void> {
     this.busy = true;
     EventBus.emit('INVALID_MOVE', { cell: to, value: v, known: false });
     void this.grid.playAnim(to, 'wrong');
@@ -355,10 +296,34 @@ export class LevelScreen implements Screen {
     FX.burst('smoke', c.x, c.y - 6, 8);
     FX.burst('ember', c.x, c.y, 14);
     this.shakeBoard();
-    this.whisper(why, 'bad');
+    this.whisper(o.why, 'bad');
     await this.player.bump(to);
-    if (markTrap) this.grid.setState(to, 'trap');
+    if (o.state) this.state = o.state;
+    for (const [cell, m] of o.marks ?? []) this.grid.setState(cell, m);
 
+    await this.ringBell(o.why);
+    this.busy = false;
+    this.refreshReachable();
+  }
+
+  /** שביל המשוואה: מכאן כבר אי אפשר לנצח. פעמון, והחדר חוזר להתחלה. */
+  private async deadEnd(why: string): Promise<void> {
+    this.busy = true;
+    EventBus.emit('INVALID_MOVE', { cell: this.player.at, value: this.grid.value(this.player.at), known: false });
+    this.player.setPose('startled', 1400);
+    this.shakeBoard();
+    this.whisper(`${why} חוזרות לכניסה ומנסות שביל אחר.`, 'bad');
+    const woke = await this.ringBell(why);
+    if (!woke && !this.destroyed) {
+      await wait(2400);
+      await this.resetRoom();
+    }
+    this.busy = false;
+    this.refreshReachable();
+  }
+
+  /** מצלצל בפעמון. מחזיר true אם השומר התעורר (והחדר כבר אופס). */
+  private async ringBell(why: string): Promise<boolean> {
     const ring = this.meter.ring();
     this.updateBells(true);
     EventBus.emit('STEALTH_CHANGE', { left: this.meter.left, max: this.meter.max });
@@ -366,9 +331,21 @@ export class LevelScreen implements Screen {
       await wait(900);
       this.whisper(`${why}  זהירות — עוד פעמון אחד והשומר מתעורר!`, 'bad');
     }
-    if (ring === 'wake') await this.guardWakes();
-    this.busy = false;
-    this.refreshReachable();
+    if (ring === 'wake') {
+      await this.guardWakes();
+      return true;
+    }
+    return false;
+  }
+
+  /** החדר חוזר למצב הכניסה. הפעמונים והטעויות לא מתאפסים כאן. */
+  private async resetRoom(): Promise<void> {
+    this.grid.reset();
+    this.state = this.rules.initial(this.level);
+    this.updateHud();
+    const c = centerOf(this.grid.tile(this.level.start));
+    FX.burst('smoke', c.x, c.y, 14);
+    await this.player.vanishTo(this.level.start);
   }
 
   private async guardWakes(): Promise<void> {
@@ -378,14 +355,9 @@ export class LevelScreen implements Screen {
     await showGuardWake();
     this.el.classList.remove('alarm-flash');
     if (this.destroyed) return;
-    this.grid.reset();
-    this.pending = null;
-    this.updateGauge();
     this.meter.refill();
     this.updateBells();
-    const c = centerOf(this.grid.tile(this.level.start));
-    FX.burst('smoke', c.x, c.y, 14);
-    await this.player.vanishTo(this.level.start);
+    await this.resetRoom();
     this.whisper('הפעמונים נרגעו. מתחילות שוב — בשקט ובחשיבה.', 'info');
   }
 
@@ -395,7 +367,7 @@ export class LevelScreen implements Screen {
     if (!this.started || this.busy) return;
     const first = !this.hinted;
     this.hinted = true;
-    const step = nextStep(this.level, { at: this.player.at, pending: this.pending, green: this.grid.greenSet() });
+    const step = solve(this.rules, this.level, this.state)?.[0] ?? null;
     this.player.setPose('puzzled', 2600);
     this.whisper(first ? `${this.level.hint}  (עם רמז אפשר לקבל עד 2 כוכבים)` : this.level.hint, 'hint');
     if (!step) return;
@@ -467,11 +439,13 @@ export class LevelScreen implements Screen {
     }
   }
 
-  private updateGauge(): void {
-    if (!this.gauge) return;
+  private updateHud(): void {
+    const hud = this.rules.hud?.(this.level, this.state);
+    if (hud?.type === 'balance') this.balance?.set(hud.value, hud.target);
+    if (hud?.type !== 'valve' || !this.gauge) return;
     clear(this.gauge);
-    if (this.pending) {
-      const a = this.grid.value(this.pending);
+    const a = hud.open;
+    if (a !== null) {
       this.gauge.classList.add('open');
       this.gauge.append(h('span', {}, 'שסתום:'), h('bdi', { dir: 'ltr', class: 'ltr' }, `${a} + ? = ${VALVE_SUM}`));
     } else {

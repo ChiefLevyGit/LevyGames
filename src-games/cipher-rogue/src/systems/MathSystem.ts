@@ -1,10 +1,10 @@
-import type { Cell, Level } from '../types.ts';
-import { keyOf } from '../types.ts';
+import type { Level } from '../types.ts';
 
 /**
  * הליבה החשבונית. טבלת dispatch לפי `mechanic` - בלי eval על validCondition
  * (שהוא תיעוד קריא בלבד ב-levels.json המקורי). פונקציות טהורות בלבד, כדי
  * ש-scripts/validate-levels.ts יוכל להריץ אותן ב-node בלי דפדפן.
+ * הפותר וחוקי התנועה עברו ל-src/rules/.
  */
 
 const MULTIPLE_OF: Partial<Record<Level['mechanic'], number>> = {
@@ -108,101 +108,3 @@ export function explainInvalid(level: Level, v: number): string {
 export function explainValve(open: number, v: number): string {
   return `${open} + ${v} = ${open + v}, ולא 100. ל-${open} צריך להוסיף ${VALVE_SUM - open}.`;
 }
-
-// ------------------------------------------------------------------ solver
-
-export interface SolveState {
-  at: Cell;
-  /** בשסתום: האריח שפתח זוג וממתין להשלמה */
-  pending: Cell | null;
-  /** אריחים שכבר אושרו (ירוקים) - כולל ההתחלה */
-  green: Set<string>;
-}
-
-const DIRS = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-] as const;
-
-const inside = (level: Level, r: number, c: number) =>
-  r >= 0 && c >= 0 && r < level.tiles.length && c < level.tiles[0].length;
-
-const val = (level: Level, c: Cell) => level.tiles[c.row][c.col];
-
-/**
- * BFS מהמצב הנוכחי אל היציאה. מחזיר את רצף האריחים (בלי נקודת המוצא), או null.
- * בשסתום הסט של האריחים הירוקים הוא חלק מהמצב: אריח שאושר הופך למעבר חופשי,
- * והכניסה אליו משחררת זוג פתוח.
- */
-export function solve(level: Level, from: SolveState, maxStates = 400_000): Cell[] | null {
-  const exitKey = keyOf(level.exit);
-  const valve = isValve(level);
-
-  type Node = { at: Cell; pending: Cell | null; green: Set<string>; prev: Node | null };
-  const sig = (n: Pick<Node, 'at' | 'pending' | 'green'>) =>
-    valve
-      ? `${keyOf(n.at)}|${n.pending ? keyOf(n.pending) : '-'}|${[...n.green].sort().join(';')}`
-      : keyOf(n.at);
-
-  const start: Node = { at: from.at, pending: from.pending, green: new Set(from.green), prev: null };
-  const seen = new Set([sig(start)]);
-  const queue: Node[] = [start];
-
-  for (let qi = 0; qi < queue.length; qi++) {
-    const n = queue[qi];
-    if (keyOf(n.at) === exitKey && !n.pending) {
-      const path: Cell[] = [];
-      for (let x: Node | null = n; x && x.prev; x = x.prev) path.push(x.at);
-      return path.reverse();
-    }
-    if (queue.length > maxStates) return null;
-
-    for (const [dr, dc] of DIRS) {
-      const r = n.at.row + dr;
-      const c = n.at.col + dc;
-      if (!inside(level, r, c)) continue;
-      const to = { row: r, col: c };
-      const k = keyOf(to);
-      let next: Node | null = null;
-
-      if (n.green.has(k)) {
-        // מעבר על אריח מאושר תמיד מותר. בשסתום הוא משחרר זוג פתוח.
-        next = { at: to, pending: null, green: n.green, prev: n };
-      } else if (!valve) {
-        if (isValid(level, val(level, to))) {
-          const g = new Set(n.green);
-          g.add(k);
-          next = { at: to, pending: null, green: g, prev: n };
-        }
-      } else if (!n.pending) {
-        next = { at: to, pending: to, green: n.green, prev: n };
-      } else if (val(level, n.pending) + val(level, to) === VALVE_SUM) {
-        const g = new Set(n.green);
-        g.add(keyOf(n.pending));
-        g.add(k);
-        next = { at: to, pending: null, green: g, prev: n };
-      }
-
-      if (!next) continue;
-      const s = sig(next);
-      if (seen.has(s)) continue;
-      seen.add(s);
-      queue.push(next);
-    }
-  }
-  return null;
-}
-
-/** הצעד הבא המומלץ - בשביל הרמז. */
-export function nextStep(level: Level, state: SolveState): Cell | null {
-  return solve(level, state)?.[0] ?? null;
-}
-
-/** מצב פתיחה של שלב: עומדים על ההתחלה, והיא כבר מאושרת. */
-export const initialState = (level: Level): SolveState => ({
-  at: level.start,
-  pending: null,
-  green: new Set([keyOf(level.start)]),
-});

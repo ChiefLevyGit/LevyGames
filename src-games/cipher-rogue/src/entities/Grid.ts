@@ -1,5 +1,6 @@
 import type { Cell, Level } from '../types.ts';
 import { keyOf, sameCell } from '../types.ts';
+import type { Mark } from '../rules/index.ts';
 import { h, wait, reducedMotion } from '../ui/dom.ts';
 import { ANIM_FRAMES } from '../media.ts';
 
@@ -10,9 +11,10 @@ import { ANIM_FRAMES } from '../media.ts';
  *   good    - צעד נכון: רונת אזמרגד (tile-good)
  *   pending - שסתום פתוח בשלב 9: אבן בהילה ענברית
  *   trap    - כבר ידוע שהיא שגויה: סימון עדין, כדי לא לחזור עליה
+ *   burnt   - שביל המשוואה: אבן שעזבו אותה, ואי אפשר לחזור אליה
  * מעליהם: reachable (הילת ציאן לשכנים) ו-hinted (המצפן של tile-glow + פעימת זהב).
  */
-export type TileState = 'normal' | 'good' | 'pending' | 'trap';
+export type TileState = Mark;
 export type AnimKind = 'good' | 'wrong' | 'glow';
 
 const ANIM_MS: Record<AnimKind, number> = { good: 1000, wrong: 2000, glow: 1000 };
@@ -24,9 +26,14 @@ export class Grid {
   readonly floatLayer: HTMLDivElement;
 
   private readonly level: Level;
+  private readonly label: (c: Cell) => string;
+  private readonly initialMarks: [Cell, Mark][];
 
-  constructor(level: Level, onTile: (cell: Cell) => void) {
+  /** label - מה כתוב על האבן; initialMarks - איך החדר נראה בכניסה (מגיעים ממודול החוקים) */
+  constructor(level: Level, onTile: (cell: Cell) => void, label: (c: Cell) => string, initialMarks: [Cell, Mark][]) {
     this.level = level;
+    this.label = label;
+    this.initialMarks = initialMarks;
     const rows = level.tiles.length;
     const cols = level.tiles[0].length;
     this.el = h('div', {
@@ -41,7 +48,7 @@ export class Grid {
       const st: TileState[] = [];
       for (let c = 0; c < cols; c++) {
         const cell = { row: r, col: c };
-        const v = level.tiles[r][c];
+        const text = label(cell);
         const btn = h(
           'button',
           {
@@ -50,14 +57,15 @@ export class Grid {
             'data-r': r,
             'data-c': c,
             'data-state': 'normal',
-            'aria-label': String(v),
+            'aria-label': text,
             onclick: () => onTile(cell),
           },
           h('span', { class: 'tile-face', 'aria-hidden': 'true' }),
           h('span', { class: 'tile-anim', 'aria-hidden': 'true' }),
-          h('span', { class: 'tile-num', dir: 'ltr' }, String(v)),
+          h('span', { class: `tile-num${text.length > 3 ? ' is-long' : ''}`, dir: 'ltr' }, text),
           h('span', { class: 'tile-mark', 'aria-hidden': 'true' }),
         );
+        if (text.startsWith('−')) btn.classList.add('is-neg');
         if (sameCell(cell, level.exit)) btn.classList.add('is-exit');
         if (sameCell(cell, level.start)) btn.classList.add('is-start');
         this.el.append(btn);
@@ -89,28 +97,18 @@ export class Grid {
     this.states[c.row][c.col] = s;
     const t = this.tile(c);
     t.dataset.state = s;
-    const v = this.value(c);
-    const label = { normal: '', good: ' — אבן בטוחה', pending: ' — שסתום פתוח', trap: ' — מלכודת' }[s];
-    t.setAttribute('aria-label', `${v}${label}${sameCell(c, this.level.exit) ? ', היציאה לכספת' : ''}`);
+    const label = { normal: '', good: ' — אבן בטוחה', pending: ' — שסתום פתוח', trap: ' — מלכודת', burnt: ' — נשרפה' }[s];
+    const text = this.label(c) || (sameCell(c, this.level.start) ? 'נקודת ההתחלה' : '');
+    t.setAttribute('aria-label', `${text}${label}${sameCell(c, this.level.exit) ? ', היציאה לכספת' : ''}`);
   }
 
-  /** חזרה לתחילת החדר: הכול רגיל, ורק ההתחלה בטוחה */
+  /** חזרה לתחילת החדר: הכול רגיל, חוץ מהסימונים ההתחלתיים של המכניקה */
   reset(): void {
     for (let r = 0; r < this.states.length; r++) {
       for (let c = 0; c < this.states[r].length; c++) this.setState({ row: r, col: c }, 'normal');
     }
-    this.setState(this.level.start, 'good');
+    for (const [c, m] of this.initialMarks) this.setState(c, m);
     this.setReachable([]);
-  }
-
-  greenSet(): Set<string> {
-    const s = new Set<string>();
-    this.states.forEach((row, r) =>
-      row.forEach((st, c) => {
-        if (st === 'good') s.add(keyOf({ row: r, col: c }));
-      }),
-    );
-    return s;
   }
 
   setReachable(cells: Cell[]): void {

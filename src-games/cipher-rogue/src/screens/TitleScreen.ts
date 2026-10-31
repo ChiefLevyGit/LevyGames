@@ -61,7 +61,7 @@ export class TitleScreen implements Screen {
           button(done ? 'להמשיך במסע' : 'צאי למסע!', start, { variant: 'primary', icon: '➔' }),
           h('a', { class: 'btn btn-brass', href: 'instructions.html' }, h('span', { class: 'btn-icon', 'aria-hidden': 'true' }, '📜'), h('span', { class: 'btn-label' }, 'איך משחקים?')),
         ),
-        done ? h('p', { class: 'title-progress' }, `${done} מתוך ${MAIN_TOTAL} כספות נפתחו · ⭐ ${this.engine.totalStars()}`) : h('p', { class: 'title-progress' }, '10 כספות · לכיתות ב׳–ד׳'),
+        done ? h('p', { class: 'title-progress' }, `${done} מתוך ${MAIN_TOTAL} כספות נפתחו · ⭐ ${this.engine.totalStars()}`) : h('p', { class: 'title-progress' }, `${MAIN_TOTAL} כספות · לכיתות ב׳–ד׳`),
       ),
       h('a', { class: 'back-portal', href: '../../index.html' }, '→ לכל המשחקים'),
     );

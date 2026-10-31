@@ -8,7 +8,9 @@ export type Mechanic =
   | 'multiples_of_9'
   | 'common_multiples'
   | 'factors_of_target'
-  | 'complement_to_100';
+  | 'complement_to_100'
+  /** שביל המשוואה: אוספים סכום מדויק (targetNumber) בדרך לשער */
+  | 'equation_trail';
 
 export interface Cell {
   row: number;
