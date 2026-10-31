@@ -1,0 +1,9 @@
+{
+  "name": "levygames-scripts",
+  "private": true,
+  "type": "module",
+  "description": "כלי יצירת נכסים אופליין (תמונות/סאונד) למשחקי הפורטל. לא נטען על ידי האתר עצמו.",
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2"
+  }
+}

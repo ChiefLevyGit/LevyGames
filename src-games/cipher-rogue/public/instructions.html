@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פורצת הצללים הקטנה — איך משחקים?</title>
+<meta name="description" content="איך משחקים בפורצת הצללים הקטנה: קופצים רק על אבנים שמתאימות לחוק של המנעול, ופורצים עשר כספות במגדל.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐈‍⬛</text></svg>">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --slate: #1A202C; --deep: #111622; --amber: #D97724; --copper: #B45309;
+  --gold: #F59E0B; --gold-l: #FCD34D; --emerald: #10B981; --cyan: #22D3EE;
+  --purple: #7C3AED; --red: #F87171; --cream: #F8FAFC;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: 'Rubik', system-ui, sans-serif; color: var(--cream);
+  background: radial-gradient(ellipse at top, #232a38 0%, var(--deep) 70%) fixed; min-height: 100vh;
+}
+header {
+  background: linear-gradient(180deg, #2c190b, #1d1209); border-bottom: 3px solid var(--copper);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+header a { color: var(--cream); text-decoration: none; background: rgba(255,255,255,.08); border: 2px solid rgba(217,119,36,.6); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: .9rem; }
+header h1 { font-size: 1.2rem; margin: 0; font-weight: 900; color: var(--gold-l); }
+main { max-width: 720px; margin: 0 auto; padding: 20px 16px 60px; }
+.card {
+  background: linear-gradient(165deg, #232a38, #161b26); border: 2px solid rgba(217,119,36,.55);
+  border-radius: 20px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 10px 28px rgba(0,0,0,.45);
+}
+.card h2 { color: var(--gold-l); margin: 0 0 8px; font-size: 1.15rem; font-weight: 900; }
+.card p, .card li { line-height: 1.7; margin: 6px 0; color: #dbe4f0; }
+.card ul { padding-inline-start: 22px; margin: 6px 0; }
+b { color: #fff; }
+.k { display: inline-block; min-width: 2.2em; text-align: center; border-radius: 8px; padding: 0 8px; font-weight: 800; }
+.ok { background: rgba(16,185,129,.25); border: 1px solid var(--emerald); }
+.no { background: rgba(239,68,68,.22); border: 1px solid var(--red); }
+.amb { background: rgba(217,119,36,.25); border: 1px solid var(--amber); }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+td, th { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: right; }
+th { color: var(--gold-l); }
+.play-btn {
+  display: inline-block; background: linear-gradient(180deg,#34d399,#10b981 50%,#059669); border-radius: 999px; padding: 14px 34px;
+  font-weight: 900; font-size: 1.15rem; color: #fff; text-decoration: none; box-shadow: 0 5px 0 #047857;
+}
+.center { text-align: center; margin-top: 24px; }
+.note { background: rgba(124,58,237,.16); border: 1px solid var(--purple); border-radius: 14px; padding: 10px 14px; }
+.parent { background: rgba(34,211,238,.08); border-color: rgba(34,211,238,.5); }
+</style>
+</head>
+<body>
+<header>
+  <a href="../../index.html">→ למשחקים</a>
+  <h1>🐈‍⬛ פורצת הצללים הקטנה — איך משחקים?</h1>
+</header>
+<main>
+  <div class="card">
+    <h2>🏰 מה המטרה?</h2>
+    <p><b>צל, חתולת הצללים,</b> מטפסת במגדל של עשר כספות ומחזירה אוצרות שנגנבו לבעליהם. כל כספת נעולה במנעול שמגיב רק למספרים מסוג מסוים — ורק מי שמבינה את החוק מגיעה אל הדלת.</p>
+  </div>
+
+  <div class="card">
+    <h2>🐾 איך זזים?</h2>
+    <ul>
+      <li>נוגעים ב<b>אבן שצמודה</b> לצל (למעלה, למטה, ימינה או שמאלה) — והיא קופצת אליה. במקלדת: <b>החצים</b> או <span class="ltr">W A S D</span>.</li>
+      <li>האבנים שזוהרות בתכלת הן הצעדים האפשריים. <b>זה לא אומר שהן נכונות</b> — רק שאפשר לקפוץ אליהן.</li>
+      <li>מטרה: להגיע לאבן שמתחת ל<b>דלת הכספת</b> בראש הלוח.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🔢 החוק של המנעול</h2>
+    <p>בכל כספת כתוב למעלה מה המנעול אוהב. למשל ב"כפולות של 7":</p>
+    <p><span class="k ok">21</span> בטוח (7×3) &nbsp; <span class="k ok">56</span> בטוח (7×8) &nbsp; <span class="k no">27</span> מלכודת!</p>
+    <p>צעד נכון מדליק את האבן בירוק ומראה את התרגיל. צעד שגוי — צל נבהלת וחוזרת, ומופיע <b>הסבר למה המספר לא מתאים</b>.</p>
+  </div>
+
+  <div class="card">
+    <h2>🔔 שלושה פעמונים ושומר ישן</h2>
+    <p>כל צעד שגוי מצלצל בפעמון. בפעמון השלישי <b>השומר מתעורר</b> וצל חוזרת לנקודת ההתחלה. אין "נגמר המשחק" — פשוט מנסים שוב, בשקט.</p>
+    <p>אבן שכבר גילית שהיא מלכודת מסומנת ב-✗, ולא תצלצל שוב.</p>
+  </div>
+
+  <div class="card">
+    <h2>⭐ כוכבים, רמזים ואוצרות</h2>
+    <ul>
+      <li><b>3 כוכבים</b> — בלי אף טעות ובלי רמז. <b>2</b> — עד שתי טעויות, או עם רמז. <b>1</b> — הכספת נפתחה.</li>
+      <li><b>זכוכית המגדלת 🔍</b> מראה את הצעד הבא ומזכירה את הטיפ של הכספת — אבל אז אפשר לקבל עד 2 כוכבים.</li>
+      <li>כל כספת שנפתחת מחזירה <b>אוצר</b> לבעליו, והוא עולה למדף בתחתית המגדל.</li>
+      <li>אפשר לחזור לכל כספת שנפתחה ולשפר את הכוכבים.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>⚗️ כספת 9 — שסתום המאה</h2>
+    <p>כאן החוק אחר: <b>כל שני צעדים ברצף חייבים להשלים יחד ל-100.</b></p>
+    <p class="ltr" style="text-align:center"><span class="k amb">35</span> + <span class="k ok">65</span> = <b>100</b></p>
+    <p>הצעד הראשון "פותח שסתום" (האבן נדלקת בענבר), והצעד שאחריו חייב להשלים אותו. פתחת שסתום ואין לידו השלמה? <b>קפצי חזרה לאבן ירוקה</b> — השסתום משתחרר בלי עונש, ובוחרים פתיחה אחרת.</p>
+  </div>
+
+  <div class="card">
+    <h2>📈 עשר הכספות</h2>
+    <table>
+      <tr><th>כספת</th><th>החוק</th><th>כיתה</th></tr>
+      <tr><td>1</td><td>מספרים זוגיים</td><td>ב'</td></tr>
+      <tr><td>2</td><td>כפולות של 5</td><td>ב'</td></tr>
+      <tr><td>3</td><td>עשרות שלמות</td><td>ב'–ג'</td></tr>
+      <tr><td>4</td><td>כפולות של 3</td><td>ג'</td></tr>
+      <tr><td>5</td><td>כפולות של 4</td><td>ג'</td></tr>
+      <tr><td>6</td><td>מחלקים של 24</td><td>ג'–ד'</td></tr>
+      <tr><td>7</td><td>כפולות של 7</td><td>ג'–ד'</td></tr>
+      <tr><td>8</td><td>גם ב-3 וגם ב-4</td><td>ד'</td></tr>
+      <tr><td>9</td><td>זוגות שמשלימים ל-100</td><td>ד'</td></tr>
+      <tr><td>10</td><td>מחלקים של 36</td><td>ד'</td></tr>
+    </table>
+    <p class="note">🤫 ויש שמועה על כספת <b>סודית</b> בראש המגדל, שנפתחת רק למי שאוספת 24 כוכבים...</p>
+  </div>
+
+  <div class="card parent">
+    <h2>👨‍👧 להורים</h2>
+    <p>המשחק מתרגל זיהוי מהיר של כפולות, מחלקים והשלמה ל-100. כל צעד הוא החלטה חשבונית, וכל טעות מקבלת הסבר סיבתי ("17 לא בלוח ה-5: 5×3=15, ואחריו 5×4=20") — לא סתם "לא נכון".</p>
+    <p>ההתקדמות נשמרת לכל פרופיל בנפרד ומופיעה על כרטיס המשחק בפורטל.</p>
+  </div>
+
+  <div class="center">
+    <a class="play-btn" href="index.html">קדימה, לפרוץ כספות! 🐈‍⬛</a>
+  </div>
+</main>
+</body>
+</html>

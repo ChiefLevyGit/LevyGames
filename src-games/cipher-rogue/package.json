@@ -1,0 +1,21 @@
+{
+  "name": "cipher-rogue",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "assets": "python scripts/prepare_assets.py",
+    "validate": "node scripts/validate-levels.ts",
+    "deploy": "node scripts/deploy.mjs",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "playwright-core": "^1.63.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  }
+}

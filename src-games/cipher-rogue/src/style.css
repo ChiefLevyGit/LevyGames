@@ -1,0 +1,1861 @@
+/* =====================================================================
+   פורצת הצללים הקטנה — Whimsical Steampunk-Alchemist
+   מקור: games/The Cipher Rogue/game design guidelines.md
+   הפלטה (סעיף 1), טיפוגרפיה (3), מצבי אבן (4), רכיבים (5), z-index ומעברים (6).
+   ===================================================================== */
+
+:root {
+  --slate: #1a202c;
+  --slate-deep: #111622;
+  --amber: #d97724;
+  --copper: #b45309;
+  --gold: #f59e0b;
+  --gold-light: #fcd34d;
+  --emerald: #10b981;
+  --mint: #34d399;
+  --cyan: #06b6d4;
+  --cyan-light: #22d3ee;
+  --purple: #5b21b6;
+  --purple-light: #7c3aed;
+  --warning: #ef4444;
+  --warning-light: #f87171;
+  --cream: #f8fafc;
+  --ink: #0f172a;
+
+  --panel: linear-gradient(165deg, #232a38 0%, #171c27 55%, #121621 100%);
+  --brass: linear-gradient(180deg, #f7d27a 0%, #d79a35 45%, #9a5a16 100%);
+  --copper-edge: #8a4a12;
+  --halo-cyan: 0 0 15px rgba(6, 182, 212, 0.4);
+  --t-fast: 160ms;
+  --t-med: 220ms;
+
+  --font: 'Rubik', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--cream);
+  background: var(--slate-deep);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+:focus-visible {
+  outline: 3px solid var(--cyan-light);
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- רקע */
+
+.screen-host,
+.screen {
+  position: absolute;
+  inset: 0;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(17, 22, 34, 0.15) 0%, rgba(8, 10, 18, 0.82) 78%),
+    url('./media/bg/chamber-floor.webp') center / cover no-repeat,
+    var(--slate);
+}
+
+/* שכבת האפקטים - z-index 60: מעל הדמות, מתחת ל-HUD המודאלים (מדריך, סעיף 6) */
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 90;
+}
+
+/* ---------------------------------------------------------------- כפתורים */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 0;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--t-fast),
+    filter var(--t-fast),
+    box-shadow var(--t-fast);
+  touch-action: manipulation;
+}
+
+.btn:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+.btn-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* כפתור ירוק-אזמרגד בוהק (מדריך, 5ג) */
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(180deg, #34d399 0%, #10b981 50%, #059669 100%);
+  box-shadow:
+    0 5px 0 #047857,
+    0 10px 22px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  text-shadow: 0 1px 1px rgba(4, 47, 46, 0.6);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-primary:active {
+  box-shadow:
+    0 2px 0 #047857,
+    0 6px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-brass {
+  color: #2a1606;
+  background: var(--brass);
+  box-shadow:
+    0 4px 0 var(--copper-edge),
+    0 8px 18px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.btn-brass:hover {
+  filter: brightness(1.06);
+}
+
+.btn-ghost {
+  color: var(--cream);
+  background: rgba(15, 20, 32, 0.72);
+  border: 2px solid rgba(217, 119, 36, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.btn-ghost:hover {
+  border-color: var(--gold);
+}
+
+.icon-only {
+  width: 48px;
+  padding: 0;
+}
+
+.icon-only .btn-label:empty {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* ---------------------------------------------------------------- טעינה */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-content: center;
+  gap: 14px;
+  text-align: center;
+  background: radial-gradient(ellipse at center, #1d2433 0%, #0b0e16 75%);
+  transition: opacity 0.35s;
+}
+
+.loading.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--gold-light);
+}
+
+.loading-bar {
+  width: min(260px, 70vw);
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(217, 119, 36, 0.5);
+  overflow: hidden;
+  margin-inline: auto;
+}
+
+.loading-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan), var(--emerald), var(--gold));
+  transition: width 0.2s;
+}
+
+.loading-sub {
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------------- מסך פתיחה */
+
+.title-screen {
+  overflow-y: auto;
+  align-items: center;
+}
+
+.title-top {
+  position: absolute;
+  inset-inline-end: 14px;
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 5;
+}
+
+.title-body {
+  width: min(560px, 100%);
+  margin: auto;
+  padding: 56px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.title-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.42em;
+  color: var(--cyan-light);
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+  font-weight: 700;
+}
+
+.game-title {
+  margin: 0;
+  font-size: clamp(2.5rem, 11vw, 4.4rem);
+  line-height: 0.95;
+  font-weight: 900;
+  background: linear-gradient(180deg, #fff3c4 0%, #fcd34d 38%, #f59e0b 64%, #b45309 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 0 #3a1d06) drop-shadow(0 10px 24px rgba(245, 158, 11, 0.35));
+}
+
+.game-title span {
+  font-size: 0.62em;
+  letter-spacing: 0.04em;
+}
+
+.mirror {
+  position: relative;
+  width: min(82vw, 380px);
+  aspect-ratio: 16 / 10.5;
+  margin: 6px 0;
+}
+
+.mirror-glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #ffffff 0%, #f4f8ff 55%, #cfeffb 100%);
+  box-shadow:
+    0 0 0 6px #2b1a0c,
+    0 0 0 11px #c88a2c,
+    0 0 0 14px #6b3a0f,
+    0 0 36px 14px rgba(34, 211, 238, 0.28),
+    0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.mirror-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 55%;
+  transform: scale(1.12);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 58%, transparent 74%);
+  mask-image: radial-gradient(ellipse at center, #000 58%, transparent 74%);
+}
+
+.mirror-frame {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 0%, #f7d27a 0 6px, transparent 7px),
+    radial-gradient(circle at 50% 100%, #f7d27a 0 6px, transparent 7px),
+    radial-gradient(circle at 0% 50%, #f7d27a 0 6px, transparent 7px),
+    radial-gradient(circle at 100% 50%, #f7d27a 0 6px, transparent 7px);
+}
+
+.title-blurb {
+  margin: 4px 0 2px;
+  max-width: 34ch;
+  line-height: 1.6;
+  font-size: 1.02rem;
+  color: #dbe4f0;
+}
+
+.title-progress {
+  margin: 0;
+  color: var(--gold-light);
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.back-portal {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: max(14px, env(safe-area-inset-top));
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 99px;
+  background: rgba(15, 20, 32, 0.6);
+}
+
+/* ---------------------------------------------------------------- מגדל */
+
+.map-screen {
+  overflow: hidden;
+}
+
+.map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+  background: linear-gradient(180deg, rgba(8, 10, 18, 0.92) 0%, rgba(8, 10, 18, 0) 100%);
+  z-index: 3;
+}
+
+.map-title {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  background: url('./media/sprites/banner.webp') center / contain no-repeat;
+  min-height: 72px;
+  display: grid;
+  place-content: center;
+}
+
+.map-title h1 {
+  margin: 0;
+  font-size: clamp(1.1rem, 4.6vw, 1.5rem);
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 2px 0 #2a1606, 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.map-title p {
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-shadow: 0 1px 2px #000;
+}
+
+.tower-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tower {
+  position: relative;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 20px 0 30px;
+  direction: ltr;
+}
+
+.tower-pipe {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pipe-outer {
+  fill: none;
+  stroke: #5b3410;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.6));
+}
+
+.pipe-inner {
+  fill: none;
+  stroke: #c88a2c;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 10;
+  opacity: 0.9;
+}
+
+.vault-node {
+  position: relative;
+  height: 122px;
+}
+
+.vault-node.secret {
+  height: 150px;
+}
+
+.vault-medal {
+  position: absolute;
+  left: var(--x);
+  top: 50%;
+  translate: -50% -50%;
+  width: 92px;
+  height: 92px;
+  padding: 0;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  background: #1b1309;
+  box-shadow:
+    0 0 0 4px #2b1a0c,
+    0 0 0 8px #b07a28,
+    0 10px 20px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transition: transform var(--t-med), box-shadow var(--t-med);
+  z-index: 1;
+}
+
+.vault-medal:hover {
+  transform: scale(1.05);
+}
+
+.medal-img {
+  width: 165%;
+  height: 165%;
+  object-fit: cover;
+  margin: -32.5%;
+}
+
+.medal-num {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  translate: -50% 0;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 99px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 1rem;
+  color: #2a1606;
+  background: var(--brass);
+  box-shadow: 0 2px 0 var(--copper-edge);
+}
+
+.vault-node.locked .medal-img {
+  filter: grayscale(0.9) brightness(0.45);
+}
+
+.vault-node.locked .vault-medal {
+  cursor: not-allowed;
+  box-shadow:
+    0 0 0 4px #1c1c22,
+    0 0 0 8px #4b4f5c,
+    0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.vault-node.done .vault-medal {
+  box-shadow:
+    0 0 0 4px #2b1a0c,
+    0 0 0 8px var(--gold),
+    0 0 22px rgba(245, 158, 11, 0.45),
+    0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.vault-node.current .vault-medal {
+  animation: currentPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes currentPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 4px #0c2b33,
+      0 0 0 8px var(--cyan),
+      0 0 18px rgba(6, 182, 212, 0.5),
+      0 10px 20px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px #0c2b33,
+      0 0 0 8px var(--cyan-light),
+      0 0 34px rgba(34, 211, 238, 0.75),
+      0 10px 20px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.vault-node.secret .vault-medal {
+  width: 104px;
+  height: 104px;
+}
+
+.vault-node.secret.unlocked .vault-medal {
+  box-shadow:
+    0 0 0 4px #1d0d33,
+    0 0 0 8px var(--purple-light),
+    0 0 30px rgba(124, 58, 237, 0.7),
+    0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.vault-node.secret.locked .medal-img {
+  filter: grayscale(1) brightness(0.25) blur(1px);
+}
+
+.vault-medal.nope {
+  animation: nope 0.4s;
+}
+
+@keyframes nope {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.node-info {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 44%;
+  direction: rtl;
+  text-align: right;
+}
+
+.vault-node[data-side='r'] .node-info {
+  left: calc(var(--x) + 62px);
+}
+
+.vault-node[data-side='l'] .node-info {
+  right: calc(100% - var(--x) + 62px);
+}
+
+.node-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  text-shadow: 0 1px 3px #000, 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.vault-node.locked .node-title {
+  color: #8b93a3;
+}
+
+.node-lock {
+  font-size: 0.85rem;
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
+.node-cat {
+  position: absolute;
+  top: 50%;
+  height: 74px;
+  translate: 0 -62%;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.6));
+  animation: bob 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.vault-node[data-side='r'] .node-cat {
+  right: calc(100% - var(--x) + 50px);
+}
+
+.vault-node[data-side='l'] .node-cat {
+  left: calc(var(--x) + 50px);
+  transform: scaleX(-1);
+}
+
+@keyframes bob {
+  50% {
+    translate: 0 -68%;
+  }
+}
+
+.map-foot {
+  padding: 8px 12px max(12px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, rgba(8, 10, 18, 0.95) 0%, rgba(8, 10, 18, 0.6) 100%);
+  text-align: center;
+  z-index: 3;
+}
+
+.map-foot p {
+  margin: 0 0 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--gold-light);
+}
+
+.shelf {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.shelf-item {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #3b3f4a;
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.shelf-item.got {
+  filter: none;
+  opacity: 1;
+  border-color: var(--gold);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.25), rgba(0, 0, 0, 0.2));
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.map-msg {
+  position: fixed;
+  left: 50%;
+  bottom: 110px;
+  translate: -50% 0;
+  margin: 0;
+  max-width: 90vw;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(15, 20, 32, 0.95);
+  border: 2px solid var(--warning-light);
+  font-weight: 700;
+  text-align: center;
+  z-index: 50;
+  animation: whisperIn var(--t-med) ease-out;
+}
+
+/* ---------------------------------------------------------------- מסך כספת */
+
+.level-screen {
+  align-items: stretch;
+}
+
+.level-screen.is-secret {
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(46, 16, 101, 0.25) 0%, rgba(8, 6, 20, 0.88) 78%),
+    url('./media/bg/chamber-floor.webp') center / cover no-repeat,
+    var(--slate);
+}
+
+.floor-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.9s;
+  pointer-events: none;
+}
+
+.level-screen.awaken .floor-fx {
+  opacity: 0.85;
+}
+
+/* HUD עליון - z-index 50 */
+.hud-top {
+  position: relative;
+  z-index: 50;
+  padding: max(8px, env(safe-area-inset-top)) 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(180deg, rgba(8, 10, 18, 0.9) 0%, rgba(8, 10, 18, 0.55) 70%, rgba(8, 10, 18, 0) 100%);
+}
+
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-banner {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.hud-level {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cyan-light);
+  letter-spacing: 0.02em;
+}
+
+.hud-title {
+  margin: 0;
+  font-size: clamp(1rem, 4.2vw, 1.35rem);
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 2px 0 #2a1606;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* מד החשאיות: שלושה פעמוני נחושת (מדריך, 5א) */
+.bells {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.bell {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  transition: filter var(--t-med), transform var(--t-med);
+}
+
+.bell img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bell.calm img {
+  filter: sepia(0.85) saturate(0.55) hue-rotate(-12deg) brightness(0.78) contrast(1.15);
+}
+
+.bell.rung img {
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85));
+}
+
+.bell.ringing {
+  animation: ring 0.75s ease-in-out;
+}
+
+@keyframes ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(-22deg) scale(1.15);
+  }
+  30% {
+    transform: rotate(18deg) scale(1.15);
+  }
+  45% {
+    transform: rotate(-14deg);
+  }
+  60% {
+    transform: rotate(10deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* לוחית המטרה: נחושת עם ברגים בפינות (מדריך, 5ב) */
+.hud-rule {
+  position: relative;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 8px;
+  max-width: 100%;
+  padding: 6px 18px 6px 16px;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 7px 7px, #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 7px) 7px, #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at 7px calc(100% - 7px), #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    linear-gradient(180deg, #4a2c14 0%, #2c190b 100%);
+  border: 2px solid var(--copper);
+  box-shadow: inset 0 1px 0 rgba(255, 210, 140, 0.25), 0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+.rule-eye {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.rule-k {
+  font-weight: 700;
+  color: #f5d7a8;
+}
+
+.rule-v {
+  font-weight: 900;
+  color: var(--gold-light);
+  font-size: 1.08rem;
+}
+
+.gauge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid var(--emerald);
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.gauge.open {
+  background: rgba(217, 119, 36, 0.22);
+  border-color: var(--amber);
+  color: var(--gold-light);
+  animation: gaugePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes gaugePulse {
+  50% {
+    box-shadow: 0 0 12px rgba(217, 119, 36, 0.7);
+  }
+}
+
+.play {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  z-index: 10;
+}
+
+.board-wrap {
+  position: relative;
+}
+
+.board-wrap.shake {
+  animation: boardShake 0.36s;
+}
+
+@keyframes boardShake {
+  20% {
+    transform: translate(-5px, 2px);
+  }
+  40% {
+    transform: translate(5px, -2px);
+  }
+  60% {
+    transform: translate(-3px, 1px);
+  }
+  80% {
+    transform: translate(3px, 0);
+  }
+}
+
+/* דלת הכספת - z-index 20, מעל האבנים העליונות */
+.vault {
+  position: absolute;
+  top: 0;
+  z-index: 20;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.7));
+}
+
+.vault-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.5s;
+}
+
+.vault-open {
+  opacity: 0;
+}
+
+.vault.is-open .vault-closed {
+  opacity: 0;
+}
+
+.vault.is-open .vault-open {
+  opacity: 1;
+}
+
+.vault-glow {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(252, 211, 77, 0.85) 0%, rgba(245, 158, 11, 0.35) 35%, transparent 65%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.6s, transform 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.vault.is-open .vault-glow {
+  opacity: 1;
+  transform: scale(1);
+  animation: glowBreath 2.2s 0.9s ease-in-out infinite;
+}
+
+@keyframes glowBreath {
+  50% {
+    opacity: 0.65;
+  }
+}
+
+/* הלוח - z-index 10; LTR כי זו רשת קואורדינטות (CLAUDE.md, עברית ו-RTL) */
+.board {
+  position: absolute;
+  left: 0;
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tile));
+  grid-auto-rows: var(--tile);
+  gap: var(--gap);
+  padding: var(--pad);
+  border-radius: calc(var(--tile) * 0.18);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.08), transparent 60%),
+    rgba(6, 8, 14, 0.62);
+  box-shadow:
+    0 0 0 3px #3a2410,
+    0 0 0 6px #b07a28,
+    0 0 0 8px #4a2a0e,
+    0 18px 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.board.flash-reach .tile.reachable {
+  animation: reachFlash 0.9s ease-in-out 2;
+}
+
+@keyframes reachFlash {
+  50% {
+    box-shadow: 0 0 0 3px var(--cyan-light), 0 0 26px rgba(34, 211, 238, 0.9);
+  }
+}
+
+.tile {
+  position: relative;
+  width: var(--tile);
+  height: var(--tile);
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--tile) * 0.08);
+  background: #1f2532;
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-med), filter var(--t-med);
+  touch-action: manipulation;
+  outline-offset: 2px;
+}
+
+/* fallback בלי תמונות: אבן כהה עם מסגרת זוהרת עדינה */
+.assets-partial .tile {
+  box-shadow: inset 0 0 0 2px #475569;
+}
+
+.tile-face,
+.tile-anim,
+.tile-mark {
+  position: absolute;
+  pointer-events: none;
+}
+
+.tile-face {
+  inset: 0;
+  background: url('./media/tiles/tile.webp') center / 100% 100% no-repeat;
+  transition: filter var(--t-med);
+}
+
+.tile[data-state='good'] .tile-face {
+  background-image: url('./media/tiles/tile-good.webp');
+}
+
+.tile[data-state='pending'] .tile-face {
+  filter: sepia(0.5) saturate(1.6) hue-rotate(-10deg) brightness(1.15);
+}
+
+.tile[data-state='pending'] {
+  box-shadow: 0 0 0 3px var(--amber), 0 0 22px rgba(217, 119, 36, 0.8);
+  animation: pendingPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+  50% {
+    box-shadow: 0 0 0 3px var(--gold-light), 0 0 30px rgba(245, 158, 11, 0.95);
+  }
+}
+
+.tile[data-state='trap'] .tile-face {
+  filter: brightness(0.55) saturate(0.6);
+}
+
+.tile[data-state='trap'] .tile-mark {
+  inset: 10%;
+  background:
+    linear-gradient(45deg, transparent 46%, rgba(239, 68, 68, 0.65) 46% 54%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, rgba(239, 68, 68, 0.65) 46% 54%, transparent 54%);
+}
+
+.tile[data-state='trap'] .tile-num {
+  opacity: 0.55;
+}
+
+/* היציאה: טבעת זהב שקטה מתחת לדלת */
+.tile.is-exit::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(252, 211, 77, 0.7);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.5);
+  pointer-events: none;
+  animation: exitGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes exitGlow {
+  50% {
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.85);
+    border-color: var(--gold-light);
+  }
+}
+
+/* שכנים נגישים: הילה כחלחלה דקה, כמו רונות הציאן ברצפה (מדריך, סעיף 4) */
+.tile.reachable {
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.75), var(--halo-cyan);
+}
+
+.tile.reachable:hover,
+.tile.reachable:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px var(--cyan-light), 0 0 22px rgba(34, 211, 238, 0.7);
+}
+
+@media (hover: hover) {
+  .tile.reachable:hover .tile-face {
+    filter: brightness(1.18);
+  }
+}
+
+/* רמז: מדליון המצפן (tile-glow) ופעימת זהב של 2 שניות */
+.tile.hinted .tile-face {
+  background-image: url('./media/tiles/tile-glow.webp');
+}
+
+.tile.hinted {
+  z-index: 2;
+  animation: hintPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px var(--gold), 0 0 16px rgba(245, 158, 11, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--gold-light), 0 0 34px rgba(252, 211, 77, 0.95);
+  }
+}
+
+.tile.shake {
+  animation: tileShake 0.35s;
+}
+
+@keyframes tileShake {
+  25% {
+    transform: translateX(-4px) rotate(-2deg);
+  }
+  50% {
+    transform: translateX(4px) rotate(2deg);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+/* רצועות האנימציה מהסרטון של אלעד: 1.154 מגודל האבן, כדי שהאבן שבתוכן
+   תשב בדיוק על האבן הסטטית (ראו ANIM_SCALE ב-prepare_assets.py) */
+.tile-anim {
+  inset: -7.7%;
+  opacity: 0;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  z-index: 1;
+}
+
+.tile-anim[data-kind='good'] {
+  background-image: url('./media/tiles/anim-good.webp');
+  background-size: 1200% 100%;
+}
+
+.tile-anim[data-kind='glow'] {
+  background-image: url('./media/tiles/anim-glow.webp');
+  background-size: 1200% 100%;
+}
+
+.tile-anim[data-kind='wrong'] {
+  background-image: url('./media/tiles/anim-wrong.webp');
+  background-size: 2400% 100%;
+}
+
+.tile-anim[data-anim='play'] {
+  opacity: 1;
+}
+
+.tile-anim[data-anim='play'][data-frames='12'] {
+  animation: strip 1000ms steps(11) forwards;
+}
+
+.tile-anim[data-anim='play'][data-frames='24'] {
+  animation: strip 2000ms steps(23) forwards;
+}
+
+.tile-anim[data-anim='fade'] {
+  background-position: 100% 0;
+  opacity: 0;
+  transition: opacity 0.24s;
+}
+
+@keyframes strip {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+
+/* ספרות: Rubik 900 בצבע שמנת, קו מתאר 2px כהה והצללה (מדריך, סעיף 3) */
+.tile-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  font-weight: 900;
+  font-size: calc(var(--tile) * 0.38);
+  line-height: 1;
+  color: var(--cream);
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 var(--ink), 0 3px 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.tile[data-state='good'] .tile-num {
+  color: #ecfdf5;
+}
+
+/* משוואות צפות */
+.float-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.float {
+  position: absolute;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 900;
+  font-size: clamp(0.9rem, calc(var(--tile) * 0.24), 1.3rem);
+  background: rgba(6, 30, 24, 0.88);
+  border: 2px solid var(--emerald);
+  color: #d1fae5;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.55);
+  animation: floatUp 1.6s ease-out forwards;
+}
+
+.float-gold {
+  background: rgba(45, 24, 4, 0.9);
+  border-color: var(--amber);
+  color: var(--gold-light);
+  box-shadow: 0 0 14px rgba(217, 119, 36, 0.6);
+}
+
+.float-bad {
+  background: rgba(45, 8, 8, 0.9);
+  border-color: var(--warning);
+  color: #fecaca;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.85);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0) scale(1.05);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(calc(var(--tile) * -0.45)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--tile) * -0.9));
+  }
+}
+
+/* צל - z-index 30 */
+.cat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--tile) * 0.95);
+  height: calc(var(--tile) * 1.1);
+  margin-left: calc(var(--tile) * -0.475);
+  margin-top: calc(var(--tile) * -1.1);
+  z-index: 30;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cat.wide {
+  width: calc(var(--tile) * 1.45);
+  margin-left: calc(var(--tile) * -0.725);
+}
+
+.cat-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform: scaleX(var(--face, 1));
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.55));
+}
+
+.cat[data-pose='celebrate'] .cat-img {
+  animation: celebrateHop 0.7s ease-in-out infinite;
+}
+
+@keyframes celebrateHop {
+  50% {
+    translate: 0 -12%;
+  }
+}
+
+.cat-shadow {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -4%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
+}
+
+/* לחישות של צל - z-index 55. יושבות במקום שמור מתחת ללוח (לא מכסות אבנים);
+   טקסט ארוך במיוחד צומח כלפי מעלה. */
+.whisper-slot {
+  position: relative;
+  flex-shrink: 0;
+  height: 58px;
+  z-index: 55;
+}
+
+.whisper {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: max-content;
+  max-width: min(94vw, 560px);
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.45;
+  text-align: center;
+  background: rgba(13, 17, 27, 0.94);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  z-index: 55;
+  opacity: 0;
+  /* transform אחד ולא translate+transform: ה-minifier מאחד אותם ומשמיט את translate */
+  transform: translate(-50%, 10px);
+  transition: opacity var(--t-med), transform var(--t-med);
+  pointer-events: none;
+}
+
+.whisper.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.whisper[data-tone='bad'] {
+  border-color: var(--warning-light);
+  color: #fee2e2;
+}
+
+.whisper[data-tone='good'] {
+  border-color: var(--emerald);
+}
+
+.whisper[data-tone='hint'] {
+  border-color: var(--gold);
+  color: #fef3c7;
+}
+
+@keyframes whisperIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* HUD תחתון */
+.hud-bottom {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px max(10px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, rgba(8, 10, 18, 0.92) 0%, rgba(8, 10, 18, 0) 100%);
+}
+
+.hint-btn {
+  padding: 4px 18px 4px 10px;
+}
+
+.hint-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint-inner img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+.level-screen.alarm-flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0) 30%, rgba(239, 68, 68, 0.4) 100%);
+  animation: alarm 0.8s ease-in-out 3;
+}
+
+@keyframes alarm {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ---------------------------------------------------------------- מודאלים - z-index 100 */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  background: rgba(5, 7, 14, 0.6);
+  opacity: 0;
+  transition: opacity var(--t-med);
+  overflow-y: auto;
+}
+
+.modal-overlay.in {
+  opacity: 1;
+}
+
+.card {
+  position: relative;
+  width: min(460px, 100%);
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
+  padding: 22px 20px 20px;
+  border-radius: 22px;
+  background: var(--panel);
+  border: 2px solid rgba(217, 119, 36, 0.7);
+  box-shadow:
+    0 0 0 5px rgba(43, 26, 12, 0.85),
+    0 24px 60px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 220, 160, 0.12);
+  text-align: center;
+  transform: translateY(12px) scale(0.97);
+  transition: transform var(--t-med);
+}
+
+.modal-overlay.in .card {
+  transform: none;
+}
+
+.card h2 {
+  margin: 4px 0 8px;
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 2px 0 #2a1606;
+}
+
+.card p {
+  line-height: 1.6;
+  margin: 6px 0;
+}
+
+.card .small {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  background: rgba(6, 182, 212, 0.16);
+  border: 1px solid var(--cyan);
+  color: var(--cyan-light);
+}
+
+.chip-grade {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: var(--purple-light);
+  color: #ddd6fe;
+}
+
+.intro-eye {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  margin: -6px auto 4px;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.55));
+  animation: eyeFloat 3s ease-in-out infinite;
+}
+
+@keyframes eyeFloat {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.intro-title {
+  font-size: 1.6rem;
+}
+
+.intro-story {
+  font-size: 1.05rem;
+  color: #dbe4f0;
+}
+
+.lock-plate {
+  position: relative;
+  margin: 12px auto;
+  padding: 10px 16px;
+  max-width: 340px;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 8px 8px, #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 8px) 8px, #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at 8px calc(100% - 8px), #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 8px) calc(100% - 8px), #f7d27a 0 2.5px, #6b3a0f 3px, transparent 4px),
+    linear-gradient(180deg, #4a2c14 0%, #2c190b 100%);
+  border: 2px solid var(--copper);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lock-plate-k {
+  color: #f5d7a8;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.lock-plate-v {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--gold-light);
+}
+
+.valve-explain {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(217, 119, 36, 0.1);
+  border: 1px dashed var(--amber);
+}
+
+.valve-demo {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.vd {
+  min-width: 48px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.vd-open {
+  background: rgba(217, 119, 36, 0.35);
+  border: 2px solid var(--amber);
+}
+
+.vd-close {
+  background: rgba(16, 185, 129, 0.3);
+  border: 2px solid var(--emerald);
+}
+
+.vd-sum {
+  background: rgba(245, 158, 11, 0.25);
+  border: 2px solid var(--gold);
+  color: var(--gold-light);
+}
+
+.vd-op {
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.intro-treasure {
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.intro-treasure .emoji {
+  font-size: 1.3em;
+}
+
+.intro-card.is-secret,
+.complete-card.is-secret {
+  border-color: var(--purple-light);
+  box-shadow:
+    0 0 0 5px rgba(46, 16, 101, 0.85),
+    0 0 40px rgba(124, 58, 237, 0.45),
+    0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.tips {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 12px;
+  display: grid;
+  gap: 10px;
+  text-align: right;
+}
+
+.tip {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(217, 119, 36, 0.3);
+}
+
+.tip-icon {
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+.tip strong {
+  color: var(--gold-light);
+}
+
+.tip p {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+}
+
+.wake-bell {
+  width: 110px;
+  animation: ring 0.6s ease-in-out infinite;
+}
+
+.wake-card {
+  border-color: var(--warning-light);
+}
+
+.complete-vault {
+  position: relative;
+  width: min(240px, 70%);
+  margin: -4px auto 4px;
+}
+
+.complete-vault::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle, rgba(252, 211, 77, 0.55) 0%, transparent 62%);
+  animation: glowBreath 2s ease-in-out infinite;
+}
+
+.complete-vault img {
+  position: relative;
+  width: 100%;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.7));
+}
+
+.complete-title {
+  font-size: 1.9rem !important;
+}
+
+.complete-reason {
+  font-weight: 700;
+  color: #dbe4f0;
+}
+
+.badge-new {
+  display: inline-block;
+  padding: 2px 14px;
+  border-radius: 99px;
+  background: var(--brass);
+  color: #2a1606;
+  font-weight: 900;
+}
+
+.treasure-return {
+  margin: 10px 0;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.18), rgba(0, 0, 0, 0.15));
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.treasure-emoji {
+  font-size: 2.6rem;
+  display: block;
+  animation: eyeFloat 2.4s ease-in-out infinite;
+}
+
+.treasure-return p {
+  margin: 4px 0 0;
+  font-weight: 800;
+  color: var(--gold-light);
+}
+
+.secret-unlocked {
+  font-weight: 800;
+  color: #ddd6fe;
+  text-shadow: 0 0 12px rgba(124, 58, 237, 0.9);
+}
+
+.finale-cat {
+  width: 150px;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.6));
+  animation: celebrateHop 0.9s ease-in-out infinite;
+}
+
+.finale-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 10px 0;
+  font-size: 1.7rem;
+}
+
+.finale-shelf .shelf-item {
+  width: 46px;
+  height: 46px;
+  filter: none;
+  opacity: 1;
+  border-color: var(--gold);
+  font-size: 1.5rem;
+}
+
+.finale-stars {
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--gold-light);
+}
+
+.finale-teaser {
+  font-size: 0.95rem;
+  color: #c4b5fd;
+}
+
+/* ---------------------------------------------------------------- כוכבים */
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  justify-content: center;
+}
+
+.star {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.star.on {
+  color: var(--gold-light);
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.8), 0 1px 0 #7c2d12;
+}
+
+.star.off {
+  color: #3f4554;
+}
+
+.stars.big {
+  gap: 10px;
+  margin: 4px 0 6px;
+}
+
+.stars.big .star {
+  font-size: 3rem;
+}
+
+.star.pop {
+  animation: starPop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.5);
+}
+
+@keyframes starPop {
+  0% {
+    transform: scale(0.2) rotate(-40deg);
+  }
+  70% {
+    transform: scale(1.35) rotate(8deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------------------- מסכים נמוכים / רחבים */
+
+@media (max-height: 640px) {
+  .hud-level {
+    display: none;
+  }
+  .rule-eye {
+    width: 24px;
+    height: 24px;
+  }
+  .bell {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (min-width: 900px) {
+  .whisper {
+    font-size: 1.08rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .whisper {
+    font-size: 0.95rem;
+    padding: 8px 12px;
+  }
+  .shelf {
+    gap: 3px;
+  }
+  .shelf-item {
+    width: 31px;
+    height: 31px;
+    font-size: 1rem;
+  }
+}
+
+/* ---------------------------------------------------------------- צמצום תנועה */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
