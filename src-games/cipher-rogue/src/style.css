@@ -882,6 +882,48 @@ img {
   animation: gaugePulse 1.2s ease-in-out infinite;
 }
 
+/* אולם הקפיצות: התרגיל שצל עומדת עליו - שורה משלו, בולטת, כמו אבן מוארת */
+.leap-now {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 6px 10px 6px 18px;
+  border-radius: 16px;
+  background: rgba(8, 47, 73, 0.85);
+  border: 2px solid var(--cyan-light);
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.45);
+}
+
+.leap-now-k {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #cffafe;
+}
+
+.leap-now-v {
+  padding: 3px 18px;
+  border-radius: 12px;
+  background: var(--brass);
+  color: var(--ink);
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1.2;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.leap-now.pop {
+  animation: leapPop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes leapPop {
+  0% {
+    transform: scale(0.85);
+    box-shadow: 0 0 34px rgba(34, 211, 238, 0.95);
+  }
+}
+
 /* מאזני הזהב (שביל המשוואה). ציור זמני ב-SVG עד שיגיעו התמונות של אלעד. */
 .balance {
   display: inline-flex;
@@ -1179,6 +1221,21 @@ img {
 
 .tile[data-state='burnt'] .tile-num {
   opacity: 0.3;
+}
+
+/* אולם הקפיצות: אבן שבורה עם בור. ציור זמני עד התמונה של אלעד. */
+.tile.is-pit .tile-face {
+  filter: brightness(0.5) saturate(0.5);
+}
+
+.tile.is-pit .tile-mark {
+  inset: 14%;
+  border-radius: 46% 54% 50% 48%;
+  background:
+    linear-gradient(35deg, transparent 47%, rgba(15, 23, 42, 0.9) 48% 52%, transparent 53%) -30% -30% / 70% 70% no-repeat,
+    linear-gradient(-50deg, transparent 47%, rgba(15, 23, 42, 0.9) 48% 52%, transparent 53%) 130% 130% / 70% 70% no-repeat,
+    radial-gradient(ellipse at 50% 55%, #000 0 38%, #0b0f19 52%, rgba(11, 15, 25, 0.6) 66%, transparent 72%);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9);
 }
 
 /* אבן מינוס: ספרות אדמדמות, כדי שההבדל בין +10 ל-−10 ייקלט במבט */

@@ -2,7 +2,7 @@ import type { Cell } from '../types.ts';
 import { keyOf, sameCell } from '../types.ts';
 import { explainValve, VALVE_SUM } from '../systems/MathSystem.ts';
 import type { Rules } from './Rules.ts';
-import { neighbors, val } from './Rules.ts';
+import { NOT_ADJACENT, isAdjacent, neighbors, val } from './Rules.ts';
 
 /**
  * כספת 9 - שסתום המאה: הצעד הראשון פותח שסתום, הצעד שאחריו חייב להשלים
@@ -23,6 +23,7 @@ export const valve: Rules<ValveState> = {
   label: (level, c) => String(val(level, c)),
 
   attempt(level, s, to) {
+    if (!isAdjacent(s.at, to)) return NOT_ADJACENT;
     const v = val(level, to);
     if (s.green.has(keyOf(to))) {
       if (s.pending) {

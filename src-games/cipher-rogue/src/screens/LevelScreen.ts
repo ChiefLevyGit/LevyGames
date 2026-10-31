@@ -1,6 +1,6 @@
 import type { Engine, Screen } from '../core/Engine.ts';
 import type { Cell, Level } from '../types.ts';
-import { isAdjacent, sameCell } from '../types.ts';
+import { sameCell } from '../types.ts';
 import { h, wait, reducedMotion, clear, isolateMath } from '../ui/dom.ts';
 import { button, soundToggle, gradeLabel } from '../ui/components.ts';
 import { showComplete, showGuardWake, showIntro, showTutorial } from '../ui/modals.ts';
@@ -35,6 +35,8 @@ export class LevelScreen implements Screen {
   private bells!: HTMLDivElement;
   private gauge: HTMLElement | null = null;
   private balance: Balance | null = null;
+  /** אולם הקפיצות: התרגיל שמתחת לצל, בשורה משלו מתחת ללוחית */
+  private leapNow: HTMLElement | null = null;
   private whisperEl!: HTMLDivElement;
   private floorFx!: HTMLVideoElement;
   private whisperTimer = 0;
@@ -68,6 +70,7 @@ export class LevelScreen implements Screen {
       (c) => void this.attemptMove(c),
       (c) => this.rules.label(L, c),
       this.rules.initialMarks(L),
+      (c) => this.rules.tileClass?.(L, c) ?? null,
     );
 
     this.wrap = h('div', { class: 'board-wrap' }, this.door.el, this.grid.el);
@@ -87,7 +90,9 @@ export class LevelScreen implements Screen {
     this.floorFx.muted = true;
 
     const hud = this.rules.hud?.(L, this.state);
-    if (hud?.type === 'valve') {
+    if (hud?.type === 'leap') {
+      this.leapNow = h('div', { class: 'leap-now', role: 'status', 'aria-live': 'polite' });
+    } else if (hud?.type === 'valve') {
       this.gauge = h('div', { class: 'gauge', role: 'status' });
     } else if (hud?.type === 'balance') {
       this.balance = new Balance(hud.target);
@@ -121,6 +126,7 @@ export class LevelScreen implements Screen {
           this.gauge,
           this.balance?.el,
         ),
+        this.leapNow,
       ),
       h('main', { class: 'play' }, this.wrap),
       h('div', { class: 'whisper-slot' }, this.whisperEl),
@@ -217,8 +223,14 @@ export class LevelScreen implements Screen {
     const d = dirs[e.key] ?? dirs[e.code];
     if (d) {
       e.preventDefault();
-      const to = { row: at.row + d[0], col: at.col + d[1] };
+      // באולם הקפיצות חץ רק מזיז את הפוקוס, ו-Enter על האבן קופץ - אחרת חץ היה "פותר" את התרגיל
+      const focused = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.tile');
+      const base = this.rules.keys === 'focus' && focused
+        ? { row: Number(focused.dataset.r), col: Number(focused.dataset.c) }
+        : at;
+      const to = { row: base.row + d[0], col: base.col + d[1] };
       if (to.row < 0 || to.col < 0 || to.row >= this.level.tiles.length || to.col >= this.level.tiles[0].length) return;
+      if (this.rules.keys === 'focus') return this.grid.tile(to).focus({ preventScroll: true });
       void this.attemptMove(to).then(() => this.grid.tile(this.player.at).focus({ preventScroll: true }));
     } else if (e.code === 'KeyH') {
       void this.useHint();
@@ -234,15 +246,15 @@ export class LevelScreen implements Screen {
     if (!this.started || this.busy) return;
     const from = this.player.at;
     if (sameCell(from, to)) return;
-    if (!isAdjacent(from, to)) {
-      this.whisper('צל יכולה לקפוץ רק לאבן שצמודה אליה — אחת מהאבנים שזוהרות בתכלת.', 'info');
+    const o = this.rules.attempt(this.level, this.state, to);
+    if (o.kind === 'refuse' && o.flash) {
+      this.whisper(o.why, 'info');
       this.grid.el.classList.remove('flash-reach');
       void this.grid.el.offsetWidth;
       this.grid.el.classList.add('flash-reach');
       return;
     }
     this.grid.clearHints();
-    const o = this.rules.attempt(this.level, this.state, to);
     const v = this.grid.value(to);
 
     if (o.kind === 'refuse') {
@@ -297,7 +309,8 @@ export class LevelScreen implements Screen {
     FX.burst('ember', c.x, c.y, 14);
     this.shakeBoard();
     this.whisper(o.why, 'bad');
-    await this.player.bump(to);
+    if (o.fall) await this.player.fallInto(to);
+    else await this.player.bump(to);
     if (o.state) this.state = o.state;
     for (const [cell, m] of o.marks ?? []) this.grid.setState(cell, m);
 
@@ -442,7 +455,19 @@ export class LevelScreen implements Screen {
   private updateHud(): void {
     const hud = this.rules.hud?.(this.level, this.state);
     if (hud?.type === 'balance') this.balance?.set(hud.value, hud.target);
-    if (hud?.type !== 'valve' || !this.gauge) return;
+    if (hud?.type === 'leap' && this.leapNow) {
+      clear(this.leapNow);
+      this.leapNow.append(
+        h('span', { class: 'leap-now-k' }, 'הזינוק שלך:'),
+        h('bdi', { dir: 'ltr', class: 'ltr leap-now-v' }, `${hud.expr} = ?`),
+      );
+      this.leapNow.setAttribute('aria-label', `הזינוק שלך: ${hud.expr}`);
+      this.leapNow.classList.remove('pop');
+      void this.leapNow.offsetWidth;
+      this.leapNow.classList.add('pop');
+      return;
+    }
+    if (!this.gauge || hud?.type !== 'valve') return;
     clear(this.gauge);
     const a = hud.open;
     if (a !== null) {

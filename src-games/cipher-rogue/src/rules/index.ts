@@ -4,6 +4,7 @@ import { solve } from './Rules.ts';
 import { classic } from './classic.ts';
 import { valve } from './valve.ts';
 import { trail } from './trail.ts';
+import { leap } from './leap.ts';
 
 export type { Rules, Outcome, Mark, StepKind, Hud, BaseState } from './Rules.ts';
 
@@ -14,6 +15,8 @@ export function rulesFor(level: Level): Rules<BaseState> {
       return valve as unknown as Rules<BaseState>;
     case 'equation_trail':
       return trail as unknown as Rules<BaseState>;
+    case 'leap_movement':
+      return leap as unknown as Rules<BaseState>;
     default:
       return classic as unknown as Rules<BaseState>;
   }

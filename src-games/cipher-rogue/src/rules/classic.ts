@@ -2,7 +2,7 @@ import type { Cell } from '../types.ts';
 import { keyOf, sameCell } from '../types.ts';
 import { equationFor, explainInvalid, isValid } from '../systems/MathSystem.ts';
 import type { Rules } from './Rules.ts';
-import { neighbors, val } from './Rules.ts';
+import { NOT_ADJACENT, isAdjacent, neighbors, val } from './Rules.ts';
 
 /**
  * כספות 1-8, 10 והסודית: דורכים רק על אבן שעונה לחוק המנעול.
@@ -22,6 +22,7 @@ export const classic: Rules<ClassicState> = {
   label: (level, c) => String(val(level, c)),
 
   attempt(level, s, to) {
+    if (!isAdjacent(s.at, to)) return NOT_ADJACENT;
     const k = keyOf(to);
     const v = val(level, to);
     if (s.green.has(k)) return { kind: 'move', state: { ...s, at: to }, step: 'revisit' };

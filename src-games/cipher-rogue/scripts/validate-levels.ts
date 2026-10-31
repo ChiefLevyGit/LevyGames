@@ -8,9 +8,12 @@
  *     תקין והסבר לאריח שגוי.
  *   - שביל משוואה: כמה שבילים פותרים יש, מכמה כיווני פתיחה, ושהשביל הישר
  *     (הניחוש הראשון של ילדה) לא פותר.
+ *   - קפיצות: כל תרגיל יוצא בדיוק המרחק שבלוח, ההתחלה לא בור, וכמה אבנים
+ *     נגישות הן מלכודת (משם כבר אין דרך לשער).
  */
 import { LEVELS, SECRET_LEVEL, vaultNo } from '../src/config/levels.ts';
-import { equationFor, explainInvalid, isValid } from '../src/systems/MathSystem.ts';
+import { equationFor, evalExpr, explainInvalid, isValid } from '../src/systems/MathSystem.ts';
+import { solve } from '../src/rules/Rules.ts';
 import { rulesFor, solveLevel } from '../src/rules/index.ts';
 import type { Level } from '../src/types.ts';
 import { keyOf, sameCell } from '../src/types.ts';
@@ -21,7 +24,8 @@ const fail = (id: number, msg: string) => {
   console.error(`  ✗ שלב ${id}: ${msg}`);
 };
 
-const isClassic = (l: Level) => l.mechanic !== 'complement_to_100' && l.mechanic !== 'equation_trail';
+const isClassic = (l: Level) =>
+  l.mechanic !== 'complement_to_100' && l.mechanic !== 'equation_trail' && l.mechanic !== 'leap_movement';
 
 /** כל השבילים הפותרים בשביל המשוואה (DFS - הלוח קטן) */
 function trailSolutions(level: Level): string[][] {
@@ -93,6 +97,39 @@ for (const level of LEVELS) {
     if (sols.length < 3) fail(id, `רק ${sols.length} שבילים פותרים - קשה מדי`);
     if (openings.size < 2) fail(id, 'רק כיוון פתיחה אחד - כל צעד ראשון אחר הוא מבוי סתום');
     extra = `, ${sols.length} שבילים פותרים, ${openings.size} כיווני פתיחה, השביל הישר ${straightSum}`;
+  }
+
+  if (level.mechanic === 'leap_movement') {
+    const ex = level.exprs;
+    if (!ex) fail(id, 'אין exprs');
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const v = tiles[r][c];
+        const e = ex?.[r]?.[c] ?? '';
+        const isExit = sameCell({ row: r, col: c }, exit);
+        if (v === 0 || isExit) {
+          if (e) fail(id, `(${r},${c}) בור/יציאה עם תרגיל "${e}"`);
+        } else if (evalExpr(e) !== v) {
+          fail(id, `(${r},${c}) "${e}" לא יוצא ${v}`);
+        }
+      }
+    }
+    if (tiles[start.row][start.col] === 0) fail(id, 'ההתחלה היא בור');
+    // כל האבנים שאפשר להגיע אליהן, וכמה מהן מלכודת בלי דרך לשער
+    const r = rulesFor(level);
+    const seen = new Map<string, { row: number; col: number }>([[keyOf(start), start]]);
+    const queue = [start];
+    for (let i = 0; i < queue.length; i++) {
+      for (const to of r.candidates!(level, { at: queue[i] })) {
+        const o = r.attempt(level, { at: queue[i] }, to);
+        if (o.kind === 'move' && !seen.has(keyOf(to))) {
+          seen.set(keyOf(to), to);
+          queue.push(to);
+        }
+      }
+    }
+    const traps = [...seen.values()].filter((c) => !solve(r, level, { at: c }));
+    extra = `, ${seen.size} אבנים נגישות, מתוכן ${traps.length} מלכודת (${traps.map((c) => `${c.row},${c.col}`).join(' ')})`;
   }
 
   const path = solveLevel(level);

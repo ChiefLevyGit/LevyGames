@@ -1,4 +1,5 @@
 import type { Cell, Level } from '../types.ts';
+import { isAdjacent } from '../types.ts';
 
 /**
  * מנוע החוקים: כל מכניקה היא מודול טהור שעונה על "מה קורה אם צל מנסה לדרוך
@@ -31,11 +32,19 @@ export type Outcome<S> =
       whisper?: string;
     }
   /** טעות חשבונית: פעמון, הסבר, וצל נשארת במקום */
-  | { kind: 'wrong'; why: string; state?: S; marks?: [Cell, Mark][] }
-  /** לא טעות - אסור לדרוך שם (מלכודת ידועה, אבן שרופה). בלי פעמון. */
-  | { kind: 'refuse'; why: string; known: boolean };
+  /** fall - צל נופלת לבור ומטפסת חזרה, במקום לקפוץ ולהיבהל */
+  | { kind: 'wrong'; why: string; state?: S; marks?: [Cell, Mark][]; fall?: boolean }
+  /**
+   * לא טעות - אסור לדרוך שם (מלכודת ידועה, אבן שרופה). בלי פעמון.
+   * flash - בקשה שלא עומדת בחוק התנועה עצמו: בלי צליל, והאבנים הנגישות מהבהבות.
+   */
+  | { kind: 'refuse'; why: string; known: boolean; flash?: boolean };
 
-export type Hud = { type: 'valve'; open: number | null } | { type: 'balance'; value: number; target: number };
+export type Hud =
+  | { type: 'valve'; open: number | null }
+  | { type: 'balance'; value: number; target: number }
+  /** אולם הקפיצות: התרגיל שמתחת לצל (היא מסתירה אותו על האבן) */
+  | { type: 'leap'; expr: string };
 
 export interface Rules<S extends BaseState> {
   initial(level: Level): S;
@@ -48,6 +57,12 @@ export interface Rules<S extends BaseState> {
   sig(s: S): string;
   /** אבנים שמסומנות כנגישות (הילת ציאן) */
   reachable(level: Level, s: S): Cell[];
+  /** לאן הפותר מנסה לזוז (ברירת מחדל: ארבעת השכנים) */
+  candidates?(level: Level, s: S): Cell[];
+  /** מחלקת CSS קבועה לאבן (למשל אבן שבורה) */
+  tileClass?(level: Level, c: Cell): string | null;
+  /** חיצים: step - צעד לשכן (ברירת מחדל); focus - מזיזים פוקוס, ו-Enter קופץ */
+  keys?: 'step' | 'focus';
   /** משפט הפתיחה בבועה של צל */
   intro(level: Level): string;
   hud?(level: Level, s: S): Hud;
@@ -76,6 +91,16 @@ export const signed = (v: number) => (v < 0 ? `−${-v}` : `+${v}`);
 export const runningEq = (sum: number, v: number) =>
   v < 0 ? `${sum} − ${-v} = ${sum + v}` : `${sum} + ${v} = ${sum + v}`;
 
+/** חוק התנועה של רוב המכניקות: רק לאבן צמודה */
+export const NOT_ADJACENT = {
+  kind: 'refuse',
+  why: 'צל יכולה לקפוץ רק לאבן שצמודה אליה — אחת מהאבנים שזוהרות בתכלת.',
+  known: false,
+  flash: true,
+} as const;
+
+export { isAdjacent };
+
 // ------------------------------------------------------------------ solver
 
 /**
@@ -97,7 +122,7 @@ export function solve<S extends BaseState>(rules: Rules<S>, level: Level, from: 
     }
     if (queue.length > maxStates) return null;
 
-    for (const to of neighbors(level, n.s.at)) {
+    for (const to of rules.candidates?.(level, n.s) ?? neighbors(level, n.s.at)) {
       const o = rules.attempt(level, n.s, to);
       if (o.kind !== 'move') continue;
       const sig = rules.sig(o.state);

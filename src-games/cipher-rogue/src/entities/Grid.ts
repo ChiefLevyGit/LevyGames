@@ -29,8 +29,17 @@ export class Grid {
   private readonly label: (c: Cell) => string;
   private readonly initialMarks: [Cell, Mark][];
 
-  /** label - מה כתוב על האבן; initialMarks - איך החדר נראה בכניסה (מגיעים ממודול החוקים) */
-  constructor(level: Level, onTile: (cell: Cell) => void, label: (c: Cell) => string, initialMarks: [Cell, Mark][]) {
+  /**
+   * label - מה כתוב על האבן; initialMarks - איך החדר נראה בכניסה; tileClass -
+   * מחלקה קבועה (אבן שבורה). שלושתם מגיעים ממודול החוקים.
+   */
+  constructor(
+    level: Level,
+    onTile: (cell: Cell) => void,
+    label: (c: Cell) => string,
+    initialMarks: [Cell, Mark][],
+    tileClass: (c: Cell) => string | null = () => null,
+  ) {
     this.level = level;
     this.label = label;
     this.initialMarks = initialMarks;
@@ -66,6 +75,8 @@ export class Grid {
           h('span', { class: 'tile-mark', 'aria-hidden': 'true' }),
         );
         if (text.startsWith('−')) btn.classList.add('is-neg');
+        const extra = tileClass(cell);
+        if (extra) btn.classList.add(extra);
         if (sameCell(cell, level.exit)) btn.classList.add('is-exit');
         if (sameCell(cell, level.start)) btn.classList.add('is-start');
         this.el.append(btn);
@@ -98,7 +109,10 @@ export class Grid {
     const t = this.tile(c);
     t.dataset.state = s;
     const label = { normal: '', good: ' — אבן בטוחה', pending: ' — שסתום פתוח', trap: ' — מלכודת', burnt: ' — נשרפה' }[s];
-    const text = this.label(c) || (sameCell(c, this.level.start) ? 'נקודת ההתחלה' : '');
+    const t0 = this.tile(c);
+    const text =
+      this.label(c) ||
+      (sameCell(c, this.level.start) ? 'נקודת ההתחלה' : t0.classList.contains('is-pit') ? 'אבן שבורה עם בור' : '');
     t.setAttribute('aria-label', `${text}${label}${sameCell(c, this.level.exit) ? ', היציאה לכספת' : ''}`);
   }
 

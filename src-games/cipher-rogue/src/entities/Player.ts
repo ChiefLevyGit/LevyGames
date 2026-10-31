@@ -77,18 +77,44 @@ export class Player {
     const from = this.at;
     if (c.col !== from.col) this.face(c.col > from.col ? 1 : -1);
     this.setPose('leap');
-    const t = this.grid.tile(c);
-    const lift = t.offsetHeight * 0.45;
-    const a = this.anchor(from);
-    const b = this.anchor(c);
-    const mid = `translate3d(${(a.x + b.x) / 2}px, ${Math.min(a.y, b.y) - lift}px, 0)`;
-    await animate(
-      this.el,
-      [{ transform: this.transformAt(from) }, { transform: mid, offset: 0.5 }, { transform: this.transformAt(c) }],
-      { duration: 300, easing: 'cubic-bezier(.3,.7,.4,1)' },
-    );
+    await this.arc(from, c);
     this.place(c);
     this.setPose('idle');
+  }
+
+  /** קשת מאבן לאבן. זינוק ארוך (אולם הקפיצות) גבוה ואיטי יותר. */
+  private arc(from: Cell, to: Cell): Promise<void> {
+    const dist = Math.max(1, Math.abs(to.row - from.row) + Math.abs(to.col - from.col));
+    const t = this.grid.tile(to);
+    const lift = t.offsetHeight * 0.45 * (1 + 0.4 * (dist - 1));
+    const a = this.anchor(from);
+    const b = this.anchor(to);
+    const mid = `translate3d(${(a.x + b.x) / 2}px, ${Math.min(a.y, b.y) - lift}px, 0)`;
+    return animate(
+      this.el,
+      [{ transform: this.transformAt(from) }, { transform: mid, offset: 0.5 }, { transform: this.transformAt(to) }],
+      { duration: 300 + 120 * (dist - 1), easing: 'cubic-bezier(.3,.7,.4,1)' },
+    );
+  }
+
+  /** נחיתה על אבן שבורה: קופצת, נבלעת בבור, ומטפסת חזרה לאבן שממנה זינקה */
+  async fallInto(pit: Cell): Promise<void> {
+    const from = this.at;
+    if (pit.col !== from.col) this.face(pit.col > from.col ? 1 : -1);
+    this.setPose('leap');
+    await this.arc(from, pit);
+    this.setPose('startled');
+    const at = this.transformAt(pit);
+    await animate(
+      this.el,
+      [{ transform: at, opacity: 1 }, { transform: `${at} scale(0.25)`, opacity: 0 }],
+      { duration: 380, easing: 'ease-in', fill: 'forwards' },
+    );
+    this.place(from);
+    await wait(160);
+    await animate(this.el, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'forwards' });
+    this.el.style.opacity = '1';
+    this.setPose('startled', 900);
   }
 
   /** צעד שגוי: קפיצה קטנה לכיוון האבן, נבהלת, וחוזרת - לא עוברת אליה */

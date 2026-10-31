@@ -1,7 +1,7 @@
 import type { Cell } from '../types.ts';
 import { keyOf, sameCell } from '../types.ts';
 import type { Rules } from './Rules.ts';
-import { neighbors, runningEq, signed, solve, val } from './Rules.ts';
+import { NOT_ADJACENT, isAdjacent, neighbors, runningEq, signed, solve, val } from './Rules.ts';
 
 /**
  * שביל המשוואה: כל אבן מוסיפה (או מורידה) אנרגיה למאזניים, ונכנסים לשער רק
@@ -32,6 +32,7 @@ export const trail: Rules<TrailState> = {
   },
 
   attempt(level, s, to) {
+    if (!isAdjacent(s.at, to)) return NOT_ADJACENT;
     const k = keyOf(to);
     if (s.burnt.has(k) || sameCell(to, s.at)) {
       return { kind: 'refuse', why: 'האבן הזאת כבר נשרפה — אי אפשר לדרוך עליה שוב.', known: true };

@@ -11,6 +11,8 @@
  *   - שלושה פעמונים: השומר מתעורר והחדר מתאפס
  *   - רמז מצביע על הצעד הבא הנכון ומגביל ל-2 כוכבים
  *   - שלב 9: פתיחת שסתום, שחרור בחזרה לאבן ירוקה, סגירה שגויה וסגירה נכונה
+ *   - אולם הקפיצות (id 13): קפיצה לא בקו ישר בלי פעמון, מרחק שגוי, מבוי סתום,
+ *     נפילה לבור, ומקלדת שמזיזה פוקוס ולא קופצת
  *   - שביל המשוואה (id 12): מאזניים, מבוי סתום שמאפס את החדר, ירידה מתחת
  *     לאפס, אבן שרופה שלא מצלצלת, וסיום
  *   - כוכבים לפי טעויות, סיום המסע, פתיחת הכספת הסודית ב-24 כוכבים
@@ -100,8 +102,9 @@ async function enter(id, { tutorial = false } = {}) {
   await pause(500);
 }
 
-async function walk(path) {
-  for (const c of path) await step(c);
+/** wait - זמן בין הקשות; זינוק ארוך באולם הקפיצות לוקח יותר מצעד לשכן */
+async function walk(path, wait = 470) {
+  for (const c of path) await step(c, wait);
 }
 
 /** מחכה למודאל הסיום, בודק כוכבים, ובוחר כפתור */
@@ -203,8 +206,39 @@ await dlg10.getByRole('button', { name: /אל החדר הבא/ }).click();
 await pause(700);
 ok('אחרי כספת 10 אין עדיין חגיגת סיום', (await page.getByRole('dialog', { name: 'סיום המסע' }).count()) === 0);
 
-// ── שביל המשוואה (id 12, "כספת 11") ───────────────────────────────────────
-ok('שביל המשוואה מוצג ככספת 11', /כספת 11 מתוך 11/.test((await page.locator('.intro-card .chip').first().textContent()) ?? ''));
+// ── אולם הקפיצות (id 13, "כספת 11") ───────────────────────────────────────
+ok('אולם הקפיצות מוצג ככספת 11', /כספת 11 מתוך 12/.test((await page.locator('.intro-card .chip').first().textContent()) ?? ''));
+await page.getByRole('button', { name: /קדימה, לכספת/ }).click();
+await pause(900);
+ok('קפיצות: התרגיל כתוב על האבן', (await tile(cell(6, 0)).textContent())?.includes('18÷6'));
+ok('קפיצות: לוח 7x7', (await page.locator('.tile').count()) === 49);
+ok('קפיצות: אבנים שבורות מסומנות', (await page.locator('.tile.is-pit').count()) === 6);
+ok('קפיצות: התרגיל של צל מוצג מעל הלוח', /18÷6 = \?/.test((await page.locator('.leap-now').textContent()) ?? ''));
+await shot('19-leap-start');
+await tile(cell(5, 1)).click(); // באלכסון
+await pause(500);
+ok('קפיצות: לא בקו ישר - הסבר בלי פעמון', (await rung()) === 0 && /קו ישר/.test((await page.locator('.whisper').textContent()) ?? ''));
+await wrong(cell(5, 0)); // 18÷6 = 3, והאבן במרחק 1
+ok('קפיצות: מרחק שגוי מצלצל', (await rung()) === 1);
+ok('קפיצות: ההסבר מחשב את התרגיל', /18÷6 = 3/.test((await page.locator('.whisper').textContent()) ?? ''));
+await step(cell(6, 3), 1100); // 3 ימינה - אבן שכל הזינוקים ממנה נוחתים בבור או בחוץ
+ok('קפיצות: אבן בלי יציאה היא מבוי סתום', (await rung()) === 2 && /אין ממנה דרך לשער/.test((await page.locator('.whisper').textContent()) ?? ''));
+await shot('20-leap-dead');
+await pause(3600);
+ok('קפיצות: אחרי מבוי סתום חוזרים להתחלה', (await tile(cell(6, 0)).getAttribute('aria-label'))?.includes('בטוחה'));
+await step(cell(3, 0), 1000);
+ok('קפיצות: התרגיל מעל הלוח מתעדכן אחרי זינוק', /13−9 = \?/.test((await page.locator('.leap-now').textContent()) ?? ''));
+await step(cell(3, 4), 1000);
+await tile(cell(3, 2)).click(); // 16÷8 = 2 שמאלה - בור
+await pause(2700);
+await shot('21-leap-pit');
+ok('קפיצות: נפילה לבור - הפעמון השלישי מעיר את השומר', (await page.getByRole('dialog', { name: 'השומר התעורר' }).count()) === 1);
+await pause(3600);
+await walk(pathOf(13), 1000);
+await finish(13, 1, /אל החדר הבא/);
+
+// ── שביל המשוואה (id 12, "כספת 12") ───────────────────────────────────────
+ok('שביל המשוואה מוצג ככספת 12', /כספת 12 מתוך 12/.test((await page.locator('.intro-card .chip').first().textContent()) ?? ''));
 await page.getByRole('button', { name: /קדימה, לכספת/ }).click();
 await pause(900);
 const balance = () => page.locator('.bal-read').textContent();
@@ -257,7 +291,7 @@ const secretFinale = page.getByRole('dialog', { name: 'סיום המסע' });
 ok('הכספת הסודית מסתיימת בחגיגה משלה', (await secretFinale.count()) === 1);
 await secretFinale.getByRole('button', { name: /למגדל/ }).click();
 await pause(800);
-ok('המדף מלא - 11 אוצרות', (await page.locator('.shelf-item.got').count()) === 11);
+ok('המדף מלא - 12 אוצרות', (await page.locator('.shelf-item.got').count()) === 12);
 
 // ── שמירה וחוזה ההתקדמות ─────────────────────────────────────────────────
 const keys = await page.evaluate(() => Object.keys(localStorage));
@@ -266,7 +300,7 @@ const progKey = keys.find((k) => k.includes('progress.cipher-rogue'));
 ok('השמירה מתויגת לפרופיל דרך שכבת האחסון', !!saveKey && !saveKey.includes('.guest.'), saveKey ?? '');
 ok('אין כתיבה למפתח ה-fallback', !keys.includes('cipherrogue:v1'));
 const record = progKey ? await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), progKey) : null;
-ok('רקורד ההתקדמות: 11/11 כספות', record?.kind === 'levels' && record.done === 11 && record.total === 11, JSON.stringify(record));
+ok('רקורד ההתקדמות: 12/12 כספות', record?.kind === 'levels' && record.done === 12 && record.total === 12, JSON.stringify(record));
 
 await page.reload({ waitUntil: 'networkidle' });
 await pause(1100);
@@ -284,7 +318,7 @@ const card = await page.evaluate(() => {
   };
 });
 ok('הכרטיס מופיע בדף הבית', card.found);
-ok('הכרטיס מציג התקדמות בכספות', /כספות/.test(card.progress) && /11/.test(card.progress), card.progress);
+ok('הכרטיס מציג התקדמות בכספות', /כספות/.test(card.progress) && /12/.test(card.progress), card.progress);
 ok('הכרטיס מציג וידאו', card.video);
 await page.screenshot({ path: join(SHOTS, '11-hub.png'), fullPage: true });
 
@@ -342,6 +376,24 @@ const kDone = k.getByRole('dialog', { name: 'הכספת נפתחה' });
 await kDone.waitFor({ timeout: 8000 }).catch(() => undefined);
 ok('מקלדת: אפשר לפרוץ כספת שלמה עם החצים', (await kDone.count()) === 1);
 ok('צמצום תנועה: הזרימה לא נתקעת עד מודאל הסיום', (await kDone.count()) === 1);
+
+// אולם הקפיצות במקלדת: חץ מזיז פוקוס בלבד, Enter קופץ
+await k.goto(`${GAME}?all`, { waitUntil: 'networkidle' });
+await k.waitForTimeout(700);
+await k.getByRole('button', { name: /צאי למסע|להמשיך/ }).click();
+await k.waitForTimeout(500);
+await k.locator('[data-level="13"] .vault-medal').click();
+await k.waitForTimeout(500);
+await k.getByRole('button', { name: /קדימה, לכספת/ }).click();
+await k.waitForTimeout(500);
+await k.keyboard.press('ArrowUp');
+await k.keyboard.press('ArrowUp');
+await k.keyboard.press('ArrowUp');
+const kFocus = await k.evaluate(() => [document.activeElement?.dataset.r, document.activeElement?.dataset.c].join(','));
+ok('קפיצות במקלדת: חץ מזיז פוקוס בלי לקפוץ', kFocus === '3,0' && (await k.locator('.bell.rung').count()) === 0, kFocus);
+await k.keyboard.press('Enter');
+await k.waitForTimeout(500);
+ok('קפיצות במקלדת: Enter קופץ לאבן שבפוקוס', /בטוחה/.test((await k.locator('.tile[data-r="3"][data-c="0"]').getAttribute('aria-label')) ?? ''));
 
 const real = errors.filter((e) => !/favicon/.test(e));
 ok('קונסולה ורשת נקיות', real.length === 0, real.slice(0, 5).join(' | '));

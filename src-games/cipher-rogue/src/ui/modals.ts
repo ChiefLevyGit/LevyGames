@@ -66,7 +66,21 @@ export function showIntro(level: Level): Promise<'go' | 'map'> {
             ),
             h('p', { class: 'small' }, 'הצעד הראשון פותח את השסתום (ענבר). פתחת ואין השלמה ליד? חזרי לאבן ירוקה כדי לשחרר אותו.'),
           )
-        : level.mechanic === 'equation_trail'
+        : level.mechanic === 'leap_movement'
+          ? h(
+              'div',
+              { class: 'valve-explain trail-explain' },
+              h('p', {}, 'כאן התרגיל על האבן הוא כוח הזינוק:'),
+              h('div', { class: 'valve-demo', dir: 'ltr' },
+                h('span', { class: 'vd vd-open' }, '12÷4'),
+                h('span', { class: 'vd-op' }, '='),
+                h('span', { class: 'vd vd-sum' }, '3'),
+                h('span', { class: 'vd-op' }, '➜'),
+                h('span', { class: 'vd vd-close', dir: 'rtl' }, '3 אבנים'),
+              ),
+              h('p', { class: 'small' }, 'קופצים בקו ישר לכל כיוון, מעל האבנים שבדרך. נחיתה על אבן שבורה — פעמון!'),
+            )
+          : level.mechanic === 'equation_trail'
           ? h(
               'div',
               { class: 'valve-explain trail-explain' },

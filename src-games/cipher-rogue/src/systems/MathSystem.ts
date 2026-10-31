@@ -18,6 +18,16 @@ const MULTIPLE_OF: Partial<Record<Level['mechanic'], number>> = {
 };
 
 export const isValve = (level: Level) => level.mechanic === 'complement_to_100';
+
+/** תוצאה של תרגיל קצר "a op b" (×, ÷, +, −). NaN אם הוא לא תקין או לא יוצא שלם. */
+export function evalExpr(e: string): number {
+  const m = /^\s*(\d+)\s*([×÷+−])\s*(\d+)\s*$/.exec(e);
+  if (!m) return NaN;
+  const a = Number(m[1]);
+  const b = Number(m[3]);
+  const r = { '×': a * b, '÷': a / b, '+': a + b, '−': a - b }[m[2] as '×' | '÷' | '+' | '−'];
+  return Number.isInteger(r) ? r : NaN;
+}
 export const VALVE_SUM = 100;
 
 /** תקינות אריח בודד. לא רלוונטי לשסתום, שם התקינות תלויה בצעד הקודם. */

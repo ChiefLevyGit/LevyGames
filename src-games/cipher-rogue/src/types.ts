@@ -10,7 +10,9 @@ export type Mechanic =
   | 'factors_of_target'
   | 'complement_to_100'
   /** שביל המשוואה: אוספים סכום מדויק (targetNumber) בדרך לשער */
-  | 'equation_trail';
+  | 'equation_trail'
+  /** אולם הקפיצות: תוצאת התרגיל על האבן = מרחק הקפיצה */
+  | 'leap_movement';
 
 export interface Cell {
   row: number;
@@ -37,6 +39,8 @@ export interface Level {
   start: Cell;
   exit: Cell;
   tiles: number[][];
+  /** אולם הקפיצות: התרגיל שמוצג על כל אבן (התוצאה שלו ב-tiles) */
+  exprs?: string[][];
   hint: string;
   treasure: Treasure;
   secret?: boolean;
