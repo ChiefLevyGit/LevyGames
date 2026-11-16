@@ -2,8 +2,9 @@
 // אחרי יצירת הפרופיל הראשון גם מריצים את המיגרציה, כדי שהתקדמות מלפני
 // הפרופילים תיכנס אליו ולא תיאבד.
 
-import { getActiveProfile, createProfile, PROFILE_AVATARS } from './profiles.js?v=1';
-import { migrateLegacyData } from './storage.js?v=1';
+import { getActiveProfile, createProfile, PROFILE_AVATARS } from './profiles.js?v=2';
+import { migrateLegacyData } from './storage.js?v=2';
+import { isConfigured } from './auth.js?v=1';
 
 function buildGate() {
   const backdrop = document.createElement('div');
@@ -27,8 +28,13 @@ function buildGate() {
       <p class="gate-label">ובחרי דמות:</p>
       <div class="gate-avatars" role="radiogroup" aria-label="בחירת דמות">${avatarsHTML}</div>
       <button type="submit" class="btn btn-primary gate-submit">יאללה, נתחיל! 🎮</button>
+      ${isConfigured() ? '<button type="button" class="gate-account-link">יש לנו כבר חשבון משפחתי - התחברות ☁️</button>' : ''}
     </form>
   `;
+  // החלון של js/account-ui.js נפתח מעל המסך הזה; אחרי ההתחברות הדף נטען מחדש
+  backdrop.querySelector('.gate-account-link')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('levygames:open-account'));
+  });
   return backdrop;
 }
 
@@ -71,6 +77,17 @@ function askForProfile() {
 export async function ensureProfile() {
   const existing = await getActiveProfile();
   if (existing) return existing;
+
+  // מכשיר חדש עם חשבון מחובר: הבנות כבר בענן. מחכים לסנכרון (עד 5 שניות)
+  // לפני ששואלים "איך קוראים לך" - אחרת ייווצר פרופיל כפול.
+  const synced = await Promise.race([
+    import('./cloud-sync.js?v=1').then((m) => m.start()).catch(() => false),
+    new Promise((resolve) => { setTimeout(() => resolve(false), 5000); }),
+  ]);
+  if (synced) {
+    const fromCloud = await getActiveProfile();
+    if (fromCloud) return fromCloud;
+  }
 
   const profile = await askForProfile();
   await migrateLegacyData(profile.id);

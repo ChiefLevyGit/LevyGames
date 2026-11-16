@@ -104,6 +104,38 @@ main {
   color: #fff;
 }
 
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+.icon-btn:hover { background: var(--accent-violet-soft); }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn[aria-pressed="true"] { opacity: 0.7; }
+
+.nav-tools { display: flex; gap: 8px; }
+.icon-btn[hidden] { display: none; }
+/* מחוברים: נקודה ירוקה על כפתור החשבון */
+.account-btn { position: relative; }
+.account-btn.signed-in::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  inset-inline-end: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 2px #fff;
+}
+
 /* ---------- כפתורים משותפים ---------- */
 
 .btn {
@@ -504,6 +536,380 @@ main {
 }
 
 .gate-submit { width: 100%; }
+.gate-account-link {
+  margin-top: 14px;
+  border: none;
+  background: none;
+  color: var(--accent-violet);
+  font: 600 0.88rem var(--font-body);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- חלון החשבון המשפחתי (js/account-ui.js) ---------- */
+
+.account-backdrop { background: rgba(131, 24, 67, 0.35); backdrop-filter: blur(4px); }
+.account-card { position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+.account-close {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent-violet-soft);
+  color: var(--ink);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.google-btn {
+  width: 100%;
+  background: #fff;
+  color: #1f1f1f;
+  border: 2px solid #dadce0;
+  gap: 10px;
+}
+.google-btn:hover { border-color: var(--primary); }
+.account-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  margin: 18px 0;
+}
+.account-or::before, .account-or::after { content: ''; flex: 1; height: 1px; background: var(--border-soft); }
+.account-form { display: grid; gap: 10px; }
+.account-row { display: flex; gap: 10px; }
+.account-row .btn { flex: 1; }
+.account-msg { min-height: 1.3em; margin: 4px 0 0; font-size: 0.88rem; color: var(--ink-soft); }
+.account-msg.error { color: #b91c1c; }
+.account-email { direction: ltr; unicode-bidi: plaintext; }
+.account-sync { font-weight: 600; margin: 0 0 8px; }
+.account-chips { justify-content: center; }
+.profile-chip[aria-pressed="true"] { border-color: var(--primary); background: var(--primary); color: #fff; }
+.account-add { display: flex; gap: 8px; margin: 12px 0 20px; }
+.account-add .gate-input { flex: 1; min-width: 0; }
+.account-signout { width: 100%; }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.parent-locked { text-align: center; }
+
+/* ---------- קישור ההישגים ב-hero (js/hub.js) ---------- */
+
+.hero-achievements {
+  display: table;
+  margin: 16px auto 0;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--border-soft);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.hero-achievements:hover { border-color: var(--primary); transform: translateY(-2px); }
+
+/* ---------- דף שיאים והישגים (stats.html) ---------- */
+
+.stats-main { padding-bottom: 40px; }
+
+.stats-hero {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 24px;
+  margin: 20px 0 16px;
+}
+.stats-hero-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stats-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  font-size: 2.4rem;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--border-soft);
+}
+.stats-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  margin: 0 0 4px;
+}
+.stats-streak { margin: 0; color: var(--ink-soft); font-weight: 600; }
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 10px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-violet-soft), var(--bg-bottom));
+}
+.stat-tile-emoji { font-size: 1.5rem; }
+.stat-tile-value {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.stat-tile-label { color: var(--ink-soft); font-size: 0.85rem; }
+
+.profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.profile-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--border-soft);
+  background: #fff;
+  color: var(--ink);
+  font: 600 0.92rem var(--font-body);
+  cursor: pointer;
+}
+.profile-chip[aria-checked="true"] { border-color: var(--primary); background: var(--primary); color: #fff; }
+
+.stats-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  width: fit-content;
+}
+.stats-tab {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font: 700 0.95rem var(--font-body);
+  cursor: pointer;
+}
+.stats-tab[aria-selected="true"] { background: var(--primary); color: #fff; }
+
+.stats-h2 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin: 28px 0 14px;
+}
+.stats-panel > .stats-h2:first-child,
+.chart-card > .stats-h2:first-child { margin-top: 0; }
+
+/* תגי הישגים */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 18px 12px 14px;
+  border-radius: var(--radius-md);
+  background: #fff;
+  border: 2px dashed var(--border-soft);
+}
+.badge-card .badge-emoji {
+  font-size: 2.4rem;
+  filter: grayscale(1) opacity(0.35); /* נעול = צללית */
+}
+.badge-card.unlocked {
+  border: 2px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box,
+              linear-gradient(135deg, var(--accent-violet), var(--primary)) border-box;
+  box-shadow: var(--shadow-soft);
+}
+.badge-card.unlocked .badge-emoji { filter: none; }
+.badge-title { font-size: 0.98rem; }
+.badge-desc { color: var(--ink-soft); font-size: 0.8rem; min-height: 2.2em; }
+.badge-card .progress-bar { width: 100%; flex: none; height: 8px; margin-top: 6px; }
+.badge-count { color: var(--ink-soft); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.badge-done { color: var(--primary); font-weight: 700; font-size: 0.85rem; }
+
+.badge-card.just-unlocked { animation: badge-pop 0.9s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes badge-pop {
+  0% { transform: scale(0.6) rotate(-8deg); }
+  60% { transform: scale(1.12) rotate(4deg); }
+  100% { transform: none; }
+}
+
+/* שיאים לפי משחק */
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+.record-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.record-card:hover { transform: translateY(-3px); }
+.record-card.untried { opacity: 0.75; }
+.record-emoji {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  font-size: 1.7rem;
+  background: linear-gradient(135deg, var(--g1), var(--g2));
+}
+.record-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.record-name { font-size: 0.98rem; }
+.record-value { color: var(--ink-soft); font-size: 0.88rem; font-weight: 600; }
+.record-time { color: var(--ink-soft); font-size: 0.8rem; }
+.record-body .progress-bar { flex: none; height: 8px; }
+
+/* רגעים גדולים */
+.moments { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.moment {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+.moment.empty { color: var(--ink-soft); justify-content: center; }
+.moment-when { color: var(--ink-soft); font-size: 0.85rem; white-space: nowrap; }
+
+/* לשונית ההורים */
+.chart-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.chart-wrap { position: relative; direction: ltr; }
+.daily-svg { display: block; width: 100%; height: auto; }
+.daily-svg .grid-line { stroke: var(--border-soft); stroke-width: 1; }
+.daily-svg .axis-label { fill: var(--ink-soft); font-size: 11px; font-family: var(--font-body); }
+.daily-svg .axis-label.strong { fill: var(--ink); font-weight: 700; }
+.daily-svg .axis-label.faint { opacity: 0.7; }
+.daily-svg .bar { fill: var(--accent-violet); }
+.daily-svg .bar.today { fill: var(--primary); }
+.daily-svg .hit { fill: transparent; cursor: pointer; }
+.daily-svg .hit:hover, .daily-svg .hit:focus { fill: rgba(139, 92, 246, 0.08); outline: none; }
+.chart-tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 8px));
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  direction: rtl;
+}
+.chart-empty { color: var(--ink-soft); text-align: center; margin: 12px 0; }
+
+.share-list { display: grid; gap: 10px; }
+.share-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 180px) 1fr 150px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+.share-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-track { height: 12px; background: var(--accent-violet-soft); border-radius: 999px; overflow: hidden; }
+.share-fill { height: 100%; background: var(--accent-violet); border-radius: 999px; }
+.share-value { color: var(--ink-soft); font-size: 0.82rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.table-scroll { overflow-x: auto; }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.compare-table th, .compare-table td {
+  padding: 10px 8px;
+  text-align: start;
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+}
+.compare-table thead th { color: var(--ink-soft); font-weight: 600; font-size: 0.8rem; }
+.compare-name { font-weight: 700; }
+.stats-note { color: var(--ink-soft); font-size: 0.8rem; margin: 14px 0 0; }
+
+/* חגיגת הישג */
+.unlock-toast {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 20px;
+  z-index: 50;
+  max-width: 480px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card-hover);
+  border: 2px solid var(--primary);
+  animation: toast-in 0.5s cubic-bezier(.2, 1.4, .4, 1);
+}
+.unlock-toast[hidden] { display: none; }
+.unlock-toast p { margin: 2px 0 0; color: var(--ink-soft); font-size: 0.88rem; }
+.unlock-toast div { flex: 1; }
+.unlock-toast-emoji { font-size: 2.4rem; }
+@keyframes toast-in { from { transform: translateY(120%); opacity: 0; } }
+
+.confetti {
+  position: fixed;
+  top: -40px;
+  left: var(--x);
+  z-index: 60;
+  font-size: 1.6rem;
+  pointer-events: none;
+  animation: confetti-fall var(--d) ease-in forwards;
+}
+@keyframes confetti-fall {
+  to { transform: translate(var(--dx), 110vh) rotate(var(--r)); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-card.just-unlocked, .unlock-toast { animation: none; }
+}
 
 /* ---------- רספונסיביות ---------- */
 
@@ -511,4 +917,9 @@ main {
   .site-nav { justify-content: center; text-align: center; }
   .mission-card { flex-direction: column; text-align: center; }
   .game-links { flex-direction: column; }
+  .stats-tabs { width: 100%; }
+  .stats-tab { flex: 1; padding-inline: 10px; }
+  .share-row { grid-template-columns: 1fr auto; }
+  .share-track { grid-column: 1 / -1; grid-row: 2; }
+  .stats-hero { padding: 18px; }
 }

@@ -10,8 +10,8 @@
 //
 // כל הפונקציות async בכוונה, גם כשהמימוש סינכרוני - ראו js/local-store.js.
 
-import { getRaw, getJSON, setJSON, removeRaw, listKeys } from './local-store.js?v=1';
-import { getActiveProfile } from './profiles.js?v=1';
+import { getRaw, getJSON, setJSON, removeRaw, listKeys } from './local-store.js?v=2';
+import { getActiveProfile } from './profiles.js?v=2';
 
 const PREFIX = 'levygames';
 const MIGRATED_FLAG = 'levygames.migrated.v1';
@@ -76,16 +76,20 @@ const PROGRESS_NS = 'progress';
 
 export async function reportProgress(gameId, record) {
   if (!gameId || !isPlainObject(record)) return false;
-  return write(`${PROGRESS_NS}.${gameId}`, { v: 1, lastPlayed: Date.now(), ...record });
+  const prev = await readProgress(gameId);
+  const ok = await write(`${PROGRESS_NS}.${gameId}`, { v: 1, lastPlayed: Date.now(), ...record });
+  await noteRecord(gameId, prev, record);
+  return ok;
 }
 
 export async function readProgress(gameId) {
   return read(`${PROGRESS_NS}.${gameId}`, null);
 }
 
-// הפורטל קורא את הכל בקריאה אחת - לא פר כרטיס
-export async function readAllProgress() {
-  const id = await activeId();
+// הפורטל קורא את הכל בקריאה אחת - לא פר כרטיס.
+// profileId אופציונלי: דף ההישגים קורא גם פרופילים לא-פעילים (לשונית ההורים).
+export async function readAllProgress(profileId = null) {
+  const id = profileId || await activeId();
   const prefix = `${PREFIX}.${id}.${PROGRESS_NS}.`;
   const keys = await listKeys(prefix);
   const out = {};
@@ -94,6 +98,78 @@ export async function readAllProgress() {
     if (record) out[key.slice(prefix.length)] = record;
   }));
   return out;
+}
+
+/* ================= סטטיסטיקות ================= */
+// stats.v1 מתוייג-פרופיל, והוא *נגזרת* - של זמן גלוי בדף משחק (js/playtime.js)
+// ושל דיווחי reportProgress (שיאים). אף משחק לא כותב אליו ישירות.
+//   { v:1, games: { id: { sessions, ms, firstPlayed, lastPlayed } },
+//     days: { 'YYYY-MM-DD': { ms, games:[id] } }, records: [{ at, gameId, type, value }] }
+
+export const STATS_NS = 'stats.v1';
+const MAX_DAYS = 90;
+const MAX_RECORDS = 200;
+
+export const emptyStats = () => ({ v: 1, games: {}, days: {}, records: [] });
+
+// תאריך מקומי, לא UTC - "היום" של הילדה נגמר בחצות שלה
+export function dayKey(date = new Date()) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// השעון ו-reportProgress כותבים לאותו מפתח מאותו דף. read-modify-write
+// אסינכרוני בלי תור = עדכון אחד דורס את השני, ולכן כל העדכונים עוברים כאן בטור.
+let statsQueue = Promise.resolve();
+
+export function updateStats(mutate) {
+  statsQueue = statsQueue.then(async () => {
+    const raw = await read(STATS_NS, null);
+    const stats = raw?.v === 1 ? raw : emptyStats();
+    mutate(stats);
+    const days = Object.keys(stats.days).sort();
+    days.slice(0, Math.max(0, days.length - MAX_DAYS)).forEach((d) => delete stats.days[d]);
+    stats.records = stats.records.slice(-MAX_RECORDS);
+    await write(STATS_NS, stats);
+  }).catch((err) => console.warn('עדכון סטטיסטיקות נכשל', err));
+  return statsQueue;
+}
+
+// שיא = best עלה, או done עלה. נגזר מאותה קריאת reportProgress - לא מקור אמת שני.
+async function noteRecord(gameId, prev, next) {
+  let type = null;
+  let value = 0;
+  if (next.kind === 'score' && Number(next.best) > (Number(prev?.best) || 0)) {
+    type = 'best'; value = Number(next.best);
+  } else if (next.kind === 'levels' && Number(next.done) > (Number(prev?.done) || 0)) {
+    type = 'levels'; value = Number(next.done);
+  }
+  if (!type) return;
+  await updateStats((stats) => {
+    stats.records.push({ at: Date.now(), gameId, type, value, total: Number(next.total) || undefined });
+  });
+}
+
+// קריאה של namespace עבור פרופיל מסוים (לא בהכרח הפעיל) - לדף ההישגים
+export async function readFor(profileId, namespace, fallback = null) {
+  return getJSON(`${PREFIX}.${profileId}.${namespace}`, fallback);
+}
+
+export async function listFor(profileId, namespacePrefix) {
+  const prefix = `${PREFIX}.${profileId}.${namespacePrefix}`;
+  return (await listKeys(prefix)).map((key) => key.slice(prefix.length));
+}
+
+// סנכרון לענן - בכל דף. בלי חשבון מחובר (או בלי קונפיג) הוא חוזר מיד ולא טוען
+// את ה-SDK. import דינמי: אם הוא נכשל, האחסון המקומי ממשיך כרגיל.
+if (typeof window !== 'undefined') {
+  import('./cloud-sync.js?v=1').then((m) => m.start()).catch(() => {});
+}
+
+// שעון זמן המשחק נטען רק בדפי משחק (games/<x>/...), לא בפורטל.
+// import דינמי ולא סטטי - playtime צריך את updateStats מכאן, ו-import סטטי היה מעגלי.
+if (typeof location !== 'undefined' && /\/games\/[^/]+\/(index\.html)?$/.test(location.pathname)) {
+  import('./playtime.js?v=3').then((m) => m.start({ updateStats, dayKey })).catch(() => {});
 }
 
 /* ================= מיגרציה חד-פעמית ================= */

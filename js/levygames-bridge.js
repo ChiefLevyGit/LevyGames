@@ -22,8 +22,8 @@
   window.LevyGames = bridge;
 
   bridge.ready = Promise.all([
-    import(moduleUrl('./storage.js?v=1')),
-    import(moduleUrl('./profiles.js?v=1')),
+    import(moduleUrl('./storage.js?v=2')),
+    import(moduleUrl('./profiles.js?v=2')),
     import(moduleUrl('./sfx.js?v=1')),
   ]).then(([storage, profiles, sfx]) => {
     Object.assign(bridge, { storage, profiles, sfx }); // גם גישה ישירה, אחרי ש-ready נפתר

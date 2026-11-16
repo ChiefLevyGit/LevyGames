@@ -1,11 +1,24 @@
 // הדרייבר היחיד בפרויקט שנוגע ב-localStorage.
 //
-// זו נקודת ההחלפה: אם יום אחד נרצה סנכרון בין מכשירים (serverless function + DB),
-// מחליפים את הקובץ הזה בלבד - אף משחק לא ידע. בגלל זה כל הפונקציות כאן async
-// גם כשהמימוש סינכרוני לגמרי.
+// זו נקודת ההחלפה לסנכרון בין מכשירים: המקור נשאר מקומי (local-first), ו-
+// js/cloud-sync.js מאזין ל-onChange ומשקף כל שינוי לענן. אף משחק לא יודע.
+// בגלל זה כל הפונקציות כאן async גם כשהמימוש סינכרוני לגמרי.
 //
 // מי שצריך לשמור משהו לא מייבא מכאן - הוא עובד מול js/storage.js, שמוסיף
 // את תיוג הפרופיל.
+
+// מאזינים לשינויים - בשביל cloud-sync. listener לא אמור לזרוק, אבל אם כן -
+// השמירה המקומית כבר קרתה ולא נכשלת בגללו.
+const listeners = new Set();
+
+export function onChange(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function emit(key) {
+  listeners.forEach((fn) => { try { fn(key); } catch (err) { console.warn(err); } });
+}
 
 export async function getRaw(key) {
   try {
@@ -18,6 +31,7 @@ export async function getRaw(key) {
 export async function setRaw(key, value) {
   try {
     localStorage.setItem(key, value);
+    emit(key);
     return true;
   } catch (err) {
     // מצב פרטי / אחסון מלא - המשחק ממשיך לעבוד, פשוט בלי שמירה
@@ -29,6 +43,7 @@ export async function setRaw(key, value) {
 export async function removeRaw(key) {
   try {
     localStorage.removeItem(key);
+    emit(key);
   } catch {
     /* אין מה לעשות - ממשיכים */
   }

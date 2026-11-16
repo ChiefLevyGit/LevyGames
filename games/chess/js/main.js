@@ -6,7 +6,7 @@ import {
 } from './chessEngine.js?v=3';
 import { pieceSVG, PIECE_NAMES_HE } from './pieceArt.js?v=3';
 import { unlockAudio, playSelect, playMove, playCapture, playIllegal, playCheck, playWin } from './sounds.js?v=3';
-import { saveGame, loadGame, clearGame } from './storage.js?v=4';
+import { saveGame, loadGame, clearGame } from './storage.js?v=5';
 import { chooseAIMove } from './chessAI.js?v=3';
 
 const startScreenEl = document.getElementById('startScreen');

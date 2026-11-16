@@ -1,8 +1,9 @@
 // דף הבית: מוודא שיש פרופיל, ואז בונה את כרטיסי המשחקים עם ההתקדמות שלו.
 // ?v= בסוף הייבוא הוא cache-busting - ראו Design.info/tasks.md
-import { GAMES } from './games-data.js?v=11';
-import { ensureProfile } from './profile-gate.js?v=1';
-import { readAllProgress } from './storage.js?v=1';
+import { GAMES } from './games-data.js?v=12';
+import { ensureProfile } from './profile-gate.js?v=2';
+import { readAllProgress, read, STATS_NS, dayKey } from './storage.js?v=2';
+import { summarize, computeAchievements } from './achievements.js?v=1';
 
 const grid = document.getElementById('gamesGrid');
 const countEl = document.getElementById('gamesCount');
@@ -128,11 +129,25 @@ function renderCards(progressByGame) {
   document.dispatchEvent(new CustomEvent('levygames:cards-rendered'));
 }
 
+// "🏆 3/10 הישגים" מתחת לכפתור הראשי - קישור לדף ההישגים
+async function showAchievements(progress) {
+  const link = document.getElementById('heroAchievements');
+  if (!link) return;
+  const summary = summarize(progress, await read(STATS_NS, null), GAMES, dayKey());
+  const list = computeAchievements(summary);
+  const unlocked = list.filter((a) => a.unlocked).length;
+  const streak = summary.current > 0 ? ` · 🔥 ${summary.current} ברצף` : '';
+  link.textContent = `🏆 ${unlocked}/${list.length} הישגים${streak} - לשיאים שלי ›`;
+  link.hidden = false;
+}
+
 async function init() {
   try {
     const profile = await ensureProfile();
     greet(profile);
-    renderCards(await readAllProgress());
+    const progress = await readAllProgress();
+    renderCards(progress);
+    showAchievements(progress).catch(() => {});
   } catch (err) {
     // כרטיסים בלי התקדמות עדיפים על פורטל ריק
     console.warn('טעינת הפרופיל/ההתקדמות נכשלה', err);
@@ -141,3 +156,14 @@ async function init() {
 }
 
 init();
+
+// הסנכרון (js/cloud-sync.js) רץ במקביל לבניית הדף. אם הוא הביא משהו חדש
+// ממכשיר אחר - בונים מחדש עם הנתונים המעודכנים.
+document.addEventListener('levygames:sync', async (e) => {
+  if (!e.detail?.changed) return;
+  const { getActiveProfile } = await import('./profiles.js?v=2');
+  greet(await getActiveProfile());
+  const progress = await readAllProgress();
+  renderCards(progress);
+  showAchievements(progress).catch(() => {});
+});

@@ -1,6 +1,6 @@
 // ?v= בסוף כל ייבוא הוא cache-busting - ראו Design.info/tasks.md
 import { TASKS, TOTAL, cardIdentity, categoryIcon, categoryName } from './tasksData.js?v=2';
-import { saveProgress, loadProgress, clearProgress } from './storage.js?v=3';
+import { saveProgress, loadProgress, clearProgress } from './storage.js?v=4';
 
 const startScreenEl = document.getElementById('startScreen');
 const drawScreenEl = document.getElementById('drawScreen');

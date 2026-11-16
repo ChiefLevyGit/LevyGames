@@ -1,12 +1,13 @@
 // רג'יסטרי הפרופילים: מי משחקת עכשיו במכשיר הזה.
 //
 // חשוב להבין מה זה *לא*: אלה לא חשבונות. אין סיסמה, וכל אחת יכולה לבחור כל
-// פרופיל. זה מתג "מי משחקת", לא גבול הרשאות.
+// פרופיל. זה מתג "מי משחקת", לא גבול הרשאות. החשבון (js/auth.js) הוא של
+// ההורה, והפרופילים חיים בתוכו.
 //
 // הרג'יסטרי עצמו גלובלי - הוא לא יכול להיות מתוייג-פרופיל, כי הוא זה שקובע
 // מי הפרופיל הפעיל.
 
-import { getJSON, setJSON } from './local-store.js?v=1';
+import { getJSON, setJSON } from './local-store.js?v=2';
 
 const REGISTRY_KEY = 'levygames.profiles.v1';
 
@@ -39,11 +40,11 @@ async function writeRegistry(registry) {
 }
 
 function nextId(profiles) {
-  // p1, p2, p3... לפי המספר הגבוה שכבר בשימוש, כדי שמחיקה לא תייצר התנגשות
-  const used = profiles
-    .map((p) => Number(String(p.id).replace(/^p/, '')))
-    .filter((n) => Number.isInteger(n) && n > 0);
-  return `p${used.length ? Math.max(...used) + 1 : 1}`;
+  // מזהה אקראי ולא p1/p2: שני מכשירים שיוצרים פרופיל כל אחד לבד לא יתנגשו
+  // כשהחשבון מסנכרן אותם (js/cloud-sync.js). מזהים ישנים (p1...) נשארים כמו שהם.
+  let id;
+  do { id = `p_${Math.random().toString(36).slice(2, 8)}`; } while (profiles.some((p) => p.id === id));
+  return id;
 }
 
 function cleanName(name) {

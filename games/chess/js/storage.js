@@ -2,7 +2,7 @@
 // האחסון עצמו עובר דרך שכבת האחסון המשותפת (js/storage.js בשורש), שמתייגת
 // אותו לפרופיל הפעיל. הוולידציה נשארת כאן - היא ידע של השחמט, לא של השכבה.
 
-import { read, write, clear, reportProgress } from '../../../js/storage.js?v=1';
+import { read, write, clear, reportProgress } from '../../../js/storage.js?v=2';
 
 const NS = 'chess.v1';
 const GAME_ID = 'chess'; // חייב להיות זהה ל-id ב-js/games-data.js

@@ -3,8 +3,8 @@
 // { text: 'ספרי בדיחה לאמא או לאבא', reward: 'מזכה בברכה מיוחדת 😊' }
 // כל יום נבחרת משימה אחרת מהמערך לפי תאריך, כך שהיא לא משתנה שוב באותו היום.
 
-import { playCelebrate } from './hub-sounds.js?v=1';
-import { read, write } from './storage.js?v=1';
+import { playCelebrate } from './hub-sounds.js?v=3';
+import { read, write } from './storage.js?v=2';
 
 const MISSIONS = [];
 

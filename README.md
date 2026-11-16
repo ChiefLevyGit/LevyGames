@@ -15,6 +15,7 @@
 | 👾 פולשי החלל | קרב חלל קלאסי: מגנים, ניקוד ושיא אישי. | `games/spaceinvaders/` |
 | 🕵️‍♀️ הבלשית הקטנה | 10 תיקי חידות היגיון לגילאי 6-10, עם ארגז כלים שנפתח לפי סוג התיק. | `games/Little-detective-new/` |
 | 🤖 מבוך הפקודות | חשיבה תכנותית: בונים רצף פקודות ומובילים את רובי אל הסוללה. 15 שלבים. build של Vite; המקור מחוץ לריפו (`../code-a-bot/`). | `games/code-a-bot/` |
+| 🐈‍⬛ פורצת הצללים הקטנה | חשבון לכיתות ב'-ד': עשר כספות, דורכים רק על אבנים שמתאימות לחוק (זוגיים, כפולות, מחלקים, השלמה ל-100). build של Vite. | `games/cipher-rogue/` |
 
 ---
 
@@ -94,12 +95,13 @@ src-games/<id>/            מקור של משחק שדורש build (Vite); הת�
 
 ### משחק עם build
 
-שני משחקים הם פרויקטי Vite. `games/<id>/` שלהם הוא **תוצר build, לא מקור**:
+שלושה משחקים הם פרויקטי Vite. `games/<id>/` שלהם הוא **תוצר build, לא מקור**:
 
 | מקור | נפרס ל |
 |---|---|
 | `src-games/code-a-bot/` | `games/code-a-bot/` |
 | `src-games/alfa-town/` | `games/alfa-town/` |
+| `src-games/cipher-rogue/` | `games/cipher-rogue/` (`npm run deploy`) |
 
 ```bash
 cd src-games/<id>

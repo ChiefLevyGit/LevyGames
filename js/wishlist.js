@@ -1,6 +1,6 @@
 // רשימת משאלות: רעיונות למשחקים שהילדות מציעות. נשמר מקומית בדפדפן (אין שרת/בקאנד לאתר הזה).
-import { playSuccess } from './hub-sounds.js?v=1';
-import { readGlobal, writeGlobal } from './storage.js?v=1';
+import { playSuccess } from './hub-sounds.js?v=3';
+import { readGlobal, writeGlobal } from './storage.js?v=2';
 
 // גלובלי ולא מתוייג-פרופיל: הרשימה משפחתית, כל אחת רואה את הרעיונות של כולן
 const WISHLIST_KEY = 'wishlist.v1';

@@ -1,34 +1,56 @@
 // צלילי UI של דף הבית - מיפוי לפי Design.info/sound-mapping.md.
-// הנכסים עצמם מגיעים מ-js/sfx.js; כאן רק חיווט ה-DOM של הפורטל.
-// לא נוגעים בסאונד של שחמט/Space Invaders עצמם - לשניהם מערכת סאונד ייעודית משלהם.
+// הצלילים עצמם מסונתזים ב-js/synth.js; כאן רק חיווט ה-DOM של הפורטל.
+// לא נוגעים בסאונד של המשחקים עצמם - לכל אחד מערכת משלו.
 
-import { jdSound, localSound, play } from './sfx.js?v=1';
+import { playSynth, isMuted, setMuted } from './synth.js?v=1';
 
-const sfx = {
-  cursor: jdSound('Cursor - 1', 0.4),
-  select: jdSound('Select - 2', 0.5),
-  popupOpen: jdSound('Popup Open - 1', 0.55),
-  chestOpen: localSound('chest-open.mp3', 0.6),
-  enterGame: localSound('sound-with-a-choice-of-one-of-the-items-in-the-menu-ui.mp3', 0.6),
-};
+// עיכוב לפני ניווט בפועל, כדי שהצליל יספיק להישמע לפני שהדף מתחלף
+const NAV_DELAY_MS = 260;
 
-// --- ניווט עליון (#1-3) ---
+// קישור שמחליף דף (ולא רק גולל לעוגן) צריך עיכוב קצר, אחרת הצליל נחתך
+const leavesPage = (link) => new URL(link.href, location.href).pathname !== location.pathname;
+
+// --- ניווט עליון ---
 document.querySelectorAll('.nav-link').forEach((link) => {
-  link.addEventListener('click', () => play(sfx.cursor));
+  if (leavesPage(link)) wireNavigatingLink(link, 'nav');
+  else link.addEventListener('click', () => playSynth('nav'));
 });
 
-// --- Hero CTA (#4) ---
-document.querySelector('.hero .btn-primary')?.addEventListener('click', () => play(sfx.chestOpen));
+// --- Hero CTA + קישור ההישגים ---
+document.querySelector('.hero .btn-primary')?.addEventListener('click', () => playSynth('fanfare'));
+wireNavigatingLink(document.getElementById('heroAchievements'), 'select');
 
-// --- כרטיסי המשחקים (#5-10): הוראות = Select, שחקי = צליל כניסה אחיד לכל המשחקים ---
-// עיכוב קצר לפני ניווט בפועל, כדי שהצליל יספיק להישמע במלואו לפני שהדף מתחלף
-const NAV_DELAY_MS = 180;
+// --- מתג השתקה ---
+const muteBtn = document.getElementById('muteToggle');
+
+function paintMute(m) {
+  if (!muteBtn) return;
+  muteBtn.setAttribute('aria-pressed', String(m));
+  muteBtn.textContent = m ? '🔇' : '🔊';
+  muteBtn.title = m ? 'הפעלת צלילים' : 'השתקת צלילים';
+}
+
+if (muteBtn) {
+  isMuted().then(paintMute);
+  muteBtn.addEventListener('click', async () => {
+    const next = !(await isMuted());
+    await setMuted(next);
+    paintMute(next);
+    if (!next) playSynth('unmute');
+  });
+}
+
+// --- כרטיסי המשחקים: ריחוף, הוראות, כניסה ---
+const HOVER_GAP_MS = 120;
+let lastHover = 0;
 
 function wireNavigatingLink(link, sound) {
-  if (!link || !sound) return;
+  if (!link) return;
   link.addEventListener('click', (e) => {
+    // Ctrl/Cmd/אמצעי = טאב חדש - לא מעכבים ולא חוטפים
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    play(sound);
+    playSynth(sound);
     setTimeout(() => { window.location.href = link.href; }, NAV_DELAY_MS);
   });
 }
@@ -39,14 +61,23 @@ function wireGameCards() {
   document.querySelectorAll('.game-card').forEach((card) => {
     if (card.dataset.soundWired === '1') return; // לא לחווט פעמיים אחרי רינדור מחדש
     card.dataset.soundWired = '1';
-    wireNavigatingLink(card.querySelector('.btn-ghost'), sfx.select);
-    wireNavigatingLink(card.querySelector('.btn-primary'), sfx.enterGame);
+    card.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return; // במגע הריחוף מגיע רגע לפני הלחיצה
+      const now = performance.now();
+      if (now - lastHover < HOVER_GAP_MS) return;
+      lastHover = now;
+      playSynth('hover');
+    });
+    wireNavigatingLink(card.querySelector('.btn-ghost'), 'select');
+    wireNavigatingLink(card.querySelector('.btn-primary'), 'launch');
   });
 }
 
 document.addEventListener('levygames:cards-rendered', wireGameCards);
 wireGameCards(); // אם הגריד כבר נבנה לפני שהמודול הזה נטען
 
-// --- משימת היום (#11) ורשימת משאלות (#12) - מיוצאים לשימוש מהמודולים האחרים ---
-export function playCelebrate() { play(sfx.chestOpen); }
-export function playSuccess() { play(sfx.popupOpen); }
+// --- מיוצאים לשימוש מהמודולים האחרים ---
+export function playCelebrate() { playSynth('celebrate'); } // משימת היום
+export function playSuccess() { playSynth('success'); }     // רשימת משאלות
+export function playUnlock() { playSynth('unlock'); }       // הישג נפתח
+export function playHello() { playSynth('hello'); }         // פרופיל / כניסה
