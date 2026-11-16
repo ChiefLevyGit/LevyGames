@@ -1,0 +1,81 @@
+/* עמוד הבית: שתי דלתות. נשען על הטוקנים של style.css */
+.home { padding-block: 28px 48px; }
+
+.home-hero { text-align: center; padding-block: 12px 28px; }
+.home-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  margin: 12px 0 6px;
+}
+.home-sub { color: var(--ink-soft); font-size: 1.1rem; margin: 0; }
+
+.doors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.door {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  min-height: 300px;
+  padding: 36px 24px 28px;
+  border-radius: 36px 36px 24px 24px;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: var(--shadow-soft), inset 0 -8px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s cubic-bezier(.3, 1.6, .5, 1), box-shadow 0.25s ease;
+}
+.door-games { background: linear-gradient(160deg, #a78bfa, #ec4899); transform: rotate(-1.5deg); }
+.door-pods { background: linear-gradient(160deg, #22d3ee, #6366f1); transform: rotate(1.5deg); }
+.door:hover, .door:focus-visible { transform: rotate(0) translateY(-6px) scale(1.02); box-shadow: var(--shadow-card-hover); }
+.door:active { transform: scale(0.98); }
+
+.door-glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 70%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 60%);
+  pointer-events: none;
+}
+.door-emoji {
+  font-size: 5.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.2));
+  animation: door-bob 3s ease-in-out infinite;
+}
+.door-pods .door-emoji { animation-delay: -1.5s; }
+.door-title { font-family: var(--font-heading); font-weight: 800; font-size: 2.1rem; margin-top: 10px; }
+.door-text { font-size: 1.05rem; opacity: 0.95; max-width: 26ch; }
+.door-cta {
+  margin-top: auto;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.door.opening .door-emoji { animation: door-zoom 0.4s ease-in forwards; }
+
+@keyframes door-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+@keyframes door-zoom { to { transform: scale(1.8); opacity: 0; } }
+
+.home-stats { text-align: center; margin-top: 28px; }
+.home-stats a { color: var(--primary); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .door-emoji, .door.opening .door-emoji { animation: none; }
+  .door, .door:hover { transform: none; }
+}
+@media (max-width: 480px) {
+  .door { min-height: 240px; padding: 28px 18px 22px; }
+  .door-emoji { font-size: 4.2rem; }
+}

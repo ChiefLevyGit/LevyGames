@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>אוזניים גדולות - פודקאסטים לילדים</title>
+<meta name="description" content="אוזניים גדולות: פודקאסטים לילדים סקרנים, בעברית. היסטוריה, מדע, טבע וסיפורים. מקשיבים ישר מהאתר.">
+<meta name="theme-color" content="#FFB400">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Levy Games">
+<meta property="og:locale" content="he_IL">
+<meta property="og:title" content="אוזניים גדולות - פודקאסטים לילדים">
+<meta property="og:description" content="היסטוריה, מדע, טבע וסיפורים לאוזניים. מקשיבים ישר מהאתר.">
+<meta property="og:url" content="https://chieflevygit.github.io/LevyGames/podcasts/">
+<meta property="og:image" content="https://chieflevygit.github.io/LevyGames/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="canonical" href="https://chieflevygit.github.io/LevyGames/podcasts/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎧</text></svg>">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Secular+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="podcasts.css?v=3">
+</head>
+<body>
+
+<header class="top">
+  <a href="index.html" class="logo" id="logoLink">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="26" r="16" fill="#FFB400" stroke="#1F2A4D" stroke-width="3"/>
+      <path d="M8 28 C8 12 18 7 24 7 C30 7 40 12 40 28" fill="none" stroke="#1F2A4D" stroke-width="4" stroke-linecap="round"/>
+      <rect x="4" y="22" width="8" height="15" rx="4" fill="#1F2A4D"/>
+      <rect x="36" y="22" width="8" height="15" rx="4" fill="#1F2A4D"/>
+      <circle cx="19" cy="25" r="2.4" fill="#1F2A4D"/><circle cx="29" cy="25" r="2.4" fill="#1F2A4D"/>
+      <path d="M19 31 Q24 36 29 31" fill="none" stroke="#1F2A4D" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <span>אוזניים גדולות</span>
+  </a>
+  <div class="top-tools">
+    <button type="button" class="round-btn" id="backBtn" hidden aria-label="לכל הפודקאסטים">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <span class="back-label">כל הפודקאסטים</span>
+    </button>
+    <button type="button" class="round-btn icon-only" id="muteToggle" aria-pressed="false" aria-label="השתקת צלילים">🔊</button>
+    <a href="../index.html" class="round-btn icon-only" aria-label="חזרה ל-Levy Games" title="Levy Games">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== מסך ראשי ===== -->
+  <div id="listView">
+    <section class="hero" id="hero" hidden>
+      <div class="hero-text">
+        <span class="pill pill-yellow">9 פודקאסטים מחכים לך</span>
+        <h1>מה בא לך <span class="hl">להקשיב</span> היום?</h1>
+        <p>סיפורים, היסטוריה, מדע וטבע. בוחרים פודקאסט, שמים אוזניות ויוצאים לדרך.</p>
+      </div>
+      <div class="hero-buddy" id="heroBuddy" aria-hidden="true"></div>
+    </section>
+
+    <div class="list-top" id="listTop">
+      <div class="panel-slot" id="listPanelSlot"></div>
+      <section class="pick" id="pick">
+        <div class="sec-head">
+          <h2>בחרי פודקאסט</h2>
+          <div class="chips" id="chips" role="toolbar" aria-label="קטגוריות"></div>
+        </div>
+        <div class="pod-grid" id="podGrid"></div>
+      </section>
+    </div>
+
+    <section class="random">
+      <div class="random-head">
+        <div class="random-title">
+          <button type="button" class="dice" id="diceBtn" aria-label="ערבבי הפתעות">
+            <svg viewBox="0 0 84 84" width="100%" height="100%" aria-hidden="true">
+              <rect x="5" y="5" width="74" height="74" rx="18" fill="#fff" stroke="#1F2A4D" stroke-width="4"/>
+              <circle cx="26" cy="26" r="6" fill="#1F2A4D"/><circle cx="58" cy="26" r="6" fill="#1F2A4D"/>
+              <circle cx="42" cy="42" r="6" fill="#FF6B5E"/>
+              <circle cx="26" cy="58" r="6" fill="#1F2A4D"/><circle cx="58" cy="58" r="6" fill="#1F2A4D"/>
+            </svg>
+          </button>
+          <div>
+            <h2>פרק רנדומלי</h2>
+            <p>לא יודעת מה לשמוע? גללי בין ההפתעות, או תני לקובייה לבחור בשבילך.</p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-coral" id="rollBtn">🎲 תפתיעי אותי</button>
+      </div>
+      <div class="rail" id="deck"></div>
+      <div class="rail-nav">
+        <button type="button" class="round-btn" id="deckPrev" aria-label="הקודם">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <span>גללי כדי לראות עוד הפתעות</span>
+        <button type="button" class="round-btn yellow" id="deckNext" aria-label="הבא">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== מסך פודקאסט ===== -->
+  <div id="showView" hidden>
+    <section class="show-head" id="showHead"></section>
+    <div class="show-grid">
+      <div class="panel-slot" id="showPanelSlot"></div>
+      <section class="episodes">
+        <div class="sec-head">
+          <h2>הפרקים</h2>
+          <span class="heard-sum" id="heardSum"></span>
+        </div>
+        <button type="button" class="btn btn-white jump-btn" id="jumpBtn">⏭ לפרק הבא שלא שמעתי</button>
+        <div class="season-tabs" id="seasonTabs" role="tablist" aria-label="עונות"></div>
+        <ol class="ep-list" id="epList"></ol>
+        <button type="button" class="btn btn-white more-btn" id="moreBtn" hidden>עוד פרקים ↓</button>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== פאנל הנגן (אחד, עובר בין המסכים) ===== -->
+  <section class="panel" id="panel" hidden aria-label="נגן">
+    <span class="panel-badge" id="panelBadge">ממשיכים מאיפה שעצרת</span>
+    <div class="panel-top">
+      <div class="panel-buddy-wrap">
+        <span class="ring"></span><span class="ring r2"></span>
+        <div class="buddy" id="panelBuddy"></div>
+      </div>
+      <button type="button" class="panel-show" id="panelShow"></button>
+      <h2 class="panel-title" id="panelTitle"></h2>
+    </div>
+    <div class="bar" id="panelBar" role="slider" tabindex="0" aria-label="מיקום בפרק" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="bar-fill" id="panelFill"></span>
+    </div>
+    <div class="times"><span id="tNow">0:00</span><span id="tDur">0:00</span></div>
+    <div class="ctrls">
+      <button type="button" class="c c-sm" id="prevBtn" aria-label="הפרק הקודם">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#1F2A4D" stroke="#1F2A4D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5v14" fill="none"/><path d="M19 5L9 12l10 7z"/></svg>
+      </button>
+      <button type="button" class="c" id="back10" aria-label="אחורה 10 שניות">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a8 8 0 1 0 3-6.2"/><path d="M5 4v4h4"/><text x="12.5" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1F2A4D" stroke="none" font-family="Rubik,sans-serif">10</text></svg>
+      </button>
+      <button type="button" class="c c-play" id="playBtn" aria-label="נגני"></button>
+      <button type="button" class="c" id="fwd10" aria-label="קדימה 10 שניות">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12a8 8 0 1 1-3-6.2"/><path d="M19 4v4h-4"/><text x="11.5" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="#1F2A4D" stroke="none" font-family="Rubik,sans-serif">10</text></svg>
+      </button>
+      <button type="button" class="c c-sm" id="nextBtn" aria-label="הפרק הבא">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#1F2A4D" stroke="#1F2A4D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5v14" fill="none"/><path d="M5 5l10 7-10 7z"/></svg>
+      </button>
+    </div>
+    <button type="button" class="btn heard-btn" id="heardBtn" aria-pressed="false">
+      <span class="check" aria-hidden="true"></span> שמעתי כבר
+    </button>
+    <div class="summary">
+      <h3>תקציר הפרק</h3>
+      <p id="panelDesc"></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span class="foot-brand">אוזניים גדולות</span>
+  <span>הפודקאסטים שייכים ליוצריהם ומנוגנים ישירות מהפיד שלהם · נאסף דרך podcastim.org.il</span>
+</footer>
+
+<!-- ===== פס נגן תחתון ===== -->
+<div class="mini" id="mini" hidden>
+  <div class="mini-inner">
+    <button type="button" class="mini-cover-btn" id="miniOpen" aria-label="לפודקאסט שמתנגן">
+      <img id="miniCover" alt="" width="52" height="52">
+    </button>
+    <div class="mini-info">
+      <div class="mini-title" id="miniTitle"></div>
+      <div class="mini-bar"><span id="miniFill"></span></div>
+    </div>
+    <div class="mini-ctrls">
+      <button type="button" class="c c-xs" id="miniBack" aria-label="אחורה 10 שניות">‎-10</button>
+      <button type="button" class="c c-play c-mini" id="miniPlay" aria-label="נגני"></button>
+      <button type="button" class="c c-xs" id="miniFwd" aria-label="קדימה 10 שניות">‎+10</button>
+    </div>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script type="module" src="podcasts.js?v=3"></script>
+<script type="module" src="../js/hub-sounds.js?v=3"></script>
+</body>
+</html>
