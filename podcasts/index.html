@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Secular+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="podcasts.css?v=3">
+<link rel="stylesheet" href="podcasts.css?v=4">
 </head>
 <body>
 
@@ -71,7 +71,10 @@
           <h2>בחרי פודקאסט</h2>
           <div class="chips" id="chips" role="toolbar" aria-label="קטגוריות"></div>
         </div>
-        <div class="pod-grid" id="podGrid"></div>
+        <div class="pod-grid" id="podGrid" aria-busy="true">
+          <div class="card skel"></div><div class="card skel"></div><div class="card skel"></div>
+          <div class="card skel"></div><div class="card skel"></div><div class="card skel"></div>
+        </div>
       </section>
     </div>
 
@@ -132,9 +135,12 @@
         <span class="ring"></span><span class="ring r2"></span>
         <div class="buddy" id="panelBuddy"></div>
       </div>
-      <button type="button" class="panel-show" id="panelShow"></button>
-      <h2 class="panel-title" id="panelTitle"></h2>
+      <div class="panel-text">
+        <button type="button" class="panel-show" id="panelShow"></button>
+        <h2 class="panel-title" id="panelTitle"></h2>
+      </div>
     </div>
+    <p class="panel-error" id="panelError" hidden role="alert">הפרק הזה לא נטען כרגע. נסי שוב עוד מעט, או בחרי פרק אחר.</p>
     <div class="bar" id="panelBar" role="slider" tabindex="0" aria-label="מיקום בפרק" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
       <span class="bar-fill" id="panelFill"></span>
     </div>
@@ -189,7 +195,7 @@
 </div>
 <audio id="audio" preload="none"></audio>
 
-<script type="module" src="podcasts.js?v=3"></script>
+<script type="module" src="podcasts.js?v=5"></script>
 <script type="module" src="../js/hub-sounds.js?v=3"></script>
 </body>
 </html>

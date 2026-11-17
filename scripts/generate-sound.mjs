@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// שימוש: node scripts/generate-sound.mjs [--only step_valid,door_unlock] [--out ../src-games/cipher-rogue/art-src/audio]
+// שימוש: node scripts/generate-sound.mjs [--only step_valid,door_unlock] [--out ../src-games/cipher-rogue/art-src/audio] [--file scripts/podcasts/sounds.txt]
 //
 // קורא את games/The Cipher Rogue/sounds.txt (טבלה מופרדת ב-|), ומייצר קובץ mp3
 // לכל שורה דרך ElevenLabs Text-to-Sound-Effects. ELEVENLABS_API_KEY נטען מ-.env.local
@@ -41,6 +41,11 @@ const TUNING = {
   hint_reveal: { duration_seconds: 1.2, prompt_influence: 0.6 },
   star_pop: { duration_seconds: 0.6, prompt_influence: 0.6 },
   valve_hiss: { duration_seconds: 0.9, prompt_influence: 0.6 },
+  // אוזניים גדולות (scripts/podcasts/sounds.txt)
+  pod_tap: { duration_seconds: 0.5, prompt_influence: 0.7 },
+  pod_play: { duration_seconds: 1.0, prompt_influence: 0.6 },
+  surprise_magic: { duration_seconds: 1.4, prompt_influence: 0.6 },
+  heard_ding: { duration_seconds: 1.2, prompt_influence: 0.6 },
 };
 const DEFAULT_TUNING = { duration_seconds: 2.0, prompt_influence: 0.5 };
 
@@ -65,7 +70,9 @@ if (!process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY.includes("
   process.exit(1);
 }
 
-const rows = parseSoundsTable(readFileSync(SOUNDS_TXT, "utf8"));
+// --file: טבלת פרומפטים אחרת (למשל scripts/podcasts/sounds.txt של אוזניים גדולות)
+const soundsFile = args.file ? resolve(process.cwd(), args.file) : SOUNDS_TXT;
+const rows = parseSoundsTable(readFileSync(soundsFile, "utf8"));
 const selected = onlyNames ? rows.filter((r) => onlyNames.has(r.name)) : rows;
 if (selected.length === 0) {
   console.error("לא נמצאו שורות לייצור (בדוק --only או את sounds.txt).");

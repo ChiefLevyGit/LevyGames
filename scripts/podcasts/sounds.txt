@@ -1,0 +1,5 @@
+שם אפקט | תפקיד | תיאור | פרומפט
+pod_tap | בחירה: צ'יפ, כרטיס, לשונית, חזרה | נקישת מרימבה רכה | Soft gentle wooden marimba tap, single warm rounded note, cozy and calm, very short, for a children's listening app
+pod_play | התחלת ניגון פרק | שני צלילי קלימבה עולים | Gentle kalimba playing two soft rising notes, warm and soothing, like a lullaby music box starting, calm and cozy
+surprise_magic | "תפתיעי אותי" | שרביט קסמים | Soft magical harp glissando with a gentle sparkle shimmer, like a fairy waving a magic wand, dreamy and delicate, for young girls
+heard_ding | סימון "שמעתי כבר" / סיום פרק | נצנוץ פעמונים רך | Soft gentle glockenspiel twinkle, two sweet bell notes, warm and rewarding, calm and delicate, children's app

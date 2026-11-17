@@ -2,7 +2,7 @@
 // + <audio> יחיד מול ה-mp3 של המארח המקורי. פאנל נגן אחד שעובר בין המסך הראשי למסך
 // הפודקאסט, ופס תחתון כשהפאנל לא על המסך. ההתקדמות לכל פרופיל נשמרת דרך storage.js.
 import { read, write } from '../js/storage.js?v=2';
-import { playSynth } from '../js/synth.js?v=1';
+import { isMuted } from '../js/synth.js?v=1';
 
 const NS = 'podcasts.v1';
 const SAVE_EVERY_MS = 10000;
@@ -11,6 +11,27 @@ const PAGE = 20;
 const SKIP = 10;
 const DECK_SIZE = 8;
 const NO_SEASON = 'extra';
+
+// ---------- צלילים ----------
+// 4 צלילים רכים (scripts/podcasts/sounds.txt → ElevenLabs, מנורמלים ב-loudnorm ל-‎-20 LUFS).
+// ההשתקה משותפת לפורטל (sound.muted).
+const SFX = {
+  tap: ['pod_tap', 0.55],
+  play: ['pod_play', 0.6],
+  magic: ['surprise_magic', 0.55],
+  ding: ['heard_ding', 0.65],
+};
+const sfxCache = {};
+let muted = false;
+isMuted().then((m) => { muted = m; }).catch(() => {});
+function sfx(name) {
+  if (muted) return;
+  const [file, vol] = SFX[name];
+  sfxCache[name] ||= Object.assign(new Audio(`sfx/${file}.mp3`), { preload: 'auto' });
+  const a = sfxCache[name].cloneNode();
+  a.volume = vol;
+  a.play().catch(() => {});
+}
 
 // צבע לכל קטגוריה (רקע הקמע, צ'יפ בכותרת)
 const CAT_BG = {
@@ -95,10 +116,26 @@ const CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" strok
 const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 function coverHTML(pod, cls = '') {
   if (pod.anim && !REDUCED) {
-    return `<video class="${cls}" src="${esc(pod.anim)}" poster="${esc(pod.art)}" muted loop playsinline
-            autoplay aria-hidden="true" tabindex="-1"></video>`;
+    return `<video class="${cls} lazy-anim" data-src="${esc(pod.anim)}" poster="${esc(pod.art)}" muted loop
+            playsinline preload="none" aria-hidden="true" tabindex="-1"></video>`;
   }
   return `<img class="${cls}" src="${esc(pod.art)}" alt="" loading="lazy">`;
+}
+
+// האנימציות יורדות ומתנגנות רק כשהכרטיס על המסך, ונעצרות כשהוא יוצא
+const animObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+  for (const { target: v, isIntersecting } of entries) {
+    if (isIntersecting) {
+      if (!v.src) v.src = v.dataset.src;
+      v.play().catch(() => {});
+    } else v.pause();
+  }
+}, { rootMargin: '100px' }) : null;
+function wireAnims(root) {
+  root.querySelectorAll('video.lazy-anim').forEach((v) => {
+    if (animObserver) animObserver.observe(v);
+    else { v.src = v.dataset.src; v.play().catch(() => {}); }
+  });
 }
 
 // ---------- מסך ראשי ----------
@@ -111,24 +148,37 @@ function renderChips() {
 }
 
 function renderGrid() {
-  const pods = S.data.podcasts.filter((p) => S.cat === 'all' || p.cat === S.cat);
+  // מיון: הכי הרבה פרקים ששמעו, אחר כך הכניסה האחרונה, אחר כך הסדר בקטלוג
+  const seen = S.st.seen || {};
+  const order = new Map(S.data.podcasts.map((p, i) => [p.id, i]));
+  const pods = S.data.podcasts
+    .filter((p) => S.cat === 'all' || p.cat === S.cat)
+    .sort((a, b) => heardCount(b) - heardCount(a)
+      || (seen[b.id] || 0) - (seen[a.id] || 0)
+      || order.get(a.id) - order.get(b.id));
   $('podGrid').innerHTML = pods.map((p) => {
     const heard = heardCount(p);
+    // ▶ מנגן ישר: מה שמתנגן מהפודקאסט הזה, אחרת הפרק הבא שלא נשמע (ממשיך מאיפה שעצרו)
+    const target = S.cur?.pod.id === p.id ? S.cur.ep : nextUnheard(p);
+    const live = isPlaying(target.id);
     return `
-      <a href="#${p.id}" class="card" data-pod="${p.id}">
-        <span class="card-cover">${coverHTML(p)}</span>
-        <span class="card-body">
+      <article class="card">
+        <a href="#${p.id}" class="card-link" data-pod="${p.id}">
+          <span class="card-cover">${coverHTML(p)}</span>
           <span class="card-name">${esc(p.name)}</span>
-          <span class="card-foot">
-            <span class="tags">
-              <span class="tag tag-yellow">${p.episodes.length} פרקים</span>
-              ${heard ? `<span class="tag tag-green">✓ ${heard}</span>` : ''}
-            </span>
-            <span class="card-play" aria-hidden="true">${ICON_PLAY_SM}</span>
+        </a>
+        <span class="card-foot">
+          <span class="tags">
+            <span class="tag tag-yellow">${p.episodes.length} פרקים</span>
+            ${heard ? `<span class="tag tag-green">✓ ${heard}</span>` : ''}
           </span>
+          <button type="button" class="card-play" data-play="${target.id}"
+                  aria-label="${live ? 'עצרי' : 'נגני'}: ${esc(p.name)}, פרק ${target.n}">${live ? EQ : ICON_PLAY_SM}</button>
         </span>
-      </a>`;
+      </article>`;
   }).join('');
+  $('podGrid').removeAttribute('aria-busy');
+  wireAnims($('podGrid'));
 }
 
 function buildDeck() {
@@ -184,12 +234,19 @@ function renderShowHead(pod) {
         <span class="tag tag-big tag-mint">${pod.episodes.length} פרקים</span>
       </div>
       <h1>${esc(pod.name)}</h1>
-      <div class="about">
+      <div class="about" id="about">
         <h2>על הפודקאסט</h2>
         <p>${esc(pod.summary)}</p>
+        <button type="button" class="about-more" id="aboutMore" aria-expanded="false">עוד</button>
       </div>
       ${pod.from ? `<p class="from">מבית: ${esc(pod.from)}</p>` : ''}
     </div>`;
+  wireAnims($('showHead'));
+  $('aboutMore').addEventListener('click', () => {
+    const open = $('about').classList.toggle('open');
+    $('aboutMore').setAttribute('aria-expanded', String(open));
+    $('aboutMore').textContent = open ? 'פחות' : 'עוד';
+  });
 }
 
 function seasonsOf(pod) {
@@ -224,10 +281,9 @@ function epRowHTML(pod, e) {
             <span class="ep-meta">פרק ${e.n}${e.d ? ` · ${fmt(e.d)}` : ''}</span>
             ${pct ? `<span class="ep-prog"><span style="width:${pct}%"></span></span>` : ''}
           </span>
-          ${e.desc ? `<svg class="chev" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1F2A4D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>` : ''}
         </button>
         <button type="button" class="heard-chip" data-heard="${e.id}" aria-pressed="${done}">
-          <span class="check" aria-hidden="true">${done ? CHECK : ''}</span><span class="heard-label">שמעתי כבר</span>
+          <span class="check" aria-hidden="true">${CHECK}</span><span class="heard-label">שמעתי כבר</span>
         </button>
       </div>
       ${open && e.desc ? `<p class="ep-desc">${esc(e.desc)}</p>` : ''}
@@ -266,6 +322,8 @@ function openShow(pid, { push = true } = {}) {
   if (!pod) return;
   S.pid = pid;
   S.open = null;
+  S.st.seen = { ...(S.st.seen || {}), [pid]: Date.now() };
+  save(true);
   renderShowHead(pod);
   // בנגן: מה שמתנגן עכשיו, ואם לא מתנגן כלום — הפרק הבא שלא נשמע בפודקאסט הזה
   if (!S.cur || (audio.paused && S.cur.pod.id !== pid)) load(nextUnheard(pod).id, { autoplay: false });
@@ -277,6 +335,7 @@ function openShow(pid, { push = true } = {}) {
   renderEpisodes();
   $('listView').hidden = true;
   $('showView').hidden = false;
+  document.body.classList.add('in-show');
   $('backBtn').hidden = false;
   if (push) history.pushState({ pod: pid }, '', `#${pid}`);
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -284,6 +343,7 @@ function openShow(pid, { push = true } = {}) {
 
 function closeShow({ push = true } = {}) {
   S.pid = null;
+  document.body.classList.remove('in-show');
   $('showView').hidden = true;
   $('listView').hidden = false;
   $('backBtn').hidden = true;
@@ -299,12 +359,14 @@ function load(eid, { autoplay = true } = {}) {
   if (S.cur?.ep.id === eid) { if (autoplay) togglePlay(); return; }
   S.cur = hit;
   const { pod, ep } = hit;
+  $('panelError').hidden = true;
   audio.src = ep.u;
   const resume = S.st.pos[eid] || 0;
   audio.addEventListener('loadedmetadata', () => {
     if (resume && (!audio.duration || resume < audio.duration - 5)) audio.currentTime = resume;
   }, { once: true });
   if (autoplay) {
+    sfx('play');
     audio.play().catch((err) => console.warn('ניגון נכשל', err));
     S.st.last = { eid, at: Date.now() };
     save(true);
@@ -316,6 +378,7 @@ function load(eid, { autoplay = true } = {}) {
 function togglePlay() {
   if (!S.cur) return;
   if (audio.paused) {
+    sfx('play');
     audio.play().catch(() => {});
     S.st.last = { eid: S.cur.ep.id, at: Date.now() };
   } else audio.pause();
@@ -334,7 +397,7 @@ function step(dir) {
 function toggleHeard(eid) {
   const i = S.st.done.indexOf(eid);
   if (i >= 0) S.st.done.splice(i, 1);
-  else { S.st.done.push(eid); playSynth('select'); }
+  else { S.st.done.push(eid); sfx('ding'); }
   save(true);
   refresh();
 }
@@ -351,7 +414,7 @@ function paintPanel() {
   $('nextBtn').disabled = eps[eps.length - 1] === ep;
   const done = isDone(ep.id);
   $('heardBtn').setAttribute('aria-pressed', String(done));
-  $('heardBtn').querySelector('.check').innerHTML = done ? CHECK : '';
+  $('heardBtn').querySelector('.check').innerHTML = CHECK;
   $('miniCover').src = ep.img || pod.art;
   $('miniTitle').textContent = `${ep.t} · ${pod.name}`;
   paintPlayState();
@@ -408,6 +471,12 @@ function setMediaSession(pod, ep) {
 audio.addEventListener('play', () => { paintPlayState(); refresh(); });
 audio.addEventListener('pause', () => { paintPlayState(); refresh(); save(true); });
 audio.addEventListener('loadedmetadata', paintTime);
+// הפרק לא נטען (המארח נפל / אין רשת): אומרים את זה בפאנל במקום שקט
+audio.addEventListener('error', () => {
+  if (!S.cur || !audio.src) return;
+  $('panelError').hidden = false;
+  paintPlayState();
+});
 audio.addEventListener('timeupdate', () => {
   if (!S.cur) return;
   const t = audio.currentTime;
@@ -416,7 +485,7 @@ audio.addEventListener('timeupdate', () => {
   paintTime();
   if (d && t / d >= DONE_RATIO && !isDone(S.cur.ep.id)) {
     S.st.done.push(S.cur.ep.id);
-    playSynth('select');
+    sfx('ding');
     save(true);
     refresh();
   }
@@ -459,6 +528,10 @@ if ('IntersectionObserver' in window) {
 }
 
 // ---------- אירועים ----------
+// hub-sounds.js מחליף את ההשתקה; קוראים את המצב החדש אחרי שהוא סיים
+$('muteToggle').addEventListener('click', () => {
+  setTimeout(() => { isMuted().then((m) => { muted = m; }); }, 50);
+});
 $('playBtn').addEventListener('click', togglePlay);
 $('miniPlay').addEventListener('click', togglePlay);
 $('back10').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - SKIP); });
@@ -470,7 +543,7 @@ $('nextBtn').addEventListener('click', () => step(1));
 $('heardBtn').addEventListener('click', () => S.cur && toggleHeard(S.cur.ep.id));
 $('panelShow').addEventListener('click', () => S.cur && openShow(S.cur.pod.id));
 $('miniOpen').addEventListener('click', () => S.cur && openShow(S.cur.pod.id));
-$('backBtn').addEventListener('click', () => { playSynth('nav'); closeShow(); });
+$('backBtn').addEventListener('click', () => { sfx('tap'); closeShow(); });
 $('logoLink').addEventListener('click', (e) => { e.preventDefault(); if (S.pid) closeShow(); });
 
 $('jumpBtn').addEventListener('click', () => {
@@ -490,7 +563,7 @@ function roll() {
   const dice = $('diceBtn');
   dice.classList.add('rolling');
   $('deck').classList.add('dim');
-  playSynth('launch');
+  sfx('magic');
   setTimeout(() => {
     buildDeck();
     renderDeck();
@@ -507,13 +580,13 @@ $('deckPrev').addEventListener('click', () => $('deck').scrollBy({ left: 300, be
 
 document.addEventListener('click', (e) => {
   const chip = e.target.closest('[data-cat]');
-  if (chip) { S.cat = chip.dataset.cat; playSynth('nav'); renderChips(); renderGrid(); return; }
+  if (chip) { S.cat = chip.dataset.cat; sfx('tap'); renderChips(); renderGrid(); return; }
   const season = e.target.closest('[data-season]');
-  if (season) { S.season[S.pid] = season.dataset.season; playSynth('nav'); renderEpisodes(); return; }
-  const card = e.target.closest('.card[data-pod]');
-  if (card) { e.preventDefault(); playSynth('select'); openShow(card.dataset.pod); return; }
+  if (season) { S.season[S.pid] = season.dataset.season; sfx('tap'); renderEpisodes(); return; }
   const play = e.target.closest('[data-play]');
   if (play) { load(play.dataset.play); return; }
+  const card = e.target.closest('[data-pod]');
+  if (card) { e.preventDefault(); sfx('tap'); openShow(card.dataset.pod); return; }
   const heard = e.target.closest('[data-heard]');
   if (heard) { toggleHeard(heard.dataset.heard); return; }
   const open = e.target.closest('[data-open]');
@@ -529,12 +602,17 @@ window.addEventListener('pagehide', () => { save(true); });
 // ---------- אתחול ----------
 async function init() {
   const [res, saved] = await Promise.all([
-    fetch('data/podcasts.json?v=3').then((r) => r.json()),
+    fetch('data/podcasts.json?v=5').then((r) => r.json()),
     read(NS, null).catch(() => null),
   ]);
   S.data = res;
   if (saved && typeof saved === 'object') {
-    S.st = { last: saved.last || null, pos: saved.pos || {}, done: Array.isArray(saved.done) ? saved.done : [] };
+    S.st = {
+      last: saved.last || null,
+      pos: saved.pos || {},
+      done: Array.isArray(saved.done) ? saved.done : [],
+      seen: saved.seen || {},
+    };
   }
   $('heroBuddy').innerHTML = buddySVG('#FFB400');
   buildDeck();
@@ -545,5 +623,5 @@ async function init() {
 
 init().catch((err) => {
   console.error(err);
-  $('podGrid').innerHTML = '<p class="oops">אופס, הפודקאסטים לא נטענו. נסי לרענן 🙈</p>';
+  $('podGrid').innerHTML = '<p class="oops">הפודקאסטים לא נטענו. בדקי את האינטרנט ורענני את הדף.</p>';
 });

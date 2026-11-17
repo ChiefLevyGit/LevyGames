@@ -1,0 +1,121 @@
+/* כרטיסי המשחקים בשפת "הדלתות" של עמוד הבית (home.css): הטיה קלה, גרדיאנט עם הילה,
+   אמוג'י גדול שמרחף, צל פנימי בתחתית הפאנל, וקפיצה קפיצית בריחוף.
+   רק CSS - המבנה של js/hub.js (cardHTML) לא השתנה. נטען רק ב-games.html. */
+
+.games-grid { gap: 28px; }
+
+.game-card {
+  border-radius: 32px 32px 24px 24px;
+  transition: transform 0.25s cubic-bezier(.3, 1.6, .5, 1), box-shadow 0.25s ease;
+}
+.game-card:nth-child(odd) { transform: rotate(-1.2deg); }
+.game-card:nth-child(even) { transform: rotate(1.2deg); }
+.game-card:hover,
+.game-card:focus-within {
+  transform: rotate(0) translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* הפאנל: גבוה יותר, עם הילה וצל פנימי כמו בדלת */
+.game-icon-panel {
+  height: 150px;
+  overflow: hidden;
+  box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.12);
+}
+.game-icon-panel::before {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 75%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent 60%);
+  pointer-events: none;
+}
+.game-icon-panel.has-video::before { display: none; }
+.game-icon-panel.has-video { box-shadow: none; }
+
+.game-emoji {
+  position: relative;
+  font-size: 4.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.2));
+  animation: game-bob 3s ease-in-out infinite;
+}
+.game-card:nth-child(even) .game-emoji { animation-delay: -1.5s; }
+.game-card:hover .game-emoji { animation: game-wiggle 0.6s ease-in-out infinite; }
+
+.game-badge { z-index: 1; }
+
+.game-name { font-size: 1.3rem; }
+
+/* כפתור "שחקי" בולט יותר, כמו ה-CTA בדלת */
+.game-links .btn-primary { font-size: 1.02rem; }
+
+@keyframes game-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+@keyframes game-wiggle {
+  0%, 100% { transform: rotate(0) scale(1.08); }
+  25% { transform: rotate(-8deg) scale(1.08); }
+  75% { transform: rotate(8deg) scale(1.08); }
+}
+
+@media (max-width: 480px) {
+  .game-icon-panel { height: 124px; }
+  .game-emoji { font-size: 3.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-emoji, .game-card:hover .game-emoji { animation: none; }
+  .game-card, .game-card:nth-child(odd), .game-card:nth-child(even), .game-card:hover { transform: none; }
+}
+
+/* ---------- טלפון: מסך המשחקים קומפקטי ----------
+   לפי ביקורת ui-ux-pro-max + redesign-existing-projects (375px): 8 כרטיסים של 418px
+   = 3,350px גלילה. עכשיו: 2 עמודות, פאנל + שם + "שחקי" + 📖, בלי תיאור ותגיות. */
+@media (max-width: 640px) {
+  .hero { margin: 8px auto 18px; }
+  .hero-badge { display: none; }
+  .hero-title { font-size: 1.45rem; margin-bottom: 10px; text-wrap: balance; }
+  .hero > .btn-primary { display: none; }      /* "התחילי לשחק" רק גלל קצת למטה */
+  .hero-achievements { margin-top: 6px; }
+
+  .games-section { margin-bottom: 36px; }
+  .games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+  .game-card { border-radius: 24px 24px 18px 18px; }
+  .game-card:nth-child(odd) { transform: rotate(-0.8deg); }
+  .game-card:nth-child(even) { transform: rotate(0.8deg); }
+
+  /* כל הפאנלים באותו יחס, כולל וידאו - אחרת הגריד נראה שבור */
+  .game-icon-panel,
+  .game-icon-panel.has-video { height: auto; aspect-ratio: 4 / 3; }
+  .game-emoji { font-size: 3.2rem; }
+  .game-badge { top: 8px; inset-inline-start: 8px; font-size: 0.68rem; padding: 3px 9px; }
+
+  .game-card-body { padding: 10px 10px 12px; }
+  .game-name { font-size: 1.02rem; line-height: 1.25; margin-bottom: 8px; flex: 1; text-wrap: balance; }
+  .game-desc, .game-tags { display: none; }
+  .game-progress { gap: 6px; margin-bottom: 10px; }
+  .progress-label, .progress-badge { font-size: 0.72rem; }
+
+  .game-links { flex-direction: row; gap: 8px; }
+  .game-links .btn-primary {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 8px;
+    font-size: 0.84rem;
+    line-height: 1.15;
+    text-align: center;
+    text-wrap: balance;   /* הטקסט של כל משחק נשמר ("לפרוץ כספות!"), יורד לשתי שורות אם צריך */
+  }
+  /* הוראות = אייקון 📖 בלבד (השם הנגיש "📖 הוראות" נשאר בטקסט של הקישור) */
+  .game-links .btn-ghost {
+    flex: none;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 0;
+  }
+  .game-links .btn-ghost::before { content: '📖'; font-size: 1.15rem; }
+}

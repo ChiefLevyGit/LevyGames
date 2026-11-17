@@ -914,7 +914,36 @@ main {
 /* ---------- רספונסיביות ---------- */
 
 @media (max-width: 640px) {
-  .site-nav { justify-content: center; text-align: center; }
+  /* כותרת בטלפון: לוגו + אייקונים בשורה אחת, הקישורים בשורה שגוללת לצד.
+     לא צמודה למעלה - בגובה ~110px היא אכלה רבע מסך לאורך כל הגלילה (היה 194px). */
+  .site-nav {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "brand tools" "links links";
+    gap: 6px 10px;
+    padding: 10px 16px 6px;
+  }
+  .site-nav .brand { grid-area: brand; }
+  .site-nav .nav-tools { grid-area: tools; }
+  .site-nav .nav-links {
+    grid-area: links;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: -16px;
+    padding: 2px 16px 6px;
+  }
+  .site-nav .nav-links::-webkit-scrollbar { display: none; }
+  .nav-link {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+  .icon-btn { width: 44px; height: 44px; }
   .mission-card { flex-direction: column; text-align: center; }
   .game-links { flex-direction: column; }
   .stats-tabs { width: 100%; }
