@@ -4,7 +4,7 @@
 // סופרים רק זמן *אמיתי*: הטאב גלוי, והייתה נגיעה/מקש/עכבר בשתי הדקות האחרונות.
 // טאב שנשכח פתוח על הטאבלט לא ייצור "5 שעות משחק".
 
-import { GAMES } from './games-data.js?v=12';
+import { GAMES } from './games-data.js?v=13';
 
 const TICK_MS = 15_000;
 const FLUSH_EVERY_TICKS = 2;       // כתיבה לאחסון כל 30 שניות

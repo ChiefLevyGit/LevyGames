@@ -3,14 +3,14 @@
 // הממשק האחיד mount(stage, puzzle, ctx).
 
 import { read, write, reportProgress } from '../../../js/storage.js?v=2';
-import { FLOORS, TOTAL_FLOORS, TRACKS, MACHINE_META } from './floors.js?v=1';
-import { generate, makeRng } from './generate.js?v=5';
+import { floorsOf, totalOf, MILESTONES, TRACKS, MACHINE_META } from './floors.js?v=2';
+import { generate, makeRng } from './generate.js?v=6';
 import { sound, isMuted, setMuted } from './sound.js?v=2';
 import { speak, stopSpeaking, canSpeak } from './voice.js?v=1';
-import * as scale from './machines/scale.js?v=2';
+import * as scale from './machines/scale.js?v=3';
 import * as pipes from './machines/pipes.js?v=1';
-import * as gears from './machines/gears.js?v=1';
-import * as shapes from './machines/shapes.js?v=1';
+import * as gears from './machines/gears.js?v=2';
+import * as shapes from './machines/shapes.js?v=2';
 
 const GAME_ID = 'math-tower';
 const SAVE_NS = 'mathTower.v1';
@@ -35,7 +35,7 @@ function validate(saved) {
   if (saved.track in TRACKS) s.track = saved.track;
   for (const t of Object.keys(s.floors)) {
     const n = saved.floors?.[t];
-    if (Number.isInteger(n) && n >= 0 && n <= TOTAL_FLOORS) s.floors[t] = n;
+    if (Number.isInteger(n) && n >= 0 && n <= totalOf(t)) s.floors[t] = n;
   }
   return s;
 }
@@ -46,12 +46,12 @@ let state = fresh();
 async function save() {
   await write(SAVE_NS, state);
   if (state.track) {
-    await reportProgress(GAME_ID, { kind: 'levels', done: state.floors[state.track], total: TOTAL_FLOORS });
+    await reportProgress(GAME_ID, { kind: 'levels', done: state.floors[state.track], total: totalOf(state.track) });
   }
 }
 
 const doneFloors = () => state.floors[state.track] || 0;
-const isBuilt = (floor) => FLOORS[floor - 1].every((m) => m in MACHINES);
+const isBuilt = (floor) => floorsOf(state.track)[floor - 1].every((m) => m in MACHINES);
 
 /* ================= מסכים ================= */
 
@@ -67,7 +67,7 @@ function renderStart() {
   document.querySelectorAll('[data-track]').forEach((b) => {
     b.classList.toggle('is-current', b.dataset.track === state.track);
     const n = state.floors[b.dataset.track];
-    b.querySelector('.track-progress').textContent = n ? `${n}/${TOTAL_FLOORS} קומות` : '';
+    b.querySelector('.track-progress').textContent = n ? `${n}/${totalOf(b.dataset.track)} קומות` : '';
   });
   show('start');
 }
@@ -81,16 +81,16 @@ async function chooseTrack(track) {
 
 /* ---------- מגדל ---------- */
 
-function flywheel(done) {
+function flywheel(done, total) {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', '-50 -50 100 100');
   svg.setAttribute('class', 'flywheel');
   svg.setAttribute('aria-hidden', 'true');
   const R = 44, r = 18;
-  for (let i = 0; i < TOTAL_FLOORS; i++) {
-    const a0 = (i / TOTAL_FLOORS) * Math.PI * 2 - Math.PI / 2 + 0.03;
-    const a1 = ((i + 1) / TOTAL_FLOORS) * Math.PI * 2 - Math.PI / 2 - 0.03;
+  for (let i = 0; i < total; i++) {
+    const a0 = (i / total) * Math.PI * 2 - Math.PI / 2 + 0.03;
+    const a1 = ((i + 1) / total) * Math.PI * 2 - Math.PI / 2 - 0.03;
     const p = (rad, a) => `${(rad * Math.cos(a)).toFixed(2)} ${(rad * Math.sin(a)).toFixed(2)}`;
     const path = document.createElementNS(NS, 'path');
     path.setAttribute('d', `M ${p(r, a0)} L ${p(R, a0)} A ${R} ${R} 0 0 1 ${p(R, a1)} L ${p(r, a1)} A ${r} ${r} 0 0 0 ${p(r, a0)} Z`);
@@ -107,15 +107,20 @@ function flywheel(done) {
 function renderTower(justDone = 0) {
   const done = doneFloors();
   const track = TRACKS[state.track];
+  const total = totalOf(state.track);
+  const floors = floorsOf(state.track);
   $('#track-chip').textContent = `${track.icon} ${track.name}`;
 
   const roof = $('#roof');
-  roof.classList.toggle('freed', done >= TOTAL_FLOORS);
-  $('#inventor-msg').textContent = done >= TOTAL_FLOORS ? 'חופשי! תודה! 🎉' : 'הצילו! תקנו את המכונות!';
+  roof.classList.toggle('freed', done >= total);
+  // מסלול קטנה: אחרי קומה 12 המגדל ממשיך - הממציא לא "נעול מחדש", יש עוד קומות
+  $('#inventor-msg').textContent = done >= total ? 'חופשי! תודה! 🎉'
+    : done >= 12 ? 'מצאנו עוד קומות! תקנו גם אותן!'
+    : 'הצילו! תקנו את המכונות!';
 
   const list = $('#floors');
   list.replaceChildren();
-  for (let n = TOTAL_FLOORS; n >= 1; n--) {
+  for (let n = total; n >= 1; n--) {
     const built = isBuilt(n);
     const status = n <= done ? 'done' : n === done + 1 ? (built ? 'current' : 'building') : 'locked';
     const b = el('button', `floor floor-${status}`);
@@ -126,7 +131,7 @@ function renderTower(justDone = 0) {
     const num = el('span', 'floor-num', String(n));
     const win = el('span', 'floor-windows');
     for (let i = 0; i < 3; i++) win.append(el('span', 'window'));
-    const icons = el('span', 'floor-machines', FLOORS[n - 1].map((m) => MACHINE_META[m].icon).join(' '));
+    const icons = el('span', 'floor-machines', floors[n - 1].map((m) => MACHINE_META[m].icon).join(' '));
     const badge = el('span', 'floor-badge', { done: '✓', current: 'פה!', building: '🚧', locked: '🔒' }[status]);
     b.append(num, win, icons, badge);
 
@@ -141,7 +146,7 @@ function renderTower(justDone = 0) {
   }
 
   const base = $('#base');
-  base.replaceChildren(flywheel(done), el('span', 'base-count', `${done}/${TOTAL_FLOORS}`));
+  base.replaceChildren(flywheel(done, total), el('span', 'base-count', `${done}/${total}`));
 
   show('tower');
   if (justDone) sound('unlock');
@@ -188,7 +193,7 @@ const ctx = {
 
 async function playFloor(n) {
   const token = ++playToken;
-  const machines = FLOORS[n - 1];
+  const machines = floorsOf(state.track)[n - 1];
   sound('launch');
 
   $('#floor-title').textContent = `קומה ${n}`;
@@ -228,13 +233,16 @@ async function playFloor(n) {
 }
 
 function floorComplete(n, first) {
-  const finale = n === TOTAL_FLOORS;
-  sound(finale ? 'celebrate' : 'fanfare');
-  $('#done-title').textContent = finale ? 'הממציא חופשי!' : `קומה ${n} תוקנה!`;
+  const total = totalOf(state.track);
+  const finale = n === total;
+  const milestone = !finale && MILESTONES[state.track].includes(n);
+  sound(finale || milestone ? 'celebrate' : 'fanfare');
+  $('#done-title').textContent = finale ? 'הממציא חופשי!' : milestone ? `קומה ${n} - כל הכבוד!` : `קומה ${n} תוקנה!`;
   $('#done-text').textContent = finale
-    ? 'תיקנת את כל 12 הקומות. גלגל התנופה מסתובב והמגדל חי!'
+    ? `תיקנת את כל ${total} הקומות. גלגל התנופה מסתובב והמגדל חי!`
+    : milestone ? `סיימת עוד חלק גדול במגדל! נשארו עוד ${total - n} קומות.`
     : first ? 'עוד חלק נכנס לגלגל התנופה. הדלת לקומה הבאה נפתחה.' : 'כל המכונות עובדות.';
-  if (state.track === 'little') speak(finale ? 'הממציא חופשי! כל הכבוד!' : 'כל הכבוד! הקומה תוקנה!');
+  if (state.track === 'little') speak(finale ? 'הממציא חופשי! כל הכבוד!' : milestone ? 'וואו! כל הכבוד! סיימת עוד חלק במגדל!' : 'כל הכבוד! הקומה תוקנה!');
   const dlg = $('#done');
   dlg.dataset.floor = String(first ? n : 0);
   dlg.hidden = false;

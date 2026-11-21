@@ -4,7 +4,7 @@
 //
 // שמות פרופילים הם קלט משתמשת -> textContent בלבד, אף פעם לא innerHTML.
 
-import { GAMES } from './games-data.js?v=12';
+import { GAMES } from './games-data.js?v=13';
 import { ensureProfile } from './profile-gate.js?v=2';
 import { listProfiles } from './profiles.js?v=2';
 import { readAllProgress, readFor, write, STATS_NS, dayKey } from './storage.js?v=2';

@@ -69,6 +69,7 @@ function choicesFor(rng, answer, count, { min, max, typical = [] }) {
 // משקולת עם המספר הנכון עליה. 1–2: ספירה. 3–6: חיבור עד 10. 7+: חיסור עד
 // 10 (מוצג כחיבור הפוך על המאזניים, כמו ב-ג').
 function scaleLittle(rng, floor) {
+  if (floor > 12) return scaleLittleExt(rng, floor);
   if (floor <= 2) {
     // 2-4 היה רק 3 ערכים אפשריים - עם שתי מכונות באותה קומה שתיהן מושכות
     // מאותה בריכה, חזרה כמעט מובטחת. מורחב ל-5/6 ערכים.
@@ -214,6 +215,7 @@ export function pipesFill(v, k) {
 }
 
 function pipesLittle(rng, floor) {
+  if (floor > 12) return pipesLittleExt(rng, floor);
   const half = int(rng, floor <= 3 ? 1 : 2, 5);
   const total = half * 2;
   return {
@@ -259,6 +261,7 @@ function seqPuzzle(seq, hidden) {
 }
 
 function gearsLittle(rng, floor) {
+  if (floor > 12) return gearsLittleExt(rng, floor);
   const d = floor <= 5 ? 1 : 2;
   const start = int(rng, 1, 10 - d * 3);
   const seq = [start, start + d, start + 2 * d, start + 3 * d];
@@ -297,9 +300,11 @@ const POLY = {
   rectangle: { sides: 4, vertices: 4, right: 4 },
   pentagon: { sides: 5, vertices: 5, right: 0 },
   hexagon: { sides: 6, vertices: 6, right: 0 },
+  octagon: { sides: 8, vertices: 8, right: 0 },
 };
 
 function shapesLittle(rng, floor) {
+  if (floor > 12) return shapesLittleExt(rng, floor);
   const name = floor <= 8 ? pick(rng, ['triangle', 'square']) : floor <= 10 ? pick(rng, ['pentagon', 'hexagon']) : 'circle';
   const sides = name === 'circle' ? 0 : POLY[name].sides;
   return {
@@ -312,17 +317,21 @@ function shapesLittle(rng, floor) {
   };
 }
 
-function shapeCountProp(rng) {
-  const names = ['triangle', 'square', 'rectangle', 'pentagon', 'hexagon'];
+function shapeCountProp(rng, {
+  names = ['triangle', 'square', 'rectangle', 'pentagon', 'hexagon'],
+  props = ['sides', 'vertices', 'right'],
+  count = 4,
+  max = 8,
+} = {}) {
   const name = pick(rng, names);
-  const prop = pick(rng, ['sides', 'vertices', 'right']);
+  const prop = pick(rng, props);
   const question = {
     sides: 'כמה צלעות יש לצורה?',
     vertices: 'כמה קודקודים יש לצורה?',
     right: 'כמה זוויות ישרות יש בצורה?',
   }[prop];
   const answer = POLY[name][prop];
-  return { kind: 'count-prop', shape: name, prop, question, answer, choices: choicesFor(rng, answer, 4, { min: 0, max: 8 }) };
+  return { kind: 'count-prop', shape: name, prop, question, answer, choices: choicesFor(rng, answer, count, { min: 0, max }) };
 }
 
 function shapePerimeter(rng, big) {
@@ -337,11 +346,11 @@ function shapePerimeter(rng, big) {
   return { kind: 'perimeter', shape: 'rectangle', sides: [w, h, w, h], question: 'מה ההיקף של הצורה?', answer, choices: choicesFor(rng, answer, 4, { min: 12, max: 100 }) };
 }
 
-function shapeSymmetry(rng) {
+function shapeSymmetry(rng, count = 4) {
   const half = int(rng, 3, 6);
   const shown = int(rng, 0, half - 1);
   const answer = half - shown;
-  return { kind: 'symmetry', half, shown, question: 'כמה חסר כדי שהתבנית תהיה סימטרית?', answer, choices: choicesFor(rng, answer, 4, { min: 1, max: 6 }) };
+  return { kind: 'symmetry', half, shown, question: 'כמה חסר כדי שהתבנית תהיה סימטרית?', answer, choices: choicesFor(rng, answer, count, { min: 1, max: 6 }) };
 }
 
 function shapesG3(rng, floor) {
@@ -350,6 +359,142 @@ function shapesG3(rng, floor) {
   if (floor === 10) return shapePerimeter(rng, true);
   if (floor === 11) return shapeSymmetry(rng);
   return pick(rng, [() => shapeCountProp(rng), () => shapePerimeter(rng, true), () => shapeSymmetry(rng)])();
+}
+
+
+/* ================= מסלול קטנה: קומות 13-36 =================
+ *
+ * ארבעה אגפים של 6 קומות (L = floor - 12, כלומר 1..24). כל אגף מציג מושג
+ * חדש אחד, וקומת הבוס בסופו (6, 12, 18, 24) היא חזרה על האגף ולא חומר חדש.
+ * תקרת הידע (כיתה א'): ספירה עד 100, חיבור עד 20, חיסור עד 10 (המחוסר
+ * ≤ 10), חילוק מספר עד 20 במחלק עד 10, בלי שארית.
+ *
+ * בצינורות k ≤ 5 (טלפון); מחלקים 6-10 מופיעים רק במאזניים כ-"c ÷ b = ?".
+ * תפוחים רק עד סכום 12; מעבר לזה משקולות בספרות (הצלחת נגמרת).
+ */
+
+const levelOf = (floor) => floor - 12;
+const wingOf = (floor) => Math.ceil((floor - 12) / 6); // 1..4
+
+function scaleLittleExt(rng, floor) {
+  const L = levelOf(floor);
+  const w = wingOf(floor);
+  const pool = {
+    1: L <= 3 ? ['add-apples', 'make-ten'] : ['add', 'add', 'missing', 'sub-missing'],
+    2: ['add', 'missing', 'sub-missing', 'sub'],
+    3: ['add', 'missing', 'sub-missing', 'add3', 'div'],
+    4: ['add', 'missing', 'add3', 'div', 'div', 'sub-missing', 'sub'],
+  }[w];
+  const kind = pick(rng, pool);
+  const maxSum = [0, 14, 16, 20, 20][w];
+  const maxMinuend = [0, 8, 9, 10, 10][w];
+  const W = { min: 1, max: 20 }; // טווח המשקולות במגש
+
+  if (kind === 'add-apples') {
+    const sum = int(rng, 8, 12);
+    const a = int(rng, Math.max(3, sum - 7), Math.min(7, sum - 3));
+    const b = sum - a;
+    return { kind, left: { value: sum, groups: [a, b] }, right: { op: 'id' }, eq: `${a} + ${b} = ?`, answer: sum, choices: choicesFor(rng, sum, 3, W) };
+  }
+  if (kind === 'make-ten') {
+    const a = int(rng, 2, 8);
+    const ans = 10 - a;
+    return { kind, left: { value: 10, label: '10' }, right: { op: '+', k: a }, eq: `${a} + ? = 10`, answer: ans, choices: choicesFor(rng, ans, 3, W) };
+  }
+  if (kind === 'add') {
+    const sum = int(rng, 11, maxSum);
+    const a = int(rng, Math.max(2, sum - 10), Math.min(10, sum - 2));
+    const b = sum - a;
+    return { kind, left: { value: sum, label: `${a} + ${b}`, hint: `${sum}` }, right: { op: 'id' }, eq: `${a} + ${b} = ?`, answer: sum, choices: choicesFor(rng, sum, 3, W) };
+  }
+  if (kind === 'missing') {
+    const c = int(rng, 11, maxSum);
+    const a = int(rng, Math.max(3, c - 10), Math.min(10, c - 3));
+    const ans = c - a;
+    return { kind, left: { value: c, label: `${c}` }, right: { op: '+', k: a }, eq: `${a} + ? = ${c}`, answer: ans, choices: choicesFor(rng, ans, 3, W) };
+  }
+  if (kind === 'sub-missing') {
+    const c = int(rng, 5, maxMinuend);
+    const d = int(rng, 1, c - 2);
+    const ans = c - d;
+    return { kind, left: { value: c, label: `${c}` }, right: { op: '+', k: d }, eq: `${c} − ? = ${d}`, answer: ans, choices: choicesFor(rng, ans, 3, W) };
+  }
+  if (kind === 'sub') {
+    const c = int(rng, 6, maxMinuend);
+    const k = int(rng, 1, c - 1);
+    const ans = c - k;
+    return { kind, left: { value: c, label: `${c}` }, right: { op: '+', k }, eq: `${c} − ${k} = ?`, answer: ans, choices: choicesFor(rng, ans, 3, W) };
+  }
+  if (kind === 'add3') {
+    const sum = int(rng, 10, w === 3 ? 16 : 20);
+    const a = int(rng, Math.max(2, sum - 16), Math.min(8, sum - 4));
+    const rest = sum - a;
+    const b = int(rng, Math.max(2, rest - 8), Math.min(8, rest - 2));
+    const c = rest - b;
+    return { kind, left: { value: sum, label: `${a} + ${b} + ${c}`, hint: `${sum}` }, right: { op: 'id' }, eq: `${a} + ${b} + ${c} = ?`, answer: sum, choices: choicesFor(rng, sum, 3, W) };
+  }
+  // div: מספר עד 20 חלקי מחלק עד 10, בלי שארית
+  const maxB = w === 3 ? 5 : L <= 21 ? 6 : 10;
+  const maxC = w === 3 ? 16 : 20;
+  const b = int(rng, 2, Math.min(maxB, Math.floor(maxC / 2)));
+  const q = int(rng, 2, Math.floor(maxC / b));
+  const c = b * q;
+  return { kind: 'div', left: { value: q, label: `${c} ÷ ${b}`, hint: `${q}` }, right: { op: 'id' }, eq: `${c} ÷ ${b} = ?`, answer: q, choices: choicesFor(rng, q, 3, { min: 1, max: 10 }) };
+}
+
+function pipesLittleExt(rng, floor) {
+  const L = levelOf(floor);
+  const w = wingOf(floor);
+  const ks = {
+    1: [2],
+    2: L <= 10 ? [3] : [2, 3],
+    3: L <= 14 ? [4] : [3, 4],
+    4: L <= 22 ? [4, 5] : [2, 3, 4, 5],
+  }[w];
+  const k = pick(rng, ks);
+  const qMax = Math.floor(20 / k);
+  const posInWing = L % 6; // 0 = בוס
+  const qMin = w === 1 ? (L <= 3 ? 4 : 6) : posInWing >= 1 && posInWing <= 3 ? 2 : 3;
+  const q = int(rng, Math.min(qMin, qMax), w === 1 && L <= 3 ? 8 : qMax);
+  const total = k * q;
+  return { kind: 'split', total, k, eq: `${total} ÷ ${k} = ?`, answer: q, choices: choicesFor(rng, q, 3, { min: 1, max: 10 }) };
+}
+
+function gearsLittleExt(rng, floor) {
+  const L = levelOf(floor);
+  const w = wingOf(floor);
+  const all = [1, -1, 2, -2, 5, -5, 10, -10];
+  let ds, maxVal = 100, mid = false;
+  if (w === 1) { ds = L <= 3 ? [1] : [1, 2]; maxVal = L <= 3 ? 20 : 30; mid = L >= 5; }
+  else if (w === 2) { ds = L <= 8 ? [10] : L <= 10 ? [5] : [2, 5, 10]; mid = L >= 10; }
+  else if (w === 3) { ds = L <= 15 ? [-1, -2, -5, -10] : all; mid = L >= 16; }
+  else { ds = all; mid = L >= 21; }
+  const len = mid ? 5 : 4;
+  const d = pick(rng, ds);
+  const a = Math.abs(d);
+  const lo = d > 0 ? 1 : 1 + (len - 1) * a;
+  const hi = d > 0 ? maxVal - (len - 1) * a : maxVal;
+  let start;
+  if (a >= 5) start = int(rng, Math.ceil(lo / a), Math.floor(hi / a)) * a; // קפיצות של 5/10 - רק על כפולות
+  else start = int(rng, lo, hi);
+  const seq = Array.from({ length: len }, (_, i) => start + i * d);
+  const hidden = mid ? int(rng, 1, len - 2) : len - 1;
+  const p = seqPuzzle(seq, hidden);
+  return { ...p, choices: choicesFor(rng, p.answer, 3, { min: 0, max: 100 }) };
+}
+
+function shapesLittleExt(rng, floor) {
+  const L = levelOf(floor);
+  const w = wingOf(floor);
+  const base = ['triangle', 'square', 'rectangle', 'pentagon', 'hexagon'];
+  const opts = { count: 3, max: 10 };
+  if (w === 1) return shapeCountProp(rng, { ...opts, names: base, props: ['sides', 'vertices'] });
+  if (w === 2) return shapeCountProp(rng, { ...opts, names: [...base, 'octagon'], props: ['sides', 'vertices', 'right'] });
+  if (w === 3 && L <= 15) return shapeSymmetry(rng, 3);
+  return pick(rng, [
+    () => shapeCountProp(rng, { ...opts, names: [...base, 'octagon'], props: ['sides', 'vertices', 'right'] }),
+    () => shapeSymmetry(rng, 3),
+  ])();
 }
 
 /* ================= רישום ================= */

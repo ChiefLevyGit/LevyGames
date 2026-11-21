@@ -60,7 +60,8 @@ export function mount(stage, puzzle, ctx) {
       if (i === hidden || i + 1 === hidden) continue;
       const a = visible[i], b = visible[i + 1];
       if (a == null || b == null) continue;
-      const badge = el('span', 'gear-diff', `+${b - a}`);
+      const diff = b - a;
+      const badge = el('span', 'gear-diff', diff >= 0 ? `+${diff}` : `−${-diff}`); // ספירה לאחור: −2 ולא +-2
       hints.append(badge);
     }
   }

@@ -28,6 +28,7 @@ function outline(shape) {
   if (shape === 'triangle') return polygonPoints(3, CX, CY, 66).map((p) => p.split(',').map(Number));
   if (shape === 'pentagon') return polygonPoints(5, CX, CY, 62).map((p) => p.split(',').map(Number));
   if (shape === 'hexagon') return polygonPoints(6, CX, CY, 60).map((p) => p.split(',').map(Number));
+  if (shape === 'octagon') return polygonPoints(8, CX, CY, 62).map((p) => p.split(',').map(Number));
   if (shape === 'square') return quad(52, 52);
   if (shape === 'rectangle') return quad(64, 38);
   return null; // עיגול
